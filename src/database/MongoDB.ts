@@ -120,24 +120,24 @@ export namespace MongoDB {
 
             // if the key is different, we need add it to the update object
             if(existingDeviceObject[key]!==prunedDeviceObject[key]) {
-              this._le.AddLogEntry(LogEngine.Severity.Change, `${prunedDeviceObject.deviceName}.${key}: ${existingDeviceObject[key]} -> ${prunedDeviceObject[key]}`)
+              this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${existingDeviceObject[key]} -> ${prunedDeviceObject[key]}`)
               updateDeviceObject[key] = prunedDeviceObject[key]
             } else {
-              this._le.AddLogEntry(LogEngine.Severity.Ok, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
+              this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
             }
           } else {
             // is the key value undefined?
             if(prunedDeviceObject[key]!=undefined) {
               // add the new key
               updateDeviceObject[key] = prunedDeviceObject[key];
-              this._le.AddLogEntry(LogEngine.Severity.Add, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
+              this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
             }
           }
         }
 
         // do we have pending updates?
         if(Object.keys(updateDeviceObject).length>0) {
-          this._le.AddLogEntry(LogEngine.Severity.Info, `${prunedDeviceObject.deviceName}.${Object.keys(updateDeviceObject).length} updates needed.`)
+          this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${Object.keys(updateDeviceObject).length} updates needed.`)
 
           try {
             await mongoose.model('Device').updateOne(
@@ -258,24 +258,24 @@ export namespace MongoDB {
 
               // if the key is different, we need add it to the update object
               if(existingDeviceObject[key]!==prunedDeviceObject[key]) {
-                this._le.AddLogEntry(LogEngine.Severity.Change, `${prunedDeviceObject.deviceName}.${key}: ${existingDeviceObject[key]} -> ${prunedDeviceObject[key]}`)
+                this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${existingDeviceObject[key]} -> ${prunedDeviceObject[key]}`)
                 updateDeviceObject[key] = prunedDeviceObject[key]
               } else {
-                this._le.AddLogEntry(LogEngine.Severity.Ok, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
+                this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
               }
             } else {
               // is the key value undefined?
               if(prunedDeviceObject[key]!=undefined) {
                 // add the new key
                 updateDeviceObject[key] = prunedDeviceObject[key];
-                this._le.AddLogEntry(LogEngine.Severity.Add, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
+                this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
               }
             }
           }
 
           // do we have pending updates?
           if(Object.keys(updateDeviceObject).length>0) {
-            this._le.AddLogEntry(LogEngine.Severity.Info, `${prunedDeviceObject.deviceName}.${Object.keys(updateDeviceObject).length} updates needed.`)
+            this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${Object.keys(updateDeviceObject).length} updates needed.`)
 
             try {
               await mongoose.model('Device').updateOne(
