@@ -19,12 +19,10 @@ export class Telemetry {
     constructor(logStack:string[], mongoURI:string, logFrequency:number=1000, showDebug:boolean=false) {
         this._mongoURI=mongoURI
         this._logFrequency=logFrequency
-        this._showDebug=showDebug
         this._le = new LogEngine(logStack, showDebug);
     }
     private _mongoURI:string=''
     private _logFrequency:number=1000
-    private _showDebug:boolean=false
     private _le:LogEngine = new LogEngine([])
 
     public async persistToMicrosoftSql(MicrosoftSqlConfig:any, sqlRequestCollection:SqlRequestCollection):Promise<boolean> {
