@@ -43,7 +43,7 @@ export class Telemetry {
 
     public async persistToMongoDB(deviceObjects:any):Promise<boolean> {
         const mongodb:MongoDB.Persist = new MongoDB.Persist(this._le, this._mongoURI)
-        mongodb.persistDevices(deviceObjects, this._logFrequency)
+        await mongodb.persistDevices(deviceObjects, this._logFrequency)
         return new Promise<boolean>((resolve) => {resolve(true)})
     }
 
