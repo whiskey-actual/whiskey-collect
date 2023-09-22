@@ -12,7 +12,7 @@ import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice } from './Device'
+import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './Device'
 
 export class Telemetry {
 
@@ -95,9 +95,9 @@ export class Telemetry {
         return new Promise<AzureManagedDevice[]>((resolve) => {resolve(output)})
     }
 
-    public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<SqlRequestCollection> {
+    public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<ConnectwiseDevice[]> {
         this._le.logStack.push('Connectwise');
-        let output:SqlRequestCollection
+        let output:ConnectwiseDevice[]
 
         try {
             const cw = new Connectwise(this._le);
@@ -108,12 +108,12 @@ export class Telemetry {
         }
         
         this._le.logStack.pop()
-        return new Promise<SqlRequestCollection>((resolve) => {resolve(output)})
+        return new Promise<ConnectwiseDevice[]>((resolve) => {resolve(output)})
     }
 
-    public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<SqlRequestCollection> {
+    public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<CrowdstrikeDevice[]> {
         this._le.logStack.push('Crowdstrike');
-        let output:SqlRequestCollection
+        let output:CrowdstrikeDevice[]
 
         try {
             const cs = new Crowdstrike(this._le)
@@ -124,7 +124,7 @@ export class Telemetry {
         }
         
         this._le.logStack.pop()
-        return new Promise<SqlRequestCollection>((resolve) => {resolve(output)})
+        return new Promise<CrowdstrikeDevice[]>((resolve) => {resolve(output)})
     }
 
 

@@ -28,7 +28,6 @@ export interface AzureActiveDirectoryDevice {
   observedByAzureActiveDirectory: boolean,
   deviceName: string,
   azureDeviceId: string;
-  
   //strings
   azureDisplayName: string|undefined,
   azureId: string|undefined;
@@ -65,12 +64,10 @@ export interface AzureActiveDirectoryDevice {
 }
 
 export interface AzureManagedDevice {
-
   // mandatory
   observedByAzureMDM: boolean;
   deviceName: string,
   azureManagedId: string;
-  
   // strings
   azureManagedDeviceName: string|undefined;
   azureManagedUserId: string|undefined;
@@ -125,76 +122,76 @@ export interface AzureManagedDevice {
   azureManagedIsAzureADRegistered: boolean;
   azureManagedIsSupervised: boolean;
   azureManagedIsEncrypted: boolean;
-
 }
 
 export interface ConnectwiseDevice {
-
-  // strings
+  // mandatory
+  observedByConnectwise: Boolean;
   deviceName: string,
   connectwiseId: string;
-  connectwiseLocation: string;
-  connectwiseClient: string;
-  connectwiseOperatingSystem: string;
-  connectwiseOperatingSystemVersion: string;
-  connectwiseDomainName: string;
-  connectwiseAgentVersion: string;
-  connectwiseComment: string;
-  connectwiseIpAddress: string;
-  connectwiseMacAddress: string;
-  connectwiseLastUserName: string;
-  connectwiseType: string;
-  connectwiseStatus: string;
-  connectwiseSerialNumber: string;
-  connectwiseBiosManufacturer: string;
-  connectwiseModel: string;
-  connectwiseDescription: string;
+  // strings
+  connectwiseType: string|undefined;
+  connectwiseLocation: string|undefined;
+  connectwiseClient: string|undefined;
+  connectwiseOperatingSystem: string|undefined;
+  connectwiseOperatingSystemVersion: string|undefined;
+  connectwiseDomainName: string|undefined;
+  connectwiseAgentVersion: string|undefined;
+  connectwiseComment: string|undefined;
+  connectwiseIpAddress: string|undefined;
+  connectwiseMacAddress: string|undefined;
+  connectwiseLastUserName: string|undefined;
+  connectwiseStatus: string|undefined;
+  connectwiseSerialNumber: string|undefined;
+  connectwiseBiosManufacturer: string|undefined;
+  connectwiseModel: string|undefined;
+  connectwiseDescription: string|undefined;
   // numbers
   connectwiseTotalMemory: Number;
   connectwiseFreeMemory: Number;
   //dates
-  connectwiseLastObserved: Date;
-  connectwiseFirstSeen: Date;
-  connectwiseWindowsUpdateDate: Date;
-  connectwiseAntivirusDefinitionDate: Date;
+  connectwiseLastObserved: Date|undefined;
+  connectwiseFirstSeen: Date|undefined;
+  connectwiseWindowsUpdateDate: Date|undefined;
+  connectwiseAntivirusDefinitionDate: Date|undefined;
   // booleans
-  observedByConnectwise: Boolean;
+  
 
 }
 
 export interface CrowdstrikeDevice {
-    // strings
+    // mandatory
+    observedByCrowdstrike: boolean;
     deviceName: string;
     crowdstrikeDeviceId: string;
-    crowdstrikeCID: string;
-    crowdstrikeAgentVersion: string;
-    crowdstrikeBIOSManufacturer: string;
-    crowdstrikeBIOSVersion: string;
-    crowdstrikeExternalIP: string;
-    crowdstrikeMACAddress: string;
-    crowdstrikeLocalIP: string;
-    crowdstrikeMachineDomain: string;
-    crowdstrikeMajorVersion: string;
-    crowdstrikeMinorVersion: string;
-    crowdstrikeOSVersion: string;
-    crowdstrikeOSBuild: string;
-    crowdstrikePlatformName: string;
-    crowdstrikeReducedFunctionalityMode: string;
-    crowdstrikeProductTypeDesc: string;
-    crowdstrikeProvisionStatus: string;
-    crowdstrikeSerialNumber: string;
-    crowdstrikeServicePackMajor: string;
-    crowdstrikeServicePackMinor: string;
-    crowdstrikeStatus: string;
-    crowdstrikeSystemManufacturer: string;
-    crowdstrikeSystemProductName: string;
-    crowdstrikeKernelVersion: string;
+    // strings
+    crowdstrikeCID: string|undefined;
+    crowdstrikeAgentVersion: string|undefined;
+    crowdstrikeBIOSManufacturer: string|undefined;
+    crowdstrikeBIOSVersion: string|undefined;
+    crowdstrikeExternalIP: string|undefined;
+    crowdstrikeMACAddress: string|undefined;
+    crowdstrikeLocalIP: string|undefined;
+    crowdstrikeMachineDomain: string|undefined;
+    crowdstrikeMajorVersion: string|undefined;
+    crowdstrikeMinorVersion: string|undefined;
+    crowdstrikeOSVersion: string|undefined;
+    crowdstrikeOSBuild: string|undefined;
+    crowdstrikePlatformName: string|undefined;
+    crowdstrikeReducedFunctionalityMode: string|undefined;
+    crowdstrikeProductTypeDesc: string|undefined;
+    crowdstrikeProvisionStatus: string|undefined;
+    crowdstrikeSerialNumber: string|undefined;
+    crowdstrikeServicePackMajor: string|undefined;
+    crowdstrikeServicePackMinor: string|undefined;
+    crowdstrikeStatus: string|undefined;
+    crowdstrikeSystemManufacturer: string|undefined;
+    crowdstrikeSystemProductName: string|undefined;
+    crowdstrikeKernelVersion: string|undefined;
     // crowdstrike - datetime
-    crowdstrikeFirstSeenDateTime: Date;
-    crowdstrikeLastSeenDateTime: Date;
-    crowdstrikeModifiedDateTime: Date;
-    // crowdstrike - boolean
-    observedByCrowdstrike: boolean;
+    crowdstrikeFirstSeenDateTime: Date|undefined;
+    crowdstrikeLastSeenDateTime: Date|undefined;
+    crowdstrikeModifiedDateTime: Date|undefined;    
 }
 
 export const DeviceSchema = new Schema({
