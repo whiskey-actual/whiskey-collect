@@ -1,0 +1,34 @@
+{
+  "name": "whiskey-collect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/whiskey-actual/whiskey-collect.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/whiskey-actual/whiskey-collect/issues"
+  },
+  "homepage": "https://github.com/whiskey-actual/whiskey-collect#readme",
+  "dependencies": {
+    "@azure/msal-node": "^2.1.0",
+    "axios": "^1.5.0",
+    "ldapts": "^6.0.0",
+    "mongoose": "^7.5.2",
+    "mssql": "^10.0.1",
+    "whiskey-log": "^1.0.4",
+    "whiskey-util": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/mssql": "^9.1.0"
+  }
+}
