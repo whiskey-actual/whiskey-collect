@@ -22,7 +22,7 @@ export namespace MongoDB {
     private _mongoConnectionOptions:mongoose.ConnectOptions={}
     
     
-    public async persistDevices(deviceObjects:any[], logFrequency:number=1000) {
+    public async persistDevices(deviceObjects:any[], logFrequency:number=1000):Promise<number> {
       this._le.logStack.push("persistDevices");
       this._le.AddLogEntry(LogEngine.Severity.Info, `persisting ${deviceObjects.length} devices ..`)
 
@@ -43,6 +43,8 @@ export namespace MongoDB {
       } finally {
         this._le.logStack.pop()
       }
+
+      return new Promise<number>((resolve) => {resolve(deviceObjects.length)})
 
     }
 
