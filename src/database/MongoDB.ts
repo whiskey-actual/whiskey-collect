@@ -91,7 +91,7 @@ export namespace MongoDB {
 
       incomingDeviceObject.deviceIsActive = (incomingDeviceObject.deviceLastObserved>lastActiveThreshold)
 
-      const prunedDeviceObject:any = Utilities.pruneJsonObject(this._le, incomingDeviceObject,fieldsToPrune,true);
+      const prunedDeviceObject:any = Utilities.pruneJsonObject(this._le, incomingDeviceObject,fieldsToPrune, true);
 
       const result = await mongoose.model('Device').findOne({deviceName:prunedDeviceObject.deviceName})
 

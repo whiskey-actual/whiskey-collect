@@ -126,7 +126,7 @@ export interface AzureManagedDevice {
 
 export interface ConnectwiseDevice {
   // mandatory
-  observedByConnectwise: Boolean;
+  observedByConnectwise: boolean;
   deviceName: string,
   connectwiseId: string;
   // strings
@@ -203,6 +203,7 @@ export const DeviceSchema = new Schema({
   deviceType: {type:String, required:true, index:true, default: 'UNKNOWN'},
 
   // active directory
+  observedByActiveDirectory: {type:Boolean, default:false, required:true, index:true},
   activeDirectoryDN: {type:String},
   activeDirectoryLogonCount: {type:Number, default:0},
   activeDirectoryOperatingSystem: {type:String},
@@ -214,8 +215,10 @@ export const DeviceSchema = new Schema({
   activeDirectoryLastLogon: {type:Date},
   activeDirectoryPwdLastSet: {type:Date},
   activeDirectoryLastLogonTimestamp: {type:Date},
+  
 
   // azure
+  observedByAzureActiveDirectory: {type:Boolean, default:false, required:true, index:true},
   azureDisplayName: {type:String},
   azureId: {type:String},
   azureDeviceCategory: {type:String},
@@ -252,6 +255,7 @@ export const DeviceSchema = new Schema({
   azureIsRooted: {type:Boolean, default:false},
 
   // azure managed
+  observedByAzureMDM: {type:Boolean, default:false, required:true, index:true},
   azureManagedDeviceName: {type:String},
   azureManagedManagedDeviceName: {type:String},
   azureManagedId: {type:String},
@@ -303,14 +307,13 @@ export const DeviceSchema = new Schema({
   azureManagedComplianceGracePeriodExpirationDateTime: {type:Date},
   azureManagedManagementCertificateExpirationDateTime: {type:Date},
   // azure managed - boolean
-  observedByAzureMDM: {type:Boolean, default:false, required:true, index:true},
   azureManagedIsEASActivated: {type:Boolean, default:false},
   azureManagedIsAzureADRegistered: {type:Boolean, default:false},
   azureManagedIsSupervised: {type:Boolean, default:false},
   azureManagedIsEncrypted: {type:Boolean, default:false},
 
-
   // connectwise -- user device
+  observedByConnectwise: {type:Boolean, default:false, required:true, index:true},
   connectwiseId: {type:String},
   connectwiseLocation: {type:String},
   connectwiseClient: {type:String},
@@ -334,9 +337,10 @@ export const DeviceSchema = new Schema({
   connectwiseFirstSeen: {type:Date},
   connectwiseWindowsUpdateDate: {type:Date},
   connectwiseAntivirusDefinitionDate: {type:Date},
-  observedByConnectwise: {type:Boolean, default:false, required:true, index:true},
+  
 
   // crowdstrike
+  observedByCrowdstrike: {type:Boolean, default: false, required:true, index:true},
   crowdstrikeDeviceId: {type:String},
   crowdstrikeCID: {type:String},
   crowdstrikeAgentVersion: {type:String},
@@ -364,9 +368,7 @@ export const DeviceSchema = new Schema({
   // crowdstrike - datetime
   crowdstrikeFirstSeenDateTime: {type:Date},
   crowdstrikeLastSeenDateTime: {type:Date},
-  crowdstrikeModifiedDateTime: {type:Date},
-  // crowdstrike - boolean
-  observedByCrowdstrike: {type:Boolean, default: false, required:true, index:true},
+  crowdstrikeModifiedDateTime: {type:Date}
 
 }, {
   collection: 'devices',
