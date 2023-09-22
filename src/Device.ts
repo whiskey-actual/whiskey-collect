@@ -56,11 +56,11 @@ export interface AzureActiveDirectoryDevice {
   azureOnPremisesLastSyncDateTime: Date|undefined;
   azureRegistrationDateTime: Date|undefined;
   // booleans
-  azureOnPremisesSyncEnabled: boolean;
-  azureAccountEnabled: boolean;
-  azureIsCompliant: boolean;
-  azureIsManaged: boolean;
-  azureIsRooted: boolean;
+  azureOnPremisesSyncEnabled: boolean|undefined;
+  azureAccountEnabled: boolean|undefined;
+  azureIsCompliant: boolean|undefined;
+  azureIsManaged: boolean|undefined;
+  azureIsRooted: boolean|undefined;
 }
 
 export interface AzureManagedDevice {
@@ -118,10 +118,10 @@ export interface AzureManagedDevice {
   azureManagedComplianceGracePeriodExpirationDateTime: Date|undefined;
   azureManagedManagementCertificateExpirationDateTime: Date|undefined;
   // azure managed - boolean
-  azureManagedIsEASActivated: boolean;
-  azureManagedIsAzureADRegistered: boolean;
-  azureManagedIsSupervised: boolean;
-  azureManagedIsEncrypted: boolean;
+  azureManagedIsEASActivated: boolean|undefined;
+  azureManagedIsAzureADRegistered: boolean|undefined;
+  azureManagedIsSupervised: boolean|undefined;
+  azureManagedIsEncrypted: boolean|undefined;
 }
 
 export interface ConnectwiseDevice {
@@ -147,8 +147,8 @@ export interface ConnectwiseDevice {
   connectwiseModel: string|undefined;
   connectwiseDescription: string|undefined;
   // numbers
-  connectwiseTotalMemory: Number;
-  connectwiseFreeMemory: Number;
+  connectwiseTotalMemory: Number|undefined;
+  connectwiseFreeMemory: Number|undefined;
   //dates
   connectwiseLastObserved: Date|undefined;
   connectwiseFirstSeen: Date|undefined;

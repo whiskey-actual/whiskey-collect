@@ -16,16 +16,14 @@ import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, 
 
 export class Telemetry {
 
-    constructor(logStack:string[], mongoURI:string, logFrequency:number=1000, showDetails:boolean=false, showDebug:boolean=false) {
+    constructor(logStack:string[], mongoURI:string, logFrequency:number=1000, showDebug:boolean=false) {
         this._mongoURI=mongoURI
         this._logFrequency=logFrequency
-        this._showDetails=showDetails
         this._showDebug=showDebug
-        this._le = new LogEngine(logStack);
+        this._le = new LogEngine(logStack, showDebug);
     }
     private _mongoURI:string=''
     private _logFrequency:number=1000
-    private _showDetails:boolean=false
     private _showDebug:boolean=false
     private _le:LogEngine = new LogEngine([])
 
