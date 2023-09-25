@@ -244,7 +244,7 @@ export namespace MongoDB {
         if(deviceObjectKeys.includes(osPlatformKeys[i])) {
 
           await mongoose.model('OperatingSystem').updateOne(
-            { osSouceLabel: deviceObject[osPlatformKeys[i]] },
+            { osSourceLabel: deviceObject[osPlatformKeys[i]] },
             { },
             {
               new: true,
