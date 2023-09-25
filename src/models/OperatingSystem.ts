@@ -65,4 +65,4 @@ OperatingSystemSchema.pre<OperatingSystem>("save", async function() {
 
 });
 
-export default model('operatingSystem', OperatingSystemSchema)
+export default model('OperatingSystem', OperatingSystemSchema)

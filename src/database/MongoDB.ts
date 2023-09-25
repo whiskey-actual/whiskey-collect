@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import { MongoClient } from 'mongodb'
 import mongoose, { mongo } from "mongoose";
 import { DeviceSchema } from '../models/Device'
-import { OperatingSystem } from '../models/operatingSystem';
+import { OperatingSystem } from '../models/OperatingSystem';
 
 const _ActiveDeviceThresholdInDays:number=30
 
