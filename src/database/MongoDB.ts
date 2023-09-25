@@ -23,7 +23,7 @@ export namespace MongoDB {
     private _mongoConnectionOptions:mongoose.ConnectOptions={}
     
     
-    public async persistDevices(deviceObjects:any[], logFrequency:number=1000):Promise<number> {
+    public async persistDevices(deviceObjects:any[]):Promise<number> {
       this._le.logStack.push("persistDevices");
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `persisting ${deviceObjects.length} devices ..`)
 
@@ -85,45 +85,7 @@ export namespace MongoDB {
         'crowdstrikeModifiedDateTime',
       ]
 
-      // first, get the existing object, if it exists.
-      const existingRecord = await mongoose.model('Device').findOne({deviceName:incomingDeviceObject.deviceName})
-
-      // if there is an existing record, use that as the base for the combined object. Others, just take the incoming object as it is.
-      let unifiedDeviceObject
-      if(existingRecord) {
-        unifiedDeviceObject=existingRecord._doc;
-        const unifiedDeviceObjectKeys = Object.keys(unifiedDeviceObject)
-
-        // now, iterate throught the incoming keys & compare to the already-existing object.
-        let incomingDeviceObjectKeys = Object.keys(incomingDeviceObject);
-        
-        // iterate through the keys ..
-        for(let i=0;i<incomingDeviceObjectKeys.length;i++) {
-
-          const objectKey = incomingDeviceObjectKeys[i]
-
-          // does this key already exist for the existing object?
-          if(unifiedDeviceObjectKeys.includes(objectKey)) {
-
-            // if the key is different, log it and update the value (but dont change immutable values)
-            if(unifiedDeviceObject[objectKey]!==incomingDeviceObject[objectKey] && !immutableKeys.includes(objectKey)) {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Change, `${unifiedDeviceObject.deviceName}.${objectKey}: ${unifiedDeviceObject[objectKey]} -> ${incomingDeviceObject[objectKey]}`)
-              unifiedDeviceObject[objectKey] = incomingDeviceObject[objectKey]
-            } else {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `${unifiedDeviceObject.deviceName}.${objectKey}: ${incomingDeviceObject[objectKey]}`)
-            }
-          } else {
-            // is the key value undefined?
-            if(incomingDeviceObject[objectKey]!=undefined) {
-              unifiedDeviceObject[objectKey] = incomingDeviceObject[objectKey];
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Add, `${unifiedDeviceObject.deviceName}.${objectKey}: ${unifiedDeviceObject[objectKey]}`)
-            }
-          }
-        }
-      } else {
-        unifiedDeviceObject=incomingDeviceObject;
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Add, `${unifiedDeviceObject.deviceName}`)
-      }
+      const unifiedDeviceObject:any = await this.getUnifiedObject('Device', 'deviceName', incomingDeviceObject.deviceName, incomingDeviceObject, immutableKeys);
 
       // calculate the operatingSystem value.
       const operatingSystemObject = await this.getOperatingSystemDetails(unifiedDeviceObject);
@@ -206,6 +168,54 @@ export namespace MongoDB {
       const deviceTypeKeys:string[] = [
         'AzureProfileType',
       ]
+
+    }
+
+    private async getUnifiedObject(modelName:string, identityKey:string, identityValue:string, incomingObject:any, immutableKeys:string[]):Promise<any> {
+
+      this._le.logStack.push("compareAndUpdate");
+
+      // first, get the existing object, if it exists.
+      const existingRecord = await mongoose.model(modelName).findOne({[identityKey]: identityValue})
+
+      let unifiedObject:any
+      if(existingRecord) {
+        unifiedObject=existingRecord._doc;
+        const unifiedObjectKeys = Object.keys(unifiedObject)
+
+        // now, iterate throught the incoming keys & compare to the already-existing object.
+        let incomingObjectKeys = Object.keys(incomingObject);
+        
+        // iterate through the keys ..
+        for(let i=0;i<incomingObjectKeys.length;i++) {
+
+          const objectKey = incomingObjectKeys[i]
+
+          // does this key already exist for the existing object?
+          if(unifiedObjectKeys.includes(objectKey)) {
+
+            // if the key is different, log it and update the value (but dont change immutable values)
+            if(unifiedObject[objectKey]!==incomingObject[objectKey] && !immutableKeys.includes(objectKey)) {
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Change, `${unifiedObject[identityKey]}.${objectKey}: ${unifiedObject[objectKey]} -> ${incomingObject[objectKey]}`)
+              unifiedObject[objectKey] = incomingObject[objectKey]
+            } else {
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `${unifiedObject[identityKey]}.${objectKey}: ${incomingObject[objectKey]}`)
+            }
+          } else {
+            // is the key value undefined?
+            if(unifiedObject[objectKey]!=undefined) {
+              unifiedObject[objectKey] = incomingObject[objectKey];
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Add, `${unifiedObject[identityKey]}.${objectKey}: ${unifiedObject[objectKey]}`)
+            }
+          }
+        }
+      } else {
+        unifiedObject=incomingObject;
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Add, `${unifiedObject.deviceName}`)
+      }
+
+      this._le.logStack.pop();
+      return new Promise<any>((resolve) => {resolve(unifiedObject)})
 
     }
 
