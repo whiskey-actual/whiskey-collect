@@ -241,7 +241,7 @@ export namespace MongoDB {
       let existingGuessKeys:string[] = Object.keys(existingGuess);
 
       for(let i=0; i<osPlatformKeys.length; i++) {
-        if(deviceObjectKeys.includes(osPlatformKeys[i])) {
+        if(deviceObjectKeys.includes(osPlatformKeys[i]) && deviceObject[osPlatformKeys[i]]!==undefined && deviceObject[osPlatformKeys[i]]!=='') {
 
           await mongoose.model('OperatingSystem').updateOne(
             { osSourceLabel: deviceObject[osPlatformKeys[i]] },
