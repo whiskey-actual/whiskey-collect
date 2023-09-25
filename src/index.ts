@@ -14,7 +14,7 @@ import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
 import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
 
-export class Telemetry {
+export class Collector {
 
     constructor(logStack:string[], mongoURI:string, logFrequency:number=1000, showDebug:boolean=false) {
         this._mongoURI=mongoURI
