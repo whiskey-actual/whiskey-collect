@@ -36,7 +36,7 @@ export namespace MongoDB {
         }
         await Utilities.executePromisesWithProgress(this._le, executionArray)
 
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. persisted ${deviceObjects.length} devices.`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. persisted ${deviceObjects.length} devices.`)
       } catch(err) {
         this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         throw(err);
@@ -91,6 +91,7 @@ export namespace MongoDB {
       let unifiedDeviceObject
       if(existingRecord) {
         unifiedDeviceObject=existingRecord._doc;
+        const unifiedDeviceObjectKeys = Object.keys(unifiedDeviceObject)
 
         // now, iterate throught the incoming keys & compare to the already-existing object.
         let incomingDeviceObjectKeys = Object.keys(incomingDeviceObject);
@@ -101,14 +102,14 @@ export namespace MongoDB {
           const objectKey = incomingDeviceObjectKeys[i]
 
           // does this key already exist for the existing object?
-          if(unifiedDeviceObject.includes(objectKey)) {
+          if(unifiedDeviceObjectKeys.includes(objectKey)) {
 
             // if the key is different, log it and update the value (but dont change immutable values)
             if(unifiedDeviceObject[objectKey]!==incomingDeviceObject[objectKey] && !immutableKeys.includes(objectKey)) {
               this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Change, `${unifiedDeviceObject.deviceName}.${objectKey}: ${unifiedDeviceObject[objectKey]} -> ${incomingDeviceObject[objectKey]}`)
               unifiedDeviceObject[objectKey] = incomingDeviceObject[objectKey]
             } else {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Verified, `${unifiedDeviceObject.deviceName}.${objectKey}: ${incomingDeviceObject[objectKey]}`)
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `${unifiedDeviceObject.deviceName}.${objectKey}: ${incomingDeviceObject[objectKey]}`)
             }
           } else {
             // is the key value undefined?
@@ -296,7 +297,7 @@ export namespace MongoDB {
         const dbObject = dbInfo.databases.find(element => element.name==db)
         if(dbObject) {
 
-          this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, `.. found db ${db} (size is ${dbObject.sizeOnDisk}b)`)
+          this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found db ${db} (size is ${dbObject.sizeOnDisk}b)`)
           mongoose.connect(`${mongoURI}`)
 
           const assetDB = initClient.db(db)
@@ -314,7 +315,7 @@ export namespace MongoDB {
         throw(err)
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. check complete.`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. check complete.`)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
 
@@ -328,7 +329,7 @@ export namespace MongoDB {
       try {
         const collectionExists:boolean = await this.validateCollection(admin, collectionName)
         if(collectionExists) {
-          this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. collection ${collectionName} ok. `)
+          this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. collection ${collectionName} ok. `)
         } else {
           this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Note, `.. collection ${collectionName} does not exist`)
           await this.createCollection(collectionName, collectionSchema)
@@ -338,7 +339,7 @@ export namespace MongoDB {
         throw(err)
       }
       
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `collection verified`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `collection verified`)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
     }
@@ -350,14 +351,14 @@ export namespace MongoDB {
 
       try {
         const doc = await admin.validateCollection(collectionName)
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. collection ${collectionName} OK. (found ${doc} records)`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. collection ${collectionName} OK. (found ${doc} records)`)
         output=true
       } catch (err:any) {
         this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, err)
         throw(err)
       }
           
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `collection ${collectionName} verified. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `collection ${collectionName} verified. `)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
     }
@@ -375,7 +376,7 @@ export namespace MongoDB {
         throw(err)
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `collection ${collectionName} created`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `collection ${collectionName} created`)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
     }

@@ -25,13 +25,13 @@ export class Crowdstrike
       const instance = axios.create({baseURL: baseURL});
       const response = await instance.post(`/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}`)
       instance.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. access token received; querying devices ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. access token received; querying devices ..`)
 
       const foundDevices = (await instance.get("/devices/queries/devices-scroll/v1?limit=5000")).data.resources;
 
     //const foundDevices = response.data.resources
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. found ${foundDevices.length} devices; fetching details ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${foundDevices.length} devices; fetching details ..`)
 
     const startDate = new Date()
 
@@ -114,12 +114,12 @@ export class Crowdstrike
       }
 
       if(i>0 && i%100==0) {
-        this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, Utilities.getProgressMessage('','processed',i,foundDevices.length,startDate,new Date()));
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, Utilities.getProgressMessage('','processed',i,foundDevices.length,startDate,new Date()));
       }
 
     }
   
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. done.')
 
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)

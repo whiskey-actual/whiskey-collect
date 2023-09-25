@@ -34,11 +34,11 @@ export class ActiveDirectory
 
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. binding LDAP ..')
       await client.bind(bindDN, pw);
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. authenticated successfully ..')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. authenticated successfully ..')
       
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. querying devices ..')
       const { searchEntries, searchReferences } = await client.search(searchDN,  {filter: '&(objectClass=computer)', paged: isPaged, sizeLimit: sizeLimit},);
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. found ${searchEntries.length} devices .. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${searchEntries.length} devices .. `)
       
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. creating objects ..`)
       for(let i=0; i<searchEntries.length; i++) {
@@ -83,7 +83,7 @@ export class ActiveDirectory
           this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         }  
       }
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. objects created.`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. objects created.`)
 
     } catch (ex) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${ex}`)
@@ -92,7 +92,7 @@ export class ActiveDirectory
       await client.unbind();
     }
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, 'done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
     this._le.logStack.pop()
     return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
 

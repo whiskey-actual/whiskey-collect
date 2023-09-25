@@ -20,11 +20,11 @@ export class AzureManaged {
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token.. ')
     const authResponse = await this.getToken(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
     const accessToken = authResponse.accessToken;
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. got access token ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. got access token ..')
     let output:Array<AzureManagedDevice> = []
     output = await this.managedDevices(accessToken, GRAPH_ENDPOINT);
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. done.')
    this._le.logStack.pop()
     return new Promise<AzureManagedDevice[]>((resolve) => {resolve(output)})
   }
@@ -37,7 +37,7 @@ export class AzureManaged {
 
     const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/deviceManagement/managedDevices`)
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. received ${deviceList.length} devices; processing ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; processing ..`)
 
     for(let i=0; i<deviceList.length; i++) {
 

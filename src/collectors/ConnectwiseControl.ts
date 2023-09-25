@@ -18,16 +18,16 @@ export class ConnectwiseControl {
   public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureActiveDirectoryDevice[]> {
    this._le.logStack.push('fetch')
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, 'initializing ..')
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, '.. getting access token.. ')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token.. ')
     const authResponse = await this.getToken(AAD_ENDPOINT, GRAPH_ENDPOINT, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
     const accessToken = authResponse.accessToken;
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, '.. got access token ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. got access token ..')
     let output:Array<AzureActiveDirectoryDevice> = []
 
     output = await this.devices(GRAPH_ENDPOINT, accessToken);
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. done.')
    this._le.logStack.pop()
     return new Promise<AzureActiveDirectoryDevice[]>((resolve) => {resolve(output)})
   }
@@ -36,11 +36,11 @@ export class ConnectwiseControl {
 
     let output:Array<AzureActiveDirectoryDevice> = []
    this._le.logStack.push('devices')
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, `.. fetching devices ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. fetching devices ..`)
 
     const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/devices`)
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, `.. received ${deviceList.length} devices; processing ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; processing ..`)
 
     for(let i=0; i<deviceList.length; i++) {
       const d:AzureActiveDirectoryDevice = {
@@ -170,7 +170,7 @@ export class ConnectwiseControl {
 
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql @ ${sqlConfig.server} ..`)
     let pool = await sql.connect(sqlConfig)
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. connected, persisting devices .. `)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected, persisting devices .. `)
 
     for(let i=0; i<devices.length; i++) {
       try {

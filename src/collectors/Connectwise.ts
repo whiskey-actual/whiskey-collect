@@ -28,13 +28,13 @@ export class Connectwise
       const response = await instance.post('/apitoken', { UserName: userName, Password: password});
       const accessToken = response.data.AccessToken;
       instance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. received accessToken ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received accessToken ..`)
 
       // get computers ..
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. querying computers ..`)
       const queryComputers = await instance.get('/Computers?pagesize=10000&orderby=ComputerName asc')
       const computers = queryComputers.data
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. ${computers.length} devices received; processing ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${computers.length} devices received; processing ..`)
       for(let i=0; i<computers.length; i++) {
         try {
           // let q = new sql.Request()
@@ -104,10 +104,10 @@ export class Connectwise
         }
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. done; querying network devices ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. done; querying network devices ..`)
       const queryNetworkDevices = await instance.get('/NetworkDevices?pagesize=10000&orderby=Name asc')
       const networkDevices = queryNetworkDevices.data
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. ${networkDevices.length} devices received.`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${networkDevices.length} devices received.`)
       for(let i=0; i<computers.length; i++) {
         try {
           // let q = new sql.Request()

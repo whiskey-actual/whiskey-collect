@@ -26,7 +26,7 @@ export class MicrosoftSql {
 
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql @ ${this._sqlConfig.server} ..`)
         const sqlPool = await mssql.connect(this._sqlConfig)
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. connected; executing ${sqlRequestCollection.sprocName} for ${sqlRequestCollection.sqlRequests.length} items .. `)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; executing ${sqlRequestCollection.sprocName} for ${sqlRequestCollection.sqlRequests.length} items .. `)
 
         let executionArray:Promise<void|IProcedureResult<any>>[] = []
 

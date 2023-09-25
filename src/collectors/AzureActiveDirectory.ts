@@ -20,12 +20,12 @@ export class AzureActiveDirectory {
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token.. ')
     const authResponse = await this.getToken(AAD_ENDPOINT, GRAPH_ENDPOINT, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
     const accessToken = authResponse.accessToken;
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. got access token ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. got access token ..')
     let output:Array<AzureActiveDirectoryDevice> = []
 
     output = await this.devices(GRAPH_ENDPOINT, accessToken);
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. done.')
    this._le.logStack.pop()
     return new Promise<AzureActiveDirectoryDevice[]>((resolve) => {resolve(output)})
   }
@@ -38,7 +38,7 @@ export class AzureActiveDirectory {
 
     const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/devices`)
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. received ${deviceList.length} devices; processing ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; processing ..`)
 
     for(let i=0; i<deviceList.length; i++) {
 
