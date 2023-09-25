@@ -259,7 +259,7 @@ export namespace MongoDB {
             for(let j=0; j<existingGuessKeys.length; j++) {
 
               // if the new value differs from the old value ..
-              if(newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]]) {
+              if(newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]] || existingGuess[existingGuessKeys[j]]===undefined) {
 
                 // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
                 if(existingGuess[existingGuessKeys[j]]!=undefined) {
