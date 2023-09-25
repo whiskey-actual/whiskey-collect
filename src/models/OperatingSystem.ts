@@ -39,23 +39,29 @@ OperatingSystemSchema.pre<OperatingSystem>("updateOne", async function() {
 
   let tempString = this.osSourceLabel;
 
-  if(this.osSourceLabel.match('/microsoft/i') || this.osSourceLabel.match('/windows/i')) {
-    this.osVendor = "microsoft"
-    this.osPlatform = "windows"
+  if(!tempString===undefined) {
+
+    if(tempString.match('/microsoft/i') || tempString.match('/windows/i')) {
+      this.osVendor = "microsoft"
+      this.osPlatform = "windows"
+    }
+  
+    //now remove the matches
+    tempString = tempString.replace('microsoft', '');
+    tempString = tempString.replace('windows', '')
+    tempString = tempString.trim();
+  
+    if(this.osSourceLabel.match('/server/i')) {
+      this.osClass = "server"
+    } else {
+      this.osClass = "end-user device"
+    }
+  
+    tempString = tempString.replace('server','')
+  
+
   }
 
-  //now remove the matches
-  tempString = tempString.replace('microsoft', '');
-  tempString = tempString.replace('windows', '')
-  tempString = tempString.trim();
-
-  if(this.osSourceLabel.match('/server/i')) {
-    this.osClass = "server"
-  } else {
-    this.osClass = "end-user device"
-  }
-
-  tempString = tempString.replace('server','')
 
   // prune objects
   // if(!this.observedByActiveDirectory) {delete this.observedByActiveDirectory}
