@@ -1,24 +1,24 @@
 import { model, Schema } from "mongoose";
 
-export interface operatingSystem {
-  osString: string;
-  osClass: string|undefined;
-  osVendor: string|undefined;
-  osPlatform: string|undefined;
-  osVersion: string|undefined;
-  osVariant: string|undefined;
+export interface OperatingSystem {
+  osSourceLabel: string;
+  osClass?: string;
+  osVendor?: string;
+  osPlatform?: string;
+  osVersion?: string;
+  osVariant?: string;
 }
 
-export const operatingSystemSchema = new Schema({
-  osString: {type:String, required:true, index:true, id: true, unique: true},
-  osClass: {type:Date, default:new Date()},
-  osVendor: {type:Date, default:new Date(), required:true },
-  osPlatform: {type:Boolean, default:false, required:true, index:true, },
-  osVersion: {type:String, required:true, index:true, default: 'UNKNOWN'},
-  osVariant: {type:String, required:true, index:true, default: 'UNKNOWN'},
+export const OperatingSystemSchema = new Schema({
+  osSourceLabel: {type:String, required:true, index:true, id: true, unique: true},
+  osClass: {type:String, index:true },
+  osVendor: {type:String, index:true },
+  osPlatform: {type:String, index:true },
+  osVersion: {type:String, index:true },
+  osVariant: {type:String, index:true },
 
 }, {
-  collection: 'operatingSystems',
+  collection: 'OperatingSystem',
   timestamps: true,
   autoCreate: true,
 })
@@ -35,11 +35,11 @@ export const operatingSystemSchema = new Schema({
 // }
 
 // Document middlewares
-operatingSystemSchema.pre<operatingSystem>("save", async function() {
+OperatingSystemSchema.pre<OperatingSystem>("save", async function() {
 
-  let tempString = this.osString;
+  let tempString = this.osSourceLabel;
 
-  if(this.osString.match('/microsoft/i') || this.osString.match('/windows/i')) {
+  if(this.osSourceLabel.match('/microsoft/i') || this.osSourceLabel.match('/windows/i')) {
     this.osVendor = "microsoft"
     this.osPlatform = "windows"
   }
@@ -49,7 +49,7 @@ operatingSystemSchema.pre<operatingSystem>("save", async function() {
   tempString = tempString.replace('windows', '')
   tempString = tempString.trim();
 
-  if(this.osString.match('/server/i')) {
+  if(this.osSourceLabel.match('/server/i')) {
     this.osClass = "server"
   } else {
     this.osClass = "end-user device"
@@ -65,4 +65,4 @@ operatingSystemSchema.pre<operatingSystem>("save", async function() {
 
 });
 
-export default model('operatingSystem', operatingSystemSchema)
+export default model('operatingSystem', OperatingSystemSchema)

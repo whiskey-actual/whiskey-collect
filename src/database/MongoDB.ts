@@ -4,7 +4,8 @@ import { Utilities } from 'whiskey-util'
 
 import { MongoClient } from 'mongodb'
 import mongoose, { mongo } from "mongoose";
-import { Device, DeviceSchema } from '../models/Device'
+import { DeviceSchema } from '../models/Device'
+import { OperatingSystem } from '../models/operatingSystem';
 
 const _ActiveDeviceThresholdInDays:number=30
 
@@ -125,10 +126,10 @@ export namespace MongoDB {
       }
 
       // calculate the operatingSystem value.
-      const operatingSystemObject = this.getOperatingSystemDetails(unifiedDeviceObject);
-      unifiedDeviceObject.deviceOperatingSystemVendor = operatingSystemObject.vendor
-      unifiedDeviceObject.deviceOperatingSystemPlatform = operatingSystemObject.platform
-      unifiedDeviceObject.deviceOperatingSystemClass = operatingSystemObject.class
+      const operatingSystemObject = await this.getOperatingSystemDetails(unifiedDeviceObject);
+      // unifiedDeviceObject.deviceOperatingSystemVendor = operatingSystemObject.vendor
+      // unifiedDeviceObject.deviceOperatingSystemPlatform = operatingSystemObject.platform
+      // unifiedDeviceObject.deviceOperatingSystemClass = operatingSystemObject.class
 
       // calculate the last observed date.
       unifiedDeviceObject.deviceLastObserved = Utilities.getMaxDateFromObject(unifiedDeviceObject, dateKeys)
@@ -200,7 +201,15 @@ export namespace MongoDB {
 
     }
 
-    private getOperatingSystemDetails(deviceObject:any):any {
+    private getDeviceType(deviceObject:any) {
+      
+      const deviceTypeKeys:string[] = [
+        'AzureProfileType',
+      ]
+
+    }
+
+    private async getOperatingSystemDetails(deviceObject:any):Promise<void> {
 
       this._le.logStack.push('getOperatingSystemDetails');
 
@@ -211,7 +220,8 @@ export namespace MongoDB {
         'azureOperatingSystem',
         'azureManagedOperatingSystem',
         'connectwiseOperatingSystem',
-        'crowdstrikeOSBuild'
+        'crowdstrikeOSBuild',
+        'azureProfileType'
       ]
 
       const osVersionKeys:string[] = [
@@ -232,50 +242,60 @@ export namespace MongoDB {
 
       for(let i=0; i<osPlatformKeys.length; i++) {
         if(deviceObjectKeys.includes(osPlatformKeys[i])) {
-          let keyValue:string = deviceObject[osPlatformKeys[i]];
 
-          if(keyValue) {
-
-            let newGuess = existingGuess;
-
-            if(keyValue.match('/microsoft/i') || keyValue.match('/windows/i')) {
-              newGuess.vendor = "Microsoft"
-              newGuess.platform = "Windows"
+          await mongoose.model('OperatingSystem').updateOne(
+            { osSouceLabel: deviceObject[osPlatformKeys[i]] },
+            { },
+            {
+              new: true,
+              upsert: true
             }
+          );
 
-            //now remove the matches
-            keyValue = keyValue.replace('microsoft', '');
-            keyValue = keyValue.replace('windows', '')
-            keyValue = keyValue.trim();
+          // let keyValue:string = deviceObject[osPlatformKeys[i]];
 
-            if(keyValue.match('/server/i')) {
-              newGuess.class = "Server"
-            } else {
-              newGuess.class = "End-user device"
-            }
+          // if(keyValue) {
 
-            keyValue = keyValue.replace('server','')
+          //   let newGuess = existingGuess;
 
-            for(let j=0; j<existingGuessKeys.length; j++) {
+          //   if(keyValue.match('/microsoft/i') || keyValue.match('/windows/i')) {
+          //     newGuess.vendor = "Microsoft"
+          //     newGuess.platform = "Windows"
+          //   }
 
-              // if the new value differs from the old value and the new value isn't undefined ..
-              if(newGuess!==undefined && (newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]] || existingGuess[existingGuessKeys[j]]===undefined)) {
+          //   //now remove the matches
+          //   keyValue = keyValue.replace('microsoft', '');
+          //   keyValue = keyValue.replace('windows', '')
+          //   keyValue = keyValue.trim();
 
-                // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
-                if(existingGuess[existingGuessKeys[j]]!=undefined) {
-                  this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${existingGuessKeys[j]}: ${existingGuess[existingGuessKeys[j]]} -> ${newGuess[existingGuessKeys[j]]}`)
-                }
+          //   if(keyValue.match('/server/i')) {
+          //     newGuess.class = "Server"
+          //   } else {
+          //     newGuess.class = "End-user device"
+          //   }
 
-                // update the guess value.
-                existingGuess[existingGuessKeys[j]] = newGuess[existingGuessKeys[j]]
-              }
-            }
-          }
+          //   keyValue = keyValue.replace('server','')
+
+          //   for(let j=0; j<existingGuessKeys.length; j++) {
+
+          //     // if the new value differs from the old value and the new value isn't undefined ..
+          //     if(newGuess!==undefined && (newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]] || existingGuess[existingGuessKeys[j]]===undefined)) {
+
+          //       // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
+          //       if(existingGuess[existingGuessKeys[j]]!=undefined) {
+          //         this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${existingGuessKeys[j]}: ${existingGuess[existingGuessKeys[j]]} -> ${newGuess[existingGuessKeys[j]]}`)
+          //       }
+
+          //       // update the guess value.
+          //       existingGuess[existingGuessKeys[j]] = newGuess[existingGuessKeys[j]]
+          //     }
+          //   }
+          // }
         }
       }
 
       this._le.logStack.pop();
-      return existingGuess;
+      return new Promise<void>((resolve) => {resolve()})
 
     }
   }
