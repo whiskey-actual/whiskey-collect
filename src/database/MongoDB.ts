@@ -234,38 +234,41 @@ export namespace MongoDB {
         if(deviceObjectKeys.includes(osPlatformKeys[i])) {
           let keyValue:string = deviceObject[osPlatformKeys[i]];
 
-          let newGuess = existingGuess;
+          if(keyValue) {
 
-          if(keyValue.match('/microsoft/i') || keyValue.match('/windows/i')) {
-            newGuess.vendor = "Microsoft"
-            newGuess.platform = "Windows"
-          }
+            let newGuess = existingGuess;
 
-          //now remove the matches
-          keyValue = keyValue.replace('microsoft', '');
-          keyValue = keyValue.replace('windows', '')
-          keyValue = keyValue.trim();
+            if(keyValue.match('/microsoft/i') || keyValue.match('/windows/i')) {
+              newGuess.vendor = "Microsoft"
+              newGuess.platform = "Windows"
+            }
 
-          if(keyValue.match('/server/i')) {
-            newGuess.class = "Server"
-          } else {
-            newGuess.class = "End-user device"
-          }
+            //now remove the matches
+            keyValue = keyValue.replace('microsoft', '');
+            keyValue = keyValue.replace('windows', '')
+            keyValue = keyValue.trim();
 
-          keyValue = keyValue.replace('server','')
+            if(keyValue.match('/server/i')) {
+              newGuess.class = "Server"
+            } else {
+              newGuess.class = "End-user device"
+            }
 
-          for(let j=0; j<existingGuessKeys.length; j++) {
+            keyValue = keyValue.replace('server','')
 
-            // if the new value differs from the old value ..
-            if(newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]]) {
+            for(let j=0; j<existingGuessKeys.length; j++) {
 
-              // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
-              if(existingGuess[existingGuessKeys[j]]!=undefined) {
-                this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${existingGuessKeys[j]}: ${existingGuess[existingGuessKeys[j]]} -> ${newGuess[existingGuessKeys[j]]}`)
+              // if the new value differs from the old value ..
+              if(newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]]) {
+
+                // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
+                if(existingGuess[existingGuessKeys[j]]!=undefined) {
+                  this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${existingGuessKeys[j]}: ${existingGuess[existingGuessKeys[j]]} -> ${newGuess[existingGuessKeys[j]]}`)
+                }
+
+                // update the guess value.
+                existingGuess[existingGuessKeys[j]] = newGuess[existingGuessKeys[j]]
               }
-
-              // update the guess value.
-              existingGuess[existingGuessKeys[j]] = newGuess[existingGuessKeys[j]]
             }
           }
         }
