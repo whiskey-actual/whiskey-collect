@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import { MongoClient } from 'mongodb'
 import mongoose, { mongo } from "mongoose";
 import { DeviceSchema } from '../models/Device'
-import { OperatingSystem } from '../models/OperatingSystem';
+import { OperatingSystemSchema } from '../models/OperatingSystem';
 
 const _ActiveDeviceThresholdInDays:number=30
 
@@ -328,7 +328,10 @@ export namespace MongoDB {
           const assetDB = initClient.db(db)
           const admin = assetDB.admin()
 
-          output = await this.verifyCollection(admin, "devices", DeviceSchema);
+          await this.verifyCollection(admin, "devices", DeviceSchema);
+          await this.verifyCollection(admin, "operatingSystems", OperatingSystemSchema);
+
+          return true;
 
         }
         else {

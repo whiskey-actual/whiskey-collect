@@ -18,7 +18,7 @@ export const OperatingSystemSchema = new Schema({
   osVariant: {type:String, index:true },
 
 }, {
-  collection: 'OperatingSystem',
+  collection: 'operatingSystems',
   timestamps: true,
   autoCreate: true,
 })
