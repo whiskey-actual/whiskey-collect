@@ -204,6 +204,8 @@ export namespace MongoDB {
 
       this._le.logStack.push('getOperatingSystemDetails');
 
+      const deviceObjectKeys = Object.keys(deviceObject);
+
       const osPlatformKeys:string[] = [
         'activeDirectoryOperatingSystem',
         'azureOperatingSystem',
@@ -229,7 +231,7 @@ export namespace MongoDB {
       let existingGuessKeys:string[] = Object.keys(existingGuess);
 
       for(let i=0; i<osPlatformKeys.length; i++) {
-        if(deviceObject.includes(osPlatformKeys[i])) {
+        if(deviceObjectKeys.includes(osPlatformKeys[i])) {
           let keyValue:string = deviceObject[osPlatformKeys[i]];
 
           let newGuess = existingGuess;
