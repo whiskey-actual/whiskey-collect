@@ -35,7 +35,7 @@ export const OperatingSystemSchema = new Schema({
 // }
 
 // Document middlewares
-OperatingSystemSchema.pre<OperatingSystem>("save", async function() {
+OperatingSystemSchema.pre<OperatingSystem>("updateOne", async function() {
 
   let tempString = this.osSourceLabel;
 
