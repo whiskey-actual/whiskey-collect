@@ -199,8 +199,12 @@ export const DeviceSchema = new Schema({
   deviceFirstObserved: {type:Date, default:new Date()},
   deviceLastObserved: {type:Date, default:new Date(), required:true },
   deviceIsActive: {type:Boolean, default:false, required:true, index:true, },
-  deviceOperatingSystem: {type:String, required:true, index:true, default: 'UNKNOWN'},
   deviceType: {type:String, required:true, index:true, default: 'UNKNOWN'},
+
+  // operating system
+  deviceOperatingSystemVendor: {type:String, index:true, default: 'UNKNOWN'},
+  deviceOperatingSystemPlatform: {type:String, index:true, default: 'UNKNOWN'},
+  deviceOperatingSystemClass: {type:String, index:true, default: 'UNKNOWN'},
 
   // active directory
   observedByActiveDirectory: {type:Boolean, default:false, required:true, index:true},

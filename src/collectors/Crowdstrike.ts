@@ -3,7 +3,7 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
 import axios from 'axios'
-import { CrowdstrikeDevice } from '../Device';
+import { CrowdstrikeDevice } from '../models/Device';
 
 
 export class Crowdstrike
@@ -15,23 +15,23 @@ export class Crowdstrike
   private _le:LogEngine = new LogEngine([])
   
   public async fetch(baseURL:string, clientId:string, clientSecret:string):Promise<CrowdstrikeDevice[]> {
-    this._le.AddLogEntry(LogEngine.Severity.Ok, 'initializing ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
     let output:CrowdstrikeDevice[]=[]
 
     try {
 
       // get access token
-      this._le.AddLogEntry(LogEngine.Severity.Ok, '.. getting access token ..')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token ..')
       const instance = axios.create({baseURL: baseURL});
       const response = await instance.post(`/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}`)
       instance.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`
-      this._le.AddLogEntry(LogEngine.Severity.Ok, `.. access token received; querying devices ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. access token received; querying devices ..`)
 
       const foundDevices = (await instance.get("/devices/queries/devices-scroll/v1?limit=5000")).data.resources;
 
     //const foundDevices = response.data.resources
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, `.. found ${foundDevices.length} devices; fetching details ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. found ${foundDevices.length} devices; fetching details ..`)
 
     const startDate = new Date()
 
@@ -110,19 +110,19 @@ export class Crowdstrike
           output.push(d)
         })
       } catch(err) {
-          this._le.AddLogEntry(LogEngine.Severity.Error, `error: ${err}`)
+          this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${err}`)
       }
 
       if(i>0 && i%100==0) {
-        this._le.AddLogEntry(LogEngine.Severity.Ok, Utilities.getProgressMessage('','processed',i,foundDevices.length,startDate,new Date()));
+        this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, Utilities.getProgressMessage('','processed',i,foundDevices.length,startDate,new Date()));
       }
 
     }
   
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, '.. done.')
 
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, `${err}`)
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
      this._le.logStack.pop()

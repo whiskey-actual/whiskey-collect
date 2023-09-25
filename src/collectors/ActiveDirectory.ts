@@ -3,7 +3,7 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 import { Client } from 'ldapts'
 
-import { ActiveDirectoryDevice } from '../Device';
+import { ActiveDirectoryDevice } from '../models/Device';
 
 export class ActiveDirectory
 {
@@ -18,7 +18,7 @@ export class ActiveDirectory
 
     let output:ActiveDirectoryDevice[]=[]
     this._le.logStack.push('fetch')
-    this._le.AddLogEntry(LogEngine.Severity.Info, 'initializing ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
 
     const client = new Client(
       {
@@ -32,15 +32,15 @@ export class ActiveDirectory
 
     try {
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, '.. binding LDAP ..')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. binding LDAP ..')
       await client.bind(bindDN, pw);
-      this._le.AddLogEntry(LogEngine.Severity.Ok, '.. authenticated successfully ..')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. authenticated successfully ..')
       
-      this._le.AddLogEntry(LogEngine.Severity.Info, '.. querying devices ..')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. querying devices ..')
       const { searchEntries, searchReferences } = await client.search(searchDN,  {filter: '&(objectClass=computer)', paged: isPaged, sizeLimit: sizeLimit},);
-      this._le.AddLogEntry(LogEngine.Severity.Ok, `.. found ${searchEntries.length} devices .. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. found ${searchEntries.length} devices .. `)
       
-      this._le.AddLogEntry(LogEngine.Severity.Info, `.. creating objects ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. creating objects ..`)
       for(let i=0; i<searchEntries.length; i++) {
         try {
 
@@ -80,19 +80,19 @@ export class ActiveDirectory
           // .input('activeDirectoryLastLogonTimestamp', sql.DateTime2, searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined)
           // output.sqlRequests.push(q)
         } catch (err) {
-          this._le.AddLogEntry(LogEngine.Severity.Error, `${err}`)
+          this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         }  
       }
-      this._le.AddLogEntry(LogEngine.Severity.Info, `.. objects created.`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. objects created.`)
 
     } catch (ex) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, `${ex}`)
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${ex}`)
       throw ex;
     } finally {
       await client.unbind();
     }
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, 'done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, 'done.')
     this._le.logStack.pop()
     return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
 

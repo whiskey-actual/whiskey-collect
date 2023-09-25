@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 
 import axios from "axios";
 import * as msal from '@azure/msal-node'
-import { AzureManagedDevice } from '../Device'
+import { AzureManagedDevice } from '../models/Device'
 
 export class AzureManaged {
 
@@ -16,15 +16,15 @@ export class AzureManaged {
   public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureManagedDevice[]> {
    this._le.logStack.push('fetch')
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, 'initializing ..')
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. getting access token.. ')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token.. ')
     const authResponse = await this.getToken(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
     const accessToken = authResponse.accessToken;
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. got access token ..')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. got access token ..')
     let output:Array<AzureManagedDevice> = []
     output = await this.managedDevices(accessToken, GRAPH_ENDPOINT);
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, '.. done.')
    this._le.logStack.pop()
     return new Promise<AzureManagedDevice[]>((resolve) => {resolve(output)})
   }
@@ -33,11 +33,11 @@ export class AzureManaged {
 
     let output:Array<AzureManagedDevice> = []
    this._le.logStack.push('managedDevices')
-    this._le.AddLogEntry(LogEngine.Severity.Ok, `.. fetching managed devices ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. fetching managed devices ..`)
 
     const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/deviceManagement/managedDevices`)
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, `.. received ${deviceList.length} devices; processing ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. received ${deviceList.length} devices; processing ..`)
 
     for(let i=0; i<deviceList.length; i++) {
 
@@ -205,7 +205,7 @@ export class AzureManaged {
       const response = await axios.get(endpoint, options)
       output = response.data
     } catch (error:any) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, `error: ${error.toString()}`)
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${error.toString()}`)
       return error;
     }
 
@@ -237,7 +237,7 @@ export class AzureManaged {
         }
        }
     } catch (error:any) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, `error: ${error.toString()}`)
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${error.toString()}`)
     }
 
    this._le.logStack.pop()

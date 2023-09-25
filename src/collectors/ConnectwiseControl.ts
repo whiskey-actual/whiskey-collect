@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 
 import axios from "axios";
 import * as msal from '@azure/msal-node'
-import { AzureActiveDirectoryDevice } from '../Device'
+import { AzureActiveDirectoryDevice } from '../models/Device'
 import sql from 'mssql'
 
 export class ConnectwiseControl {
@@ -18,16 +18,16 @@ export class ConnectwiseControl {
   public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureActiveDirectoryDevice[]> {
    this._le.logStack.push('fetch')
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, 'initializing ..')
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. getting access token.. ')
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, 'initializing ..')
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, '.. getting access token.. ')
     const authResponse = await this.getToken(AAD_ENDPOINT, GRAPH_ENDPOINT, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
     const accessToken = authResponse.accessToken;
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. got access token ..')
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, '.. got access token ..')
     let output:Array<AzureActiveDirectoryDevice> = []
 
     output = await this.devices(GRAPH_ENDPOINT, accessToken);
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, '.. done.')
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, '.. done.')
    this._le.logStack.pop()
     return new Promise<AzureActiveDirectoryDevice[]>((resolve) => {resolve(output)})
   }
@@ -36,11 +36,11 @@ export class ConnectwiseControl {
 
     let output:Array<AzureActiveDirectoryDevice> = []
    this._le.logStack.push('devices')
-    this._le.AddLogEntry(LogEngine.Severity.Ok, `.. fetching devices ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Note, `.. fetching devices ..`)
 
     const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/devices`)
 
-    this._le.AddLogEntry(LogEngine.Severity.Ok, `.. received ${deviceList.length} devices; processing ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, `.. received ${deviceList.length} devices; processing ..`)
 
     for(let i=0; i<deviceList.length; i++) {
       const d:AzureActiveDirectoryDevice = {
@@ -123,7 +123,7 @@ export class ConnectwiseControl {
       const response = await axios.get(endpoint, options)
       output = response.data
     } catch (error:any) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, `error: ${error.toString()}`)
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${error.toString()}`)
       return error;
     }
 
@@ -155,7 +155,7 @@ export class ConnectwiseControl {
         }
        }
     } catch (error:any) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, `error: ${error.toString()}`)
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${error.toString()}`)
     }
 
    this._le.logStack.pop()
@@ -166,11 +166,11 @@ export class ConnectwiseControl {
   public async persist(sqlConfig:any, devices:AzureActiveDirectoryDevice[]):Promise<Boolean> {
 
    this._le.logStack.push("persist");
-    this._le.AddLogEntry(LogEngine.Severity.Info, `persisting ${devices.length} devices ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `persisting ${devices.length} devices ..`)
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, `.. connecting to mssql @ ${sqlConfig.server} ..`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql @ ${sqlConfig.server} ..`)
     let pool = await sql.connect(sqlConfig)
-    this._le.AddLogEntry(LogEngine.Severity.Info, `.. connected, persisting devices .. `)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. connected, persisting devices .. `)
 
     for(let i=0; i<devices.length; i++) {
       try {
@@ -213,13 +213,13 @@ export class ConnectwiseControl {
         
       }
       catch(err) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, `ERR: ${err}`)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `ERR: ${err}`)
        this._le.logStack.pop()
         throw(err)
       }
     }
 
-    this._le.AddLogEntry(LogEngine.Severity.Info, `done.`)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `done.`)
     
    this._le.logStack.pop()
     return new Promise<Boolean>((resolve) => {resolve(true)})

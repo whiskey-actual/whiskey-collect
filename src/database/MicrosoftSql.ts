@@ -20,13 +20,13 @@ export class MicrosoftSql {
 
     public async writeToSql(sqlRequestCollection:SqlRequestCollection, logFrequency:number=1000) {
     this._le.logStack.push("writeToSql");
-    this._le.AddLogEntry(LogEngine.Severity.Info, `initializing.. `)
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initializing.. `)
 
     try {
 
-        this._le.AddLogEntry(LogEngine.Severity.Info, `.. connecting to mssql @ ${this._sqlConfig.server} ..`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql @ ${this._sqlConfig.server} ..`)
         const sqlPool = await mssql.connect(this._sqlConfig)
-        this._le.AddLogEntry(LogEngine.Severity.Info, `.. connected; executing ${sqlRequestCollection.sprocName} for ${sqlRequestCollection.sqlRequests.length} items .. `)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. connected; executing ${sqlRequestCollection.sprocName} for ${sqlRequestCollection.sqlRequests.length} items .. `)
 
         let executionArray:Promise<void|IProcedureResult<any>>[] = []
 
@@ -39,13 +39,13 @@ export class MicrosoftSql {
                     r
                     .execute(sqlRequestCollection.sprocName)
                     .catch((reason:any) =>{
-                        this._le.AddLogEntry(LogEngine.Severity.Error, `${reason}`)
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${reason}`)
                         console.debug(r)
                     })
                 )
                 //await r.execute(sqlRequestCollection.sprocName)
             } catch(err) {
-                this._le.AddLogEntry(LogEngine.Severity.Error, `${err}`)
+                this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
                 console.debug(sqlRequestCollection.sqlRequests[i])
             }
             
@@ -57,7 +57,7 @@ export class MicrosoftSql {
         
         sqlPool.close()
     } catch(err) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, `${err}`)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         throw(err)
     } finally {
        this._le.logStack.pop()

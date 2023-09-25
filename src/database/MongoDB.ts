@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 
 import { MongoClient } from 'mongodb'
 import mongoose, { mongo } from "mongoose";
-import { DeviceSchema } from '../Device'
+import { Device, DeviceSchema } from '../models/Device'
 
 const _ActiveDeviceThresholdInDays:number=30
 
@@ -24,7 +24,7 @@ export namespace MongoDB {
     
     public async persistDevices(deviceObjects:any[], logFrequency:number=1000):Promise<number> {
       this._le.logStack.push("persistDevices");
-      this._le.AddLogEntry(LogEngine.Severity.Info, `persisting ${deviceObjects.length} devices ..`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `persisting ${deviceObjects.length} devices ..`)
 
       try {
 
@@ -32,13 +32,13 @@ export namespace MongoDB {
 
         let executionArray:Promise<void>[] = []
         for(let i=0;i<deviceObjects.length; i++) {
-          executionArray.push(this.persistDevice(deviceObjects[i]));
+          executionArray.push(this.getUpdateObject(deviceObjects[i]));
         }
         await Utilities.executePromisesWithProgress(this._le, executionArray)
 
-        this._le.AddLogEntry(LogEngine.Severity.Ok, `.. persisted ${deviceObjects.length} devices.`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. persisted ${deviceObjects.length} devices.`)
       } catch(err) {
-        this._le.AddLogEntry(LogEngine.Severity.Ok, `${err}`)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         throw(err);
       } finally {
         this._le.logStack.pop()
@@ -48,150 +48,11 @@ export namespace MongoDB {
 
     }
 
-    private async persistDevice(incomingDeviceObject:any):Promise<void> {
-
-      let isNewDevice:boolean=false;
-
-      const fieldsToPrune:string[] = [
-        'observedByActiveDirectory',
-        'observedByAzureActiveDirectory',
-        'observedByAzureMDM',
-        'observedByConnectwise',
-        'observedByCrowdstrike'
-      ]
-
-      const dateFields:string[] = [
-        'activeDirectoryWhenCreated',
-        'activeDirectoryWhenChanged',
-        'activeDirectoryLastLogon',
-        'activeDirectoryPwdLastSet',
-        'azureDeletedDateTime',
-        'azureApproximateLastSignInDateTime',
-        'azureComplianceExpirationDateTime',
-        'azureCreatedDateTime',
-        'azureOnPremisesLastSyncDateTime',
-        'azureRegistrationDateTime',
-        'azureManagedEnrolledDateTime',
-        'azureManagedLastSyncDateTime',
-        'azureManagedEASActivationDateTime',
-        'azureManagedExchangeLastSuccessfulSyncDateTime',
-        'azureManagedComplianceGracePeriodExpirationDateTime',
-        'azureManagedManagementCertificateExpirationDateTime',
-        'connectwiseFirstSeen',
-        'connectwiseLastObserved',
-        'crowdstrikeFirstSeenDateTime',
-        'crowdstrikeLastSeenDateTime',
-        'crowdstrikeModifiedDateTime',
-      ]
-
-      incomingDeviceObject.deviceLastObserved = Utilities.getMaxDateFromObject(incomingDeviceObject, dateFields);
-
-      let lastActiveThreshold:Date= new Date()
-      lastActiveThreshold.setDate(lastActiveThreshold.getDate()-30)
-
-      incomingDeviceObject.deviceIsActive = (incomingDeviceObject.deviceLastObserved>lastActiveThreshold)
-
-      const prunedDeviceObject:any = Utilities.pruneJsonObject(this._le, incomingDeviceObject,fieldsToPrune, true);
-
-      const result = await mongoose.model('Device').findOne({deviceName:prunedDeviceObject.deviceName})
-
-      if(result) {
-
-        const existingDeviceObject:any = result._doc
-
-        //Utilities.AddLogEntry(LogEngine.Severity.Ok, prunedDeviceObject.deviceName, `.. found existing device`)
-        let updateDeviceObject:any = {deviceName: existingDeviceObject.deviceName}
-
-        const prunedDeviceObjectKeys = Object.keys(prunedDeviceObject);
-        const existingDeviceObjectKeys = Object.getOwnPropertyNames(existingDeviceObject);
-
-        updateDeviceObject.operatingSystem = this.normalizeOperatingSystem(existingDeviceObject, prunedDeviceObject)
-        updateDeviceObject.deviceType = this.determineDeviceType(updateDeviceObject.operatingSystem, existingDeviceObject, prunedDeviceObject)
-
-        // for(let i=0; i<existingDeviceObjectKeys.length; i++) {
-        //   this._le.AddLogEntry(LogEngine.Severity.Ok, prunedDeviceObject.deviceName, `.. found key: ${existingDeviceObjectKeys[i]}`)
-        // }
-
-        // iterate through the keys ..
-        for(let j=0;j<prunedDeviceObjectKeys.length;j++) {
-
-          const key = prunedDeviceObjectKeys[j]
-
-          // does this key already exist for the retreived object?
-          if(existingDeviceObjectKeys.includes(key)) {
-
-            // if the key is different, we need add it to the update object
-            if(existingDeviceObject[key]!==prunedDeviceObject[key]) {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${existingDeviceObject[key]} -> ${prunedDeviceObject[key]}`)
-              updateDeviceObject[key] = prunedDeviceObject[key]
-            } else {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
-            }
-          } else {
-            // is the key value undefined?
-            if(prunedDeviceObject[key]!=undefined) {
-              // add the new key
-              updateDeviceObject[key] = prunedDeviceObject[key];
-              this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
-            }
-          }
-        }
-
-        // do we have pending updates?
-        if(Object.keys(updateDeviceObject).length>0) {
-          this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${Object.keys(updateDeviceObject).length} updates needed.`)
-
-          try {
-            await mongoose.model('Device').updateOne(
-              { deviceName: prunedDeviceObject.deviceName},
-              {
-                $set: updateDeviceObject
-              },
-              {
-                new: true,
-                upsert: true,
-              }
-            )
-          } catch(err:any) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, `${prunedDeviceObject.deviceName}: ${err.toString()}`)
-          }
-
-        }
-      } else {
-        isNewDevice = true;
-
-        //Utilities.AddLogEntry(LogEngine.Severity.Add, `.. new device detected: ${prunedDeviceObject.deviceName}`)
-
-        prunedDeviceObject.deviceFirstObserved = new Date()
-        const emptyDeviceObject:any = {deviceName: prunedDeviceObject.deviceName}
-        prunedDeviceObject.operatingSystem = this.normalizeOperatingSystem(emptyDeviceObject, prunedDeviceObject)
-
-        await mongoose.model('Device').updateOne(
-          { deviceName: prunedDeviceObject.deviceName },
-          {
-            $set: prunedDeviceObject
-          },
-          {
-            new: true,
-            upsert: true
-          }
-        );
-
-        this._le.AddLogEntry(LogEngine.Severity.Add, `.. persisted new device: ${prunedDeviceObject.deviceName}`)
-
-      }
-
-      return new Promise<void>((resolve) => {resolve()})
-
-    }
-
-    private async getUpdateObject(incomingDeviceObject:any):Promise<Boolean> {
-
-      let isNewDevice:boolean=false;
+    private async getUpdateObject(incomingDeviceObject:any):Promise<void> {
 
       this._le.logStack.push("getUpdateObject");
 
-      const fieldsToPrune:string[] = [
+      const immutableKeys:string[] = [
         'observedByActiveDirectory',
         'observedByAzureActiveDirectory',
         'observedByAzureMDM',
@@ -199,7 +60,7 @@ export namespace MongoDB {
         'observedByCrowdstrike'
       ]
 
-      const dateFields:string[] = [
+      const dateKeys:string[] = [
         'activeDirectoryWhenCreated',
         'activeDirectoryWhenChanged',
         'activeDirectoryLastLogon',
@@ -223,106 +84,72 @@ export namespace MongoDB {
         'crowdstrikeModifiedDateTime',
       ]
 
-      incomingDeviceObject.deviceLastObserved = Utilities.getMaxDateFromObject(incomingDeviceObject, dateFields)
+      // first, get the existing object, if it exists.
+      const existingRecord = await mongoose.model('Device').findOne({deviceName:incomingDeviceObject.deviceName})
+
+      // if there is an existing record, use that as the base for the combined object. Others, just take the incoming object as it is.
+      let unifiedDeviceObject
+      if(existingRecord) {
+        unifiedDeviceObject=existingRecord._doc;
+
+        // now, iterate throught the incoming keys & compare to the already-existing object.
+        let incomingDeviceObjectKeys = Object.keys(incomingDeviceObject);
+        
+        // iterate through the keys ..
+        for(let i=0;i<incomingDeviceObjectKeys.length;i++) {
+
+          const objectKey = incomingDeviceObjectKeys[i]
+
+          // does this key already exist for the existing object?
+          if(unifiedDeviceObject.includes(objectKey)) {
+
+            // if the key is different, log it and update the value (but dont change immutable values)
+            if(unifiedDeviceObject[objectKey]!==incomingDeviceObject[objectKey] && !immutableKeys.includes(objectKey)) {
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Change, `${unifiedDeviceObject.deviceName}.${objectKey}: ${unifiedDeviceObject[objectKey]} -> ${incomingDeviceObject[objectKey]}`)
+              unifiedDeviceObject[objectKey] = incomingDeviceObject[objectKey]
+            } else {
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Verified, `${unifiedDeviceObject.deviceName}.${objectKey}: ${incomingDeviceObject[objectKey]}`)
+            }
+          } else {
+            // is the key value undefined?
+            if(incomingDeviceObject[objectKey]!=undefined) {
+              unifiedDeviceObject[objectKey] = incomingDeviceObject[objectKey];
+              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Add, `${unifiedDeviceObject.deviceName}.${objectKey}: ${unifiedDeviceObject[objectKey]}`)
+            }
+          }
+        }
+      } else {
+        unifiedDeviceObject=incomingDeviceObject;
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Add, `${unifiedDeviceObject.deviceName}`)
+      }
+
+      // calculate the operatingSystem value.
+      const operatingSystemObject = this.getOperatingSystemDetails(unifiedDeviceObject);
+      unifiedDeviceObject.deviceOperatingSystemVendor = operatingSystemObject.vendor
+      unifiedDeviceObject.deviceOperatingSystemPlatform = operatingSystemObject.platform
+      unifiedDeviceObject.deviceOperatingSystemClass = operatingSystemObject.class
+
+      // calculate the last observed date.
+      unifiedDeviceObject.deviceLastObserved = Utilities.getMaxDateFromObject(unifiedDeviceObject, dateKeys)
 
       let lastActiveThreshold:Date= new Date()
       lastActiveThreshold.setDate(lastActiveThreshold.getDate()-_ActiveDeviceThresholdInDays)
 
-      incomingDeviceObject.deviceIsActive = (incomingDeviceObject.deviceLastObserved>lastActiveThreshold)
+      unifiedDeviceObject.deviceIsActive = (unifiedDeviceObject.deviceLastObserved>lastActiveThreshold)
 
-      const prunedDeviceObject:any = Utilities.pruneJsonObject(this._le, incomingDeviceObject,fieldsToPrune,true);
-
-      await mongoose.model('Device').findOne({deviceName:prunedDeviceObject.deviceName}).then(async(result) => {
-        if(result) {
-
-          const existingDeviceObject:any = result._doc
-
-          //Utilities.AddLogEntry(LogEngine.Severity.Ok, prunedDeviceObject.deviceName, `.. found existing device`)
-          let updateDeviceObject:any = {deviceName: existingDeviceObject.deviceName}
-
-          const prunedDeviceObjectKeys = Object.keys(prunedDeviceObject);
-          const existingDeviceObjectKeys = Object.getOwnPropertyNames(existingDeviceObject);
-
-          updateDeviceObject.operatingSystem = this.normalizeOperatingSystem(existingDeviceObject, prunedDeviceObject)
-          updateDeviceObject.deviceType = this.determineDeviceType(updateDeviceObject.operatingSystem, existingDeviceObject, prunedDeviceObject)
-
-          // for(let i=0; i<existingDeviceObjectKeys.length; i++) {
-          //   this._le.AddLogEntry(LogEngine.Severity.Ok, prunedDeviceObject.deviceName, `.. found key: ${existingDeviceObjectKeys[i]}`)
-          // }
-
-          // iterate through the keys ..
-          for(let j=0;j<prunedDeviceObjectKeys.length;j++) {
-
-            const key = prunedDeviceObjectKeys[j]
-
-            // does this key already exist for the retreived object?
-            if(existingDeviceObjectKeys.includes(key)) {
-
-              // if the key is different, we need add it to the update object
-              if(existingDeviceObject[key]!==prunedDeviceObject[key]) {
-                this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${existingDeviceObject[key]} -> ${prunedDeviceObject[key]}`)
-                updateDeviceObject[key] = prunedDeviceObject[key]
-              } else {
-                this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
-              }
-            } else {
-              // is the key value undefined?
-              if(prunedDeviceObject[key]!=undefined) {
-                // add the new key
-                updateDeviceObject[key] = prunedDeviceObject[key];
-                this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${key}: ${prunedDeviceObject[key]}`)
-              }
-            }
-          }
-
-          // do we have pending updates?
-          if(Object.keys(updateDeviceObject).length>0) {
-            this._le.AddLogEntry(LogEngine.Severity.Debug, `${prunedDeviceObject.deviceName}.${Object.keys(updateDeviceObject).length} updates needed.`)
-
-            try {
-              await mongoose.model('Device').updateOne(
-                { deviceName: prunedDeviceObject.deviceName},
-                {
-                  $set: updateDeviceObject
-                },
-                {
-                  new: true,
-                  upsert: true,
-                }
-              )
-            } catch(err:any) {
-              this._le.AddLogEntry(LogEngine.Severity.Error, `${prunedDeviceObject.deviceName}: ${err.toString()}`)
-            }
-
-          }
-        } else {
-          isNewDevice = true;
-
-          //Utilities.AddLogEntry(LogEngine.Severity.Add, `.. new device detected: ${prunedDeviceObject.deviceName}`)
-
-          prunedDeviceObject.deviceFirstObserved = new Date()
-          const emptyDeviceObject:any = {deviceName: prunedDeviceObject.deviceName}
-          prunedDeviceObject.operatingSystem = this.normalizeOperatingSystem(emptyDeviceObject, prunedDeviceObject)
-
-          await mongoose.model('Device').updateOne(
-            { deviceName: prunedDeviceObject.deviceName },
-            {
-              $set: prunedDeviceObject
-            },
-            {
-              new: true,
-              upsert: true
-            }
-          );
+      await mongoose.model('Device').updateOne(
+        { deviceName: unifiedDeviceObject.deviceName },
+        {
+          $set: unifiedDeviceObject
+        },
+        {
+          new: true,
+          upsert: true
         }
-      },
-      (reason:any) => {
-        throw reason
-      }
-      )
+      );
 
       this._le.logStack.pop();
-      return new Promise<boolean>((resolve) => {resolve(isNewDevice)})
+      return new Promise<void>((resolve) => {resolve()})
 
     }
 
@@ -372,51 +199,77 @@ export namespace MongoDB {
 
     }
 
-    private normalizeOperatingSystem(existingDeviceObject:any, newDeviceObject:any):string {
+    private getOperatingSystemDetails(deviceObject:any):any {
 
-      let output:any = 'UNKNOWN';
-      this._le.logStack.push('normalizeOperatingSystem')
+      this._le.logStack.push('getOperatingSystemDetails');
 
-      // these should be in REVERSE priority order because each subsequent value will supercede prior ones.
-      const keys = [
+      const osPlatformKeys:string[] = [
         'activeDirectoryOperatingSystem',
         'azureOperatingSystem',
         'azureManagedOperatingSystem',
-        'crowdstrikeOSVersion',
+        'connectwiseOperatingSystem',
+        'crowdstrikeOSBuild'
       ]
 
-      type allValuesType = {
-        [key: string]: string | undefined
+      const osVersionKeys:string[] = [
+        'activeDirectoryOperatingSystemVersion',
+        'azureOperatingSystemVersion',
+        'azureManagedOperatingSystemVersion',
+        'connectwiseOperatingSystemVersion',
+        'crowdstrikeOSVersion'
+      ]
+
+      let existingGuess:any = {
+        vendor: '',
+        platform: '',
+        class: ''
       }
 
-    const allValues:allValuesType = {}
+      let existingGuessKeys:string[] = Object.keys(existingGuess);
 
-      try {
+      for(let i=0; i<osPlatformKeys.length; i++) {
+        if(deviceObject.includes(osPlatformKeys[i])) {
+          let keyValue:string = deviceObject[osPlatformKeys[i]];
 
-        for(let i=0;i<keys.length;i++) {
-          if(newDeviceObject[keys[i]])  {
-            allValues[keys[i]]=newDeviceObject[keys[i]]?.toString()
-          } else if(existingDeviceObject[keys[i]]) {
-            allValues[keys[i]]=existingDeviceObject[keys[i]]?.toString()
+          let newGuess = existingGuess;
+
+          if(keyValue.match('/microsoft/i') || keyValue.match('/windows/i')) {
+            newGuess.vendor = "Microsoft"
+            newGuess.platform = "Windows"
+          }
+
+          //now remove the matches
+          keyValue = keyValue.replace('microsoft', '');
+          keyValue = keyValue.replace('windows', '')
+          keyValue = keyValue.trim();
+
+          if(keyValue.match('/server/i')) {
+            newGuess.class = "Server"
+          } else {
+            newGuess.class = "End-user device"
+          }
+
+          keyValue = keyValue.replace('server','')
+
+          for(let j=0; j<existingGuessKeys.length; j++) {
+
+            // if the new value differs from the old value ..
+            if(newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]]) {
+
+              // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
+              if(existingGuess[existingGuessKeys[j]]!=undefined) {
+                this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${existingGuessKeys[j]}: ${existingGuess[existingGuessKeys[j]]} -> ${newGuess[existingGuessKeys[j]]}`)
+              }
+
+              // update the guess value.
+              existingGuess[existingGuessKeys[j]] = newGuess[existingGuessKeys[j]]
+            }
           }
         }
-
-        for(let i=0; i<Object.keys(allValues).length; i++) {
-          Object.values(allValues)[0]
-        }
-
-        Object.keys(allValues).length>0 ? output=Object.values(allValues)[0]?.toString() : 'UNKNOWN'
-
-
-      } catch(err) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, `${newDeviceObject.deviceName}: ${err}`)
-        throw(err)
       }
 
-      //Utilities.AddLogEntry(LogEngine.Severity.Debug, newDeviceObject.deviceName, `.. using OS: ${output}`)
-
       this._le.logStack.pop();
-      return output;
+      return existingGuess;
 
     }
   }
@@ -430,7 +283,7 @@ export namespace MongoDB {
 
     public async checkMongoDatabase(mongoAdminURI:string, mongoURI:string, db:string):Promise<boolean> {
       this._le.logStack.push('checkMongoDatabase');
-      this._le.AddLogEntry(LogEngine.Severity.Info, `verifying db: ${db}`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `verifying db: ${db}`)
       let output:boolean = false;
       
       try {
@@ -443,7 +296,7 @@ export namespace MongoDB {
         const dbObject = dbInfo.databases.find(element => element.name==db)
         if(dbObject) {
 
-          this._le.AddLogEntry(LogEngine.Severity.Ok, `.. found db ${db} (size is ${dbObject.sizeOnDisk}b)`)
+          this._le.AddLogEntry(LogEngine.Severity.Ok, LogEngine.Action.Verified, `.. found db ${db} (size is ${dbObject.sizeOnDisk}b)`)
           mongoose.connect(`${mongoURI}`)
 
           const assetDB = initClient.db(db)
@@ -457,11 +310,11 @@ export namespace MongoDB {
         }
 
       } catch (err:any) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, err)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, err)
         throw(err)
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Ok, `.. check complete.`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. check complete.`)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
 
@@ -469,60 +322,60 @@ export namespace MongoDB {
 
     private async verifyCollection(admin:mongoose.mongo.Admin, collectionName:string, collectionSchema:mongoose.Schema):Promise<boolean> {
       this._le.logStack.push('verifyCollection')
-      this._le.AddLogEntry(LogEngine.Severity.Info, `verifying collection ${collectionName} .. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `verifying collection ${collectionName} .. `)
       let output:boolean = false
 
       try {
         const collectionExists:boolean = await this.validateCollection(admin, collectionName)
         if(collectionExists) {
-          this._le.AddLogEntry(LogEngine.Severity.Ok, `.. collection ${collectionName} ok. `)
+          this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. collection ${collectionName} ok. `)
         } else {
-          this._le.AddLogEntry(LogEngine.Severity.Info, `.. collection ${collectionName} does not exist`)
+          this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Note, `.. collection ${collectionName} does not exist`)
           await this.createCollection(collectionName, collectionSchema)
         }
       } catch (err:any) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, err)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, err)
         throw(err)
       }
       
-      this._le.AddLogEntry(LogEngine.Severity.Ok, `collection verified`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `collection verified`)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
     }
 
     private async validateCollection(admin:mongoose.mongo.Admin, collectionName:string):Promise<boolean> {
       this._le.logStack.push('validateCollection')
-      this._le.AddLogEntry(LogEngine.Severity.Info, `validating collection ${collectionName} .. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `validating collection ${collectionName} .. `)
       let output:boolean = false
 
       try {
         const doc = await admin.validateCollection(collectionName)
-        this._le.AddLogEntry(LogEngine.Severity.Ok, `.. collection ${collectionName} OK. (found ${doc} records)`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `.. collection ${collectionName} OK. (found ${doc} records)`)
         output=true
       } catch (err:any) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, err)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, err)
         throw(err)
       }
           
-      this._le.AddLogEntry(LogEngine.Severity.Info, `collection ${collectionName} verified. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `collection ${collectionName} verified. `)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
     }
 
     private async createCollection(collectionName:string, collectionSchema:mongoose.Schema) {
       this._le.logStack.push('createCollection')
-      this._le.AddLogEntry(LogEngine.Severity.Info, `creating collection ${collectionName} .. `)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `creating collection ${collectionName} .. `)
       let output:boolean = false
 
       try {
         const mongoCollection:mongo.Collection = await mongoose.model(collectionName, collectionSchema).createCollection()
         output = true
       } catch (err:any) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, err)
+        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, err)
         throw(err)
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, `collection ${collectionName} created`)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Verified, `collection ${collectionName} created`)
       this._le.logStack.pop()
       return new Promise<boolean>((resolve) => {resolve(output)})
     }

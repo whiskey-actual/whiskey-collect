@@ -12,7 +12,7 @@ import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './Device'
+import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
 
 export class Telemetry {
 
@@ -51,7 +51,7 @@ export class Telemetry {
             const ad = new ActiveDirectory(this._le);
             output = await ad.fetch(ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit)
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Ok, `${err}`)
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
@@ -67,7 +67,7 @@ export class Telemetry {
             const aad = new AzureActiveDirectory(this._le);
             output = await aad.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Ok, `${err}`)
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
@@ -83,7 +83,7 @@ export class Telemetry {
             const am = new AzureManaged(this._le);
             output = await am.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Ok, `${err}`)
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
@@ -99,7 +99,7 @@ export class Telemetry {
             const cw = new Connectwise(this._le);
             output = await cw.fetch(baseURL, clientId, userName, password);
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Ok, `${err}`)
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
@@ -115,7 +115,7 @@ export class Telemetry {
             const cs = new Crowdstrike(this._le)
             output = await cs.fetch(baseURL, clientId, clientSecret)
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Ok, `${err}`)
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
