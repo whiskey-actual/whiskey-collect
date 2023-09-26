@@ -69,14 +69,15 @@ export class MicrosoftSql {
             await this._sqlPool.connect()
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; getting ID for ${objectName}.. `)
 
-
             const ps = new mssql.PreparedStatement(this._sqlPool)
             ps.input('keyValue', mssql.VarChar(255))
 
             const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}=@keyValue`
 
             try {
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `preparing: ${queryText}`)
                 await ps.prepare(queryText);
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `prepared.`)
                 const result = await ps.execute({keyValue})
                 console.debug(result)
                 if(result.recordset.length!==0) {
@@ -91,7 +92,6 @@ export class MicrosoftSql {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
         } finally {
-            this._sqlPool.close()
             this._le.logStack.pop()
         }
 
