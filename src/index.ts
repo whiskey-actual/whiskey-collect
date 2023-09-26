@@ -16,17 +16,19 @@ import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, 
 
 export class Collector {
 
-    constructor(logStack:string[], mongoURI:string, logFrequency:number=1000, showDebug:boolean=false) {
+    constructor(logStack:string[], mongoURI:string='', sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false) {
         this._mongoURI=mongoURI
+        this._sqlConfig=sqlConfig
         this._logFrequency=logFrequency
         this._le = new LogEngine(logStack, showDebug);
     }
     private _mongoURI:string=''
+    private _sqlConfig:string=''
     private _logFrequency:number=1000
     private _le:LogEngine = new LogEngine([])
 
-    public async persistToMicrosoftSql(MicrosoftSqlConfig:any, sqlRequestCollection:SqlRequestCollection):Promise<boolean> {
-        const mssql:MicrosoftSql=new MicrosoftSql(this._le, MicrosoftSqlConfig)
+    public async persistToMicrosoftSql(sqlRequestCollection:SqlRequestCollection):Promise<boolean> {
+        const mssql:MicrosoftSql=new MicrosoftSql(this._le, this._sqlConfig)
         await mssql.writeToSql(sqlRequestCollection, this._logFrequency)
         return new Promise<boolean>((resolve) => {resolve(true)})
     }

@@ -18,49 +18,49 @@ import { model, Schema } from "mongoose";
     collection: 'operatingSystems',
     timestamps: true,
     autoCreate: true,
-    virtuals: {
-      osLabel: {
-        async set(v) {
-          // `v` is the value being set, so use the value to set
-          // `firstName` and `lastName`.{
-          let tempLabel:string = this.osLabel
+    // virtuals: {
+    //   osLabel: {
+    //     async set(v) {
+    //       // `v` is the value being set, so use the value to set
+    //       // `firstName` and `lastName`.{
+    //       let tempLabel:string = this.osLabel
 
-          if(Utilities.doesRegexMatch(tempLabel, ['/microsoft/gi','/windows/gi'])) {
-            this.set({ osVendor: 'Microsoft', osPlatform: 'Windows'});
-          }
+    //       if(Utilities.doesRegexMatch(tempLabel, ['/microsoft/gi','/windows/gi'])) {
+    //         this.set({ osVendor: 'Microsoft', osPlatform: 'Windows'});
+    //       }
 
-          //now remove the matches
-          tempLabel = tempLabel.replace('microsoft', '');
-          tempLabel = tempLabel.replace('windows', '')
-          tempLabel = tempLabel.trim();
+    //       //now remove the matches
+    //       tempLabel = tempLabel.replace('microsoft', '');
+    //       tempLabel = tempLabel.replace('windows', '')
+    //       tempLabel = tempLabel.trim();
 
-          if(Utilities.doesRegexMatch(tempLabel, ['/server/gi'])) {
-            this.set({osClass: "Server"})
-          } else {
-            this.set({osClass: "End-user device"})
-          }
+    //       if(Utilities.doesRegexMatch(tempLabel, ['/server/gi'])) {
+    //         this.set({osClass: "Server"})
+    //       } else {
+    //         this.set({osClass: "End-user device"})
+    //       }
 
-          tempLabel = tempLabel.replace('server','')
+    //       tempLabel = tempLabel.replace('server','')
 
-          this.set({osLabelRemainder: tempLabel})
+    //       this.set({osLabelRemainder: tempLabel})
 
-        }
-      }
-    },
-    methods: {
-      async saveOS() {
-        await model('OperatingSystem').updateOne(
-          { osLabel: this.osLabel },
-          {
-            $set: this
-          },
-          {
-            new: true,
-            upsert: true
-          }
-        );
-      }
-    }
+    //     }
+    //   }
+    // },
+    // methods: {
+    //   async saveOS() {
+    //     await model('OperatingSystem').updateOne(
+    //       { osLabel: this.osLabel },
+    //       {
+    //         $set: this
+    //       },
+    //       {
+    //         new: true,
+    //         upsert: true
+    //       }
+    //     );
+    //   }
+    // }
   });
 
 

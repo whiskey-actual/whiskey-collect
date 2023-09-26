@@ -200,7 +200,7 @@ export namespace MongoDB {
       for(let i=0; i<osPlatformKeys.length; i++) {
         if(deviceObjectKeys.includes(osPlatformKeys[i]) && deviceObject[osPlatformKeys[i]]!==undefined && deviceObject[osPlatformKeys[i]]!=='') {
           const os = await new OperatingSystem({osLabel: deviceObject[osPlatformKeys[i]]});
-          os.saveOS()
+          //os.saveOS()
 
         }
       }
