@@ -2,11 +2,13 @@
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
+
 import mssql from 'mssql'
 import { Client } from 'ldapts'
 
 import { SqlRequestCollection } from '../database/SqlRequestCollection'
 import { MicrosoftSql } from '../database/MicrosoftSql';
+import { OperatingSystem } from '../components/OperatingSystem';
 
 export class ActiveDirectoryObject {
   // mandatory
@@ -103,7 +105,12 @@ export class ActiveDirectory
     
     for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
       const DeviceID:number = await sql.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
-      const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
+
+      let os = new OperatingSystem(this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
+      const OperatingSystemID:number = await os.getId(this._le, this._sqlConfig);
+      await os.getValues(this._le, this._sqlConfig, OperatingSystemID)
+
+      //const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
       const DeviceActiveDirectoryID:number = await sql.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN)
 
       let ps = new mssql.PreparedStatement()
