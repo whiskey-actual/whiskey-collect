@@ -77,7 +77,7 @@ export class MicrosoftSql {
             try {
                 this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `preparing: ${queryText}`)
                 await ps.prepare(queryText);
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `prepared.`)
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `prepared: ${ps.prepared.toString()}`)
                 const result = await ps.execute({keyValue})
                 console.debug(result)
                 if(result.recordset.length!==0) {
