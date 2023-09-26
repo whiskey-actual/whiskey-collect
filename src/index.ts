@@ -43,9 +43,9 @@ export class Collector {
         return new Promise<boolean>((resolve) => {resolve(true)})
     }
 
-    public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryDevice[]> {
+    public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<SqlRequestCollection> {
         this._le.logStack.push('ActiveDirectory');
-        let output:ActiveDirectoryDevice[]=[]
+        let output:SqlRequestCollection
 
         try {
             const ad = new ActiveDirectory(this._le);
@@ -56,7 +56,7 @@ export class Collector {
         }
         
         this._le.logStack.pop()
-        return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
+        return new Promise<SqlRequestCollection>((resolve) => {resolve(output)})
     }
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureActiveDirectoryDevice[]> {

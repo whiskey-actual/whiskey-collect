@@ -1,9 +1,12 @@
 // imports
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
+
+import mssql from 'mssql'
 import { Client } from 'ldapts'
 
 import { ActiveDirectoryDevice } from '../models/Device';
+import { SqlRequestCollection } from '../database/SqlRequestCollection'
 
 export class ActiveDirectory
 {
@@ -12,11 +15,12 @@ export class ActiveDirectory
     this._le=le
   }
   private _le:LogEngine = new LogEngine([])
+  private sprocName ='sp_add_activeDirectory_device' 
   
 
-  public async fetch(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryDevice[]> {
+  public async fetch(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<SqlRequestCollection> {
 
-    let output:ActiveDirectoryDevice[]=[]
+    let output:SqlRequestCollection = new SqlRequestCollection(this.sprocName)
     this._le.logStack.push('fetch')
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
 
@@ -44,41 +48,41 @@ export class ActiveDirectory
       for(let i=0; i<searchEntries.length; i++) {
         try {
 
-          const device:ActiveDirectoryDevice = {
-            // mandatory
-            observedByActiveDirectory: true,
-            deviceName: searchEntries[i].cn.toString().trim(),
-            activeDirectoryDN: searchEntries[i].dn.toString().trim(),
-            // strings
-            activeDirectoryOperatingSystem: Utilities.CleanedString(searchEntries[i].operatingSystem),
-            activeDirectoryOperatingSystemVersion: Utilities.CleanedString(searchEntries[i].operatingSystemVersion),
-            activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
-            // numbers
-            activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
-            // dates
-            activeDirectoryWhenCreated: Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
-            activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
-            activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
-            activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
-            activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
-          }
-          output.push(device)
+          // const device:ActiveDirectoryDevice = {
+          //   // mandatory
+          //   observedByActiveDirectory: true,
+          //   deviceName: searchEntries[i].cn.toString().trim(),
+          //   activeDirectoryDN: searchEntries[i].dn.toString().trim(),
+          //   // strings
+          //   activeDirectoryOperatingSystem: Utilities.CleanedString(searchEntries[i].operatingSystem),
+          //   activeDirectoryOperatingSystemVersion: Utilities.CleanedString(searchEntries[i].operatingSystemVersion),
+          //   activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
+          //   // numbers
+          //   activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
+          //   // dates
+          //   activeDirectoryWhenCreated: Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
+          //   activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
+          //   activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
+          //   activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
+          //   activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
+          // }
+          // output.push(device)
 
-          // let q = new sql.Request()
-          // .input('deviceName', sql.VarChar(64), Utilities.CleanedString(searchEntries[i].cn))
-          // .input('activeDirectoryDN', sql.VarChar(255), Utilities.CleanedString(searchEntries[i].dn))
-          // .input('activeDirectoryOperatingSystem', sql.VarChar(255), Utilities.CleanedString(searchEntries[i].operatingSystem))
-          // //.input('activeDirectoryOperatingSystemVersion', sql.VarChar(255), Utilities.CleanedString(searchEntries[i].operatingSystemVersion))
-          // .input('activeDirectoryDNSHostName', sql.VarChar(255), Utilities.CleanedString(searchEntries[i].dNSHostName))
-          // // int
-          // .input('activeDirectoryLogonCount', sql.Int, isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount))
-          // // datetimes
-          // .input('activeDirectoryWhenCreated', sql.DateTime2, Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()))
-          // .input('activeDirectoryWhenChanged', sql.DateTime2, searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined)
-          // .input('activeDirectoryLastLogon', sql.DateTime2, searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined)
-          // .input('activeDirectoryPwdLastSet', sql.DateTime2, searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined)
-          // .input('activeDirectoryLastLogonTimestamp', sql.DateTime2, searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined)
-          // output.sqlRequests.push(q)
+          let q = new mssql.Request()
+          .input('deviceName', mssql.VarChar(64), Utilities.CleanedString(searchEntries[i].cn))
+          .input('activeDirectoryDN', mssql.VarChar(255), Utilities.CleanedString(searchEntries[i].dn))
+          .input('activeDirectoryOperatingSystem', mssql.VarChar(255), Utilities.CleanedString(searchEntries[i].operatingSystem))
+          //.input('activeDirectoryOperatingSystemVersion', sql.VarChar(255), Utilities.CleanedString(searchEntries[i].operatingSystemVersion))
+          .input('activeDirectoryDNSHostName', mssql.VarChar(255), Utilities.CleanedString(searchEntries[i].dNSHostName))
+          // int
+          .input('activeDirectoryLogonCount', mssql.Int, isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount))
+          // datetimes
+          .input('activeDirectoryWhenCreated', mssql.DateTime2, Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()))
+          .input('activeDirectoryWhenChanged', mssql.DateTime2, searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined)
+          .input('activeDirectoryLastLogon', mssql.DateTime2, searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined)
+          .input('activeDirectoryPwdLastSet', mssql.DateTime2, searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined)
+          .input('activeDirectoryLastLogonTimestamp', mssql.DateTime2, searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined)
+          output.sqlRequests.push(q)
         } catch (err) {
           this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         }  
@@ -94,7 +98,7 @@ export class ActiveDirectory
 
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
     this._le.logStack.pop()
-    return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
+    return new Promise<SqlRequestCollection>((resolve) => {resolve(output)})
 
   }
 

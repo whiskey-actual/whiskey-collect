@@ -7,63 +7,83 @@ import { SqlRequestCollection } from './SqlRequestCollection';
 
 export class MicrosoftSql {
 
-    constructor(logEngine:LogEngine, sqlConfig:any, showDetails:boolean=false, showDebug:boolean=false) {
-        this._sqlConfig = sqlConfig;
-        this._showDetails=showDetails;
-        this._showDebug=showDebug;
+    constructor(logEngine:LogEngine, sqlConfig:any) {
         this._le = logEngine;
+        this._sqlPool = new mssql.ConnectionPool(sqlConfig)
     }
-    private _showDetails:boolean=false;
-    private _showDebug:boolean=false;
-    private _sqlConfig:any=undefined
+    private _sqlPool:mssql.ConnectionPool = new mssql.ConnectionPool('')
     private _le:LogEngine = new LogEngine([])
 
     public async writeToSql(sqlRequestCollection:SqlRequestCollection, logFrequency:number=1000) {
-    this._le.logStack.push("writeToSql");
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initializing.. `)
+        this._le.logStack.push("writeToSql");
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initializing.. `)
 
-    try {
+        try {
 
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql @ ${this._sqlConfig.server} ..`)
-        const sqlPool = await mssql.connect(this._sqlConfig)
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; executing ${sqlRequestCollection.sprocName} for ${sqlRequestCollection.sqlRequests.length} items .. `)
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql ..`)
+            await this._sqlPool.connect()
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; executing ${sqlRequestCollection.sprocName} for ${sqlRequestCollection.sqlRequests.length} items .. `)
 
-        let executionArray:Promise<void|IProcedureResult<any>>[] = []
+            let executionArray:Promise<void|IProcedureResult<any>>[] = []
 
-        for(let i=0; i<sqlRequestCollection.sqlRequests.length; i++) {
-            const r = sqlPool.request()
-            try {
-                r.parameters = sqlRequestCollection.sqlRequests[i].parameters
-                r.verbose = true
-                executionArray.push(
-                    r
-                    .execute(sqlRequestCollection.sprocName)
-                    .catch((reason:any) =>{
-                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${reason}`)
-                        console.debug(r)
-                    })
-                )
-                //await r.execute(sqlRequestCollection.sprocName)
-            } catch(err) {
-                this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-                console.debug(sqlRequestCollection.sqlRequests[i])
+            for(let i=0; i<sqlRequestCollection.sqlRequests.length; i++) {
+                const r = this._sqlPool.request()
+                try {
+                    r.parameters = sqlRequestCollection.sqlRequests[i].parameters
+                    r.verbose = true
+                    executionArray.push(
+                        r
+                        .execute(sqlRequestCollection.sprocName)
+                        .catch((reason:any) =>{
+                            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${reason}`)
+                            console.debug(r)
+                        })
+                    )
+                    //await r.execute(sqlRequestCollection.sprocName)
+                } catch(err) {
+                    this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+                    console.debug(sqlRequestCollection.sqlRequests[i])
+                }
+                
             }
-            
+            //await Promise.all(executionArray);
+
+            await Utilities.executePromisesWithProgress(this._le, executionArray, logFrequency)
+
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            this._sqlPool.close()
+            this._le.logStack.pop()
         }
-        //await Promise.all(executionArray);
-
-        await Utilities.executePromisesWithProgress(this._le, executionArray, logFrequency)
-
-        
-        sqlPool.close()
-    } catch(err) {
-        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-        throw(err)
-    } finally {
-       this._le.logStack.pop()
     }
 
-     
+    public async getID(objectName:string, keyValue:string):Promise<number> {
+        this._le.logStack.push("getID");
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initializing.. `)
+        let output:number=0
+
+        try {
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql ..`)
+            await this._sqlPool.connect()
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; getting ID for ${objectName}.. `)
+            const q = await this._sqlPool.query(`SELECT ${objectName}ID FROM ${objectName} WHERE ${objectName}Description="${keyValue}"`)
+
+            if(q.recordset.length!==0) {
+                output = q.recordset[0][objectName+'ID']
+            }
+
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. got ID: ${output}`)            
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            this._sqlPool.close()
+            this._le.logStack.pop()
+        }
+
+        return new Promise<number>((resolve) => {resolve(output)})
     }
 
     
