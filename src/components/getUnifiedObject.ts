@@ -5,6 +5,8 @@ export async function getUnifiedObject(le:LogEngine, modelName:string, identityK
 
     le.logStack.push("getUnifiedObject");
 
+    le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `model=${modelName}, identityKey=${identityKey}, identityValue=${identityValue}`)
+
     // first, get the existing object, if it exists.
     const existingRecord = await mongoose.model(modelName).findOne({[identityKey]: identityValue})
 
