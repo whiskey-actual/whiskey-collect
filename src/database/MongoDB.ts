@@ -5,7 +5,8 @@ import { Utilities } from 'whiskey-util'
 import { MongoClient } from 'mongodb'
 import mongoose, { mongo } from "mongoose";
 import { DeviceSchema } from '../models/Device'
-import { OperatingSystemSchema } from '../models/OperatingSystem';
+import { OperatingSystem } from '../models/OperatingSystem';
+import { getUnifiedObject } from '../components/getUnifiedObject';
 
 const _ActiveDeviceThresholdInDays:number=30
 
@@ -85,7 +86,7 @@ export namespace MongoDB {
         'crowdstrikeModifiedDateTime',
       ]
 
-      const unifiedDeviceObject:any = await this.getUnifiedObject('Device', 'deviceName', incomingDeviceObject.deviceName, incomingDeviceObject, immutableKeys);
+      const unifiedDeviceObject:any = await getUnifiedObject(this._le, 'Device', 'deviceName', incomingDeviceObject.deviceName, incomingDeviceObject, immutableKeys);
 
       // calculate the operatingSystem value.
       const operatingSystemObject = await this.getOperatingSystemDetails(unifiedDeviceObject);
@@ -171,53 +172,7 @@ export namespace MongoDB {
 
     }
 
-    private async getUnifiedObject(modelName:string, identityKey:string, identityValue:string, incomingObject:any, immutableKeys:string[]):Promise<any> {
-
-      this._le.logStack.push("compareAndUpdate");
-
-      // first, get the existing object, if it exists.
-      const existingRecord = await mongoose.model(modelName).findOne({[identityKey]: identityValue})
-
-      let unifiedObject:any
-      if(existingRecord) {
-        unifiedObject=existingRecord._doc;
-        const unifiedObjectKeys = Object.keys(unifiedObject)
-
-        // now, iterate throught the incoming keys & compare to the already-existing object.
-        let incomingObjectKeys = Object.keys(incomingObject);
-        
-        // iterate through the keys ..
-        for(let i=0;i<incomingObjectKeys.length;i++) {
-
-          const objectKey = incomingObjectKeys[i]
-
-          // does this key already exist for the existing object?
-          if(unifiedObjectKeys.includes(objectKey)) {
-
-            // if the key is different, log it and update the value (but dont change immutable values)
-            if(unifiedObject[objectKey]!==incomingObject[objectKey] && !immutableKeys.includes(objectKey)) {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Change, `${unifiedObject[identityKey]}.${objectKey}: ${unifiedObject[objectKey]} -> ${incomingObject[objectKey]}`)
-              unifiedObject[objectKey] = incomingObject[objectKey]
-            } else {
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `${unifiedObject[identityKey]}.${objectKey}: ${incomingObject[objectKey]}`)
-            }
-          } else {
-            // is the key value undefined?
-            if(unifiedObject[objectKey]!=undefined) {
-              unifiedObject[objectKey] = incomingObject[objectKey];
-              this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Add, `${unifiedObject[identityKey]}.${objectKey}: ${unifiedObject[objectKey]}`)
-            }
-          }
-        }
-      } else {
-        unifiedObject=incomingObject;
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Add, `${unifiedObject.deviceName}`)
-      }
-
-      this._le.logStack.pop();
-      return new Promise<any>((resolve) => {resolve(unifiedObject)})
-
-    }
+    
 
     private async getOperatingSystemDetails(deviceObject:any):Promise<void> {
 
@@ -242,65 +197,11 @@ export namespace MongoDB {
         'crowdstrikeOSVersion'
       ]
 
-      let existingGuess:any = {
-        vendor: '',
-        platform: '',
-        class: ''
-      }
-
-      let existingGuessKeys:string[] = Object.keys(existingGuess);
 
       for(let i=0; i<osPlatformKeys.length; i++) {
         if(deviceObjectKeys.includes(osPlatformKeys[i]) && deviceObject[osPlatformKeys[i]]!==undefined && deviceObject[osPlatformKeys[i]]!=='') {
-
-          await mongoose.model('OperatingSystem').updateOne(
-            { osSourceLabel: deviceObject[osPlatformKeys[i]] },
-            { },
-            {
-              new: true,
-              upsert: true
-            }
-          );
-
-          // let keyValue:string = deviceObject[osPlatformKeys[i]];
-
-          // if(keyValue) {
-
-          //   let newGuess = existingGuess;
-
-          //   if(keyValue.match('/microsoft/i') || keyValue.match('/windows/i')) {
-          //     newGuess.vendor = "Microsoft"
-          //     newGuess.platform = "Windows"
-          //   }
-
-          //   //now remove the matches
-          //   keyValue = keyValue.replace('microsoft', '');
-          //   keyValue = keyValue.replace('windows', '')
-          //   keyValue = keyValue.trim();
-
-          //   if(keyValue.match('/server/i')) {
-          //     newGuess.class = "Server"
-          //   } else {
-          //     newGuess.class = "End-user device"
-          //   }
-
-          //   keyValue = keyValue.replace('server','')
-
-          //   for(let j=0; j<existingGuessKeys.length; j++) {
-
-          //     // if the new value differs from the old value and the new value isn't undefined ..
-          //     if(newGuess!==undefined && (newGuess[existingGuessKeys[j]]!=existingGuess[existingGuessKeys[j]] || existingGuess[existingGuessKeys[j]]===undefined)) {
-
-          //       // if the old value was meaningful (ie, not undefined), then warn that the guess has changed.
-          //       if(existingGuess[existingGuessKeys[j]]!=undefined) {
-          //         this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${existingGuessKeys[j]}: ${existingGuess[existingGuessKeys[j]]} -> ${newGuess[existingGuessKeys[j]]}`)
-          //       }
-
-          //       // update the guess value.
-          //       existingGuess[existingGuessKeys[j]] = newGuess[existingGuessKeys[j]]
-          //     }
-          //   }
-          // }
+          const os = new OperatingSystem(this._le, deviceObject[osPlatformKeys[i]])
+          await os.saveOperatingSystem()
         }
       }
 
@@ -308,6 +209,11 @@ export namespace MongoDB {
       return new Promise<void>((resolve) => {resolve()})
 
     }
+
+    private async parseOperatingSystem(operaingSystemLabel:string) {
+
+    }
+
   }
 
   export class CheckDB {
@@ -339,7 +245,7 @@ export namespace MongoDB {
           const admin = assetDB.admin()
 
           await this.verifyCollection(admin, "devices", DeviceSchema);
-          await this.verifyCollection(admin, "operatingSystems", OperatingSystemSchema);
+          await this.verifyCollection(admin, "operatingSystems", OperatingSystem.OperatingSystemSchema);
 
           return true;
 
