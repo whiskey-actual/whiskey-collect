@@ -25,6 +25,8 @@ export class OperatingSystem {
     
     public async getId(le:LogEngine, sqlConfig:string):Promise<number> {
 
+        le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `OperatingSystem.getId`)
+
         const ms = new MicrosoftSql(le, sqlConfig)
         
         // see if we already have a record
@@ -37,10 +39,8 @@ export class OperatingSystem {
             if(id===0) {
                 throw('unable to find added record!')
             }
-        
         } else {
             // we found an entry, check the fields.
-
         }
 
         return new Promise<number>((resolve) => {resolve(id)})
