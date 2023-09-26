@@ -9,6 +9,7 @@ export class OperatingSystem {
   constructor(le:LogEngine, operatingSystemLabel:string) {
 
     this._le = le
+    this._osSourceLabel = operatingSystemLabel
 
     let tempLabel:string = operatingSystemLabel
 
