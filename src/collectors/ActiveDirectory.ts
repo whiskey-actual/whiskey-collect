@@ -102,7 +102,7 @@ export class ActiveDirectory
     const sql = new MicrosoftSql(this._le, this._sqlConfig)
     
     for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
-      const DeviceID:number = await sql.getID("Device", this.ActiveDirectoryObjects[i].deviceName)
+      const DeviceID:number = await sql.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
       const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
       const DeviceActiveDirectoryID:number = await sql.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN)
 
