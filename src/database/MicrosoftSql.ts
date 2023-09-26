@@ -69,11 +69,12 @@ export class MicrosoftSql {
             await this._sqlPool.connect()
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; getting ID for ${objectName}.. `)
 
-            const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'} ="${keyValue}"`
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, queryText)
+            const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}="${keyValue}"`
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `query: ${queryText}`)
+           
+            const q = await this._sqlPool.query(queryText)
 
-            
-            const q = await this._sqlPool.query(`SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'} ="${keyValue}"`)
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `query ok`)
 
             if(q.recordset.length!==0) {
                 output = q.recordset[0][objectName+'ID']
