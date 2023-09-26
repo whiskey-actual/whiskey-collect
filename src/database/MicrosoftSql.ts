@@ -2,7 +2,7 @@
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
-import mssql, { IProcedureResult } from 'mssql'
+import mssql, { IProcedureResult, query } from 'mssql'
 import { SqlRequestCollection } from './SqlRequestCollection';
 
 export class MicrosoftSql {
@@ -59,7 +59,7 @@ export class MicrosoftSql {
         }
     }
 
-    public async getID(objectName:string, keyValue:string):Promise<number> {
+    public async getID(objectName:string, keyValue:string, keyField:string=''):Promise<number> {
         this._le.logStack.push("getID");
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initializing.. `)
         let output:number=0
@@ -68,12 +68,16 @@ export class MicrosoftSql {
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql ..`)
             await this._sqlPool.connect()
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; getting ID for ${objectName}.. `)
-            const q = await this._sqlPool.query(`SELECT ${objectName}ID FROM ${objectName} WHERE ${objectName}Description="${keyValue}"`)
+
+            const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'} ="${keyValue}"`
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, queryText)
+
+            
+            const q = await this._sqlPool.query(`SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'} ="${keyValue}"`)
 
             if(q.recordset.length!==0) {
                 output = q.recordset[0][objectName+'ID']
             }
-
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. got ID: ${output}`)            
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
