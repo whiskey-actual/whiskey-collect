@@ -69,16 +69,30 @@ export class MicrosoftSql {
             await this._sqlPool.connect()
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected; getting ID for ${objectName}.. `)
 
-            const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}="${keyValue}"`
+
+            const ps = new mssql.PreparedStatement(this._sqlPool)
+            ps.input('keyValue', mssql.VarChar(255))
+
+            const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}=@keyValue`
+
+            try {
+                await ps.prepare(queryText);
+                const result = await ps.execute({keyValue})
+                console.debug(result)
+                if(result.recordset.length!==0) {
+                    output = result.recordset[0][objectName+'ID']
+                }
+            } finally {
+                await ps.unprepare();
+            }
+
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `query: ${queryText}`)
            
             const q = await this._sqlPool.query(queryText)
 
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `query ok`)
 
-            if(q.recordset.length!==0) {
-                output = q.recordset[0][objectName+'ID']
-            }
+            
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. got ID: ${output}`)            
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
