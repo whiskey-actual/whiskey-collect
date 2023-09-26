@@ -56,13 +56,13 @@ export class OperatingSystem {
         osPlatform: this._osPlatform,
         osVersion: this._osVersion,
         osVariant: this._osVariant,
-        osClass: this._osClass,
+        osClass: this._osClass, 
         osLabelReminder: this._osLabelRemainder
       }
 
-      const unifiedObject:any = await getUnifiedObject(this._le, 'OperatingSystem', 'osSourceLabel', this._osSourceLabel, o, []);
+      const unifiedObject:any = await getUnifiedObject(this._le, 'OperatingSystem', 'osSourceLabel', this._osSourceLabel, o);
 
-      const os = await mongoose.model('OperatingSystem').findByIdAndUpdate(
+      const os = await mongoose.model('OperatingSystem').findOneAndUpdate(
         { osSourceLabel: o.osSourceLabel },
         { $set: unifiedObject},
         {

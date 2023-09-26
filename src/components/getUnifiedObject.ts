@@ -1,7 +1,7 @@
 import { LogEngine } from 'whiskey-log';
 import mongoose from "mongoose";
 
-export async function getUnifiedObject(le:LogEngine, modelName:string, identityKey:string, identityValue:string, incomingObject:any, immutableKeys:string[]):Promise<any> {
+export async function getUnifiedObject(le:LogEngine, modelName:string, identityKey:string, identityValue:string, incomingObject:any, immutableKeys:string[]=[]):Promise<any> {
 
     le.logStack.push("getUnifiedObject");
 
