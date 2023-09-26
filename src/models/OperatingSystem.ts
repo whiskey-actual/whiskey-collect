@@ -1,4 +1,6 @@
 import { LogEngine } from 'whiskey-log';
+import { Utilities } from 'whiskey-util'
+
 import { getUnifiedObject } from "../components/getUnifiedObject";
 
 
@@ -9,13 +11,13 @@ export class OperatingSystem {
   constructor(le:LogEngine, operatingSystemLabel:string) {
 
     this._le = le
-    this._osSourceLabel = operatingSystemLabel
+    this.osSourceLabel = operatingSystemLabel
 
     let tempLabel:string = operatingSystemLabel
 
-      if(tempLabel.match('/microsoft/gi') || tempLabel.match('/windows/gi')) {
-          this._osVendor = "Microsoft"
-          this._osPlatform = "Windows"
+      if(Utilities.doesRegexMatch(tempLabel, ['/microsoft/gi','/windows/gi'])) {
+          this.osVendor = "Microsoft"
+          this.osPlatform = "Windows"
         }
 
         //now remove the matches
@@ -23,26 +25,26 @@ export class OperatingSystem {
         tempLabel = tempLabel.replace('windows', '')
         tempLabel = tempLabel.trim();
 
-        if(tempLabel.match('/server/gi')) {
-          this._osClass = "Server"
+        if(Utilities.doesRegexMatch(tempLabel, ['/server/gi'])) {
+          this.osClass = "Server"
         } else {
-          this._osClass = "End-user device"
+          this.osClass = "End-user device"
         }
 
         tempLabel = tempLabel.replace('server','')
 
-        this._osLabelRemainder = tempLabel
+        this.osLabelRemainder = tempLabel
         
   }
 
   private _le:LogEngine = new LogEngine([])
-  private _osSourceLabel:string = ''
-  private _osVendor:string = ''
-  private _osPlatform:string = ''
-  private _osClass:string = ''
-  private _osLabelRemainder:string = ''
-  private _osVersion:string = ''
-  private _osVariant:string = ''
+  public readonly osSourceLabel:string = ''
+  public readonly osVendor:string = ''
+  public readonly osPlatform:string = ''
+  public readonly osClass:string = ''
+  public readonly osLabelRemainder:string = ''
+  public readonly osVersion:string = ''
+  public readonly osVariant:string = ''
 
   public async saveOperatingSystem():Promise<void> {
 
@@ -51,16 +53,16 @@ export class OperatingSystem {
     try {
 
       let o:OperatingSystem.OperatingSystemInterface = {
-        osSourceLabel: this._osSourceLabel,
-        osVendor: this._osVendor,
-        osPlatform: this._osPlatform,
-        osVersion: this._osVersion,
-        osVariant: this._osVariant,
-        osClass: this._osClass, 
-        osLabelReminder: this._osLabelRemainder
+        osSourceLabel: this.osSourceLabel,
+        osVendor: this.osVendor,
+        osPlatform: this.osPlatform,
+        osVersion: this.osVersion,
+        osVariant: this.osVariant,
+        osClass: this.osClass, 
+        osLabelReminder: this.osLabelRemainder
       }
 
-      const unifiedObject:any = await getUnifiedObject(this._le, 'OperatingSystem', 'osSourceLabel', this._osSourceLabel, o);
+      const unifiedObject:any = await getUnifiedObject(this._le, 'OperatingSystem', 'osSourceLabel', this.osSourceLabel, o);
 
       const os = await mongoose.model('OperatingSystem').findOneAndUpdate(
         { osSourceLabel: o.osSourceLabel },

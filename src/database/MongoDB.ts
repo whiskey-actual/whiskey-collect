@@ -186,7 +186,6 @@ export namespace MongoDB {
         'azureManagedOperatingSystem',
         'connectwiseOperatingSystem',
         'crowdstrikeOSBuild',
-        'azureProfileType'
       ]
 
       const osVersionKeys:string[] = [
