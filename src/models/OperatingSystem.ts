@@ -13,7 +13,7 @@ export class OperatingSystem {
 
     let tempLabel:string = operatingSystemLabel
 
-      if(tempLabel.match('/microsoft/i') || tempLabel.match('/windows/i')) {
+      if(tempLabel.match('/microsoft/gi') || tempLabel.match('/windows/gi')) {
           this._osVendor = "Microsoft"
           this._osPlatform = "Windows"
         }
@@ -23,7 +23,7 @@ export class OperatingSystem {
         tempLabel = tempLabel.replace('windows', '')
         tempLabel = tempLabel.trim();
 
-        if(tempLabel.match('/server/i')) {
+        if(tempLabel.match('/server/gi')) {
           this._osClass = "Server"
         } else {
           this._osClass = "End-user device"
@@ -32,16 +32,6 @@ export class OperatingSystem {
         tempLabel = tempLabel.replace('server','')
 
         this._osLabelRemainder = tempLabel
-
-        let o:OperatingSystem.OperatingSystemInterface = {
-          osSourceLabel: operatingSystemLabel,
-          osVendor: this._osVendor,
-          osPlatform: this._osPlatform,
-          osVersion: this._osVersion,
-          osVariant: this._osVariant,
-          osClass: this._osClass,
-          osLabelReminder: this._osLabelRemainder
-        }
         
   }
 
@@ -58,20 +48,38 @@ export class OperatingSystem {
 
     this._le.logStack.push('saveOperatingSystem')
 
-    const unifiedObject:any = await getUnifiedObject(this._le, 'OperatingSystem', 'osSourceLabel', this._osSourceLabel, this, []);
+    try {
 
-    const os = await mongoose.model('OperatingSystem').updateOne(
-      { osSourceLabel: this._osSourceLabel },
-      { $set: unifiedObject},
-      {
-        new: true,
-        upsert: true
+      let o:OperatingSystem.OperatingSystemInterface = {
+        osSourceLabel: this._osSourceLabel,
+        osVendor: this._osVendor,
+        osPlatform: this._osPlatform,
+        osVersion: this._osVersion,
+        osVariant: this._osVariant,
+        osClass: this._osClass,
+        osLabelReminder: this._osLabelRemainder
       }
-    );
 
-    console.debug(os);
+      const unifiedObject:any = await getUnifiedObject(this._le, 'OperatingSystem', 'osSourceLabel', this._osSourceLabel, o, []);
 
-    this._le.logStack.pop();
+      const os = await mongoose.model('OperatingSystem').findByIdAndUpdate(
+        { osSourceLabel: o.osSourceLabel },
+        { $set: unifiedObject},
+        {
+          new: true,
+          upsert: true
+        }
+      );
+
+      console.debug(os);
+
+    } catch(err:any) {
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, err)
+      throw(err)
+    } finally {
+      this._le.logStack.pop();
+    }
+
     return new Promise<void>((resolve) => {resolve()})
 
   }
