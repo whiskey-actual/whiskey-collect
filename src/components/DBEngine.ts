@@ -173,7 +173,12 @@ export class DBEngine {
                 if(changeDetection) {
                     try {
                         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
-                        if(!currentValue || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()) {
+                        if(
+                            !currentValue 
+                            || (currentValue && !updatePackage.UpdatePackageItems[i].updateValue)
+                            || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()
+                        ) 
+                        {
                             changeDetected=true
                         }
                     } catch(err) {
