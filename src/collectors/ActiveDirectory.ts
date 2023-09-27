@@ -102,33 +102,30 @@ export class ActiveDirectory
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
 
     try {
-      
 
+      let upDevice:UpdatePackage = { tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
       
-      let up = new UpdatePackage
-      up.tableName = 'DeviceActiveDirectory'
-      up.idColumn = "DeviceActiveDirectoryID"
+      let upActiveDirectoryDevice:UpdatePackage = { tableName:'DeviceActiveDirectory', idColumn:"DeviceActiveDirectoryID", UpdatePackageItems:[]}
       
       for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
 
+        const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
+        upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceActiveDirectoryID", updateValue:DeviceActiveDirectoryID, columnType:mssql.Int})
 
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "ActiveDirectoryDNSHostName", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, columnType: mssql.VarChar(255) })
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLogonCount", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLogonCount, columnType: mssql.Int })
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenCreated", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated, columnType: mssql.DateTime2 })
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenChanged", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenChanged, columnType: mssql.DateTime2 })
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLastLogon", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLastLogon, columnType: mssql.DateTime2 })
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryPwdLastSet", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryPwdLastSet, columnType: mssql.DateTime2 })
-        up.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLastLogonTimestamp", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLastLogonTimestamp, columnType: mssql.DateTime2 })
-
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "ActiveDirectoryDNSHostName", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, columnType: mssql.VarChar(255) })
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLogonCount", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLogonCount, columnType: mssql.Int })
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenCreated", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated, columnType: mssql.DateTime2 })
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenChanged", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenChanged, columnType: mssql.DateTime2 })
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLastLogon", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLastLogon, columnType: mssql.DateTime2 })
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryPwdLastSet", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryPwdLastSet, columnType: mssql.DateTime2 })
+        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLastLogonTimestamp", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLastLogonTimestamp, columnType: mssql.DateTime2 })
         
-        //const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
         //const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
       }
-
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. executing ${up.UpdatePackageItems.length} updates .. `)
-      await this._db.performUpdates(up, true)
+      await this._db.performUpdates(upDevice, true)
+      await this._db.performUpdates(upActiveDirectoryDevice, true)
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
 
     } catch(err) {
@@ -139,39 +136,3 @@ export class ActiveDirectory
   }
 
 }
-
-
-
- // .input('deviceName', mssql.VarChar(64), Utilities.CleanedString(searchEntries[i].cn))
-// .input('activeDirectoryDN', mssql.VarChar(255), Utilities.CleanedString(searchEntries[i].dn))
-// .input('activeDirectoryOperatingSystem', mssql.VarChar(255), Utilities.CleanedString(searchEntries[i].operatingSystem))
-// //.input('activeDirectoryOperatingSystemVersion', sql.VarChar(255), Utilities.CleanedString(searchEntries[i].operatingSystemVersion))
-// .input('activeDirectoryDNSHostName', mssql.VarChar(255), Utilities.CleanedString(searchEntries[i].dNSHostName))
-// // int
-// .input('activeDirectoryLogonCount', mssql.Int, isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount))
-// // datetimes
-// .input('activeDirectoryWhenCreated', mssql.DateTime2, Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()))
-// .input('activeDirectoryWhenChanged', mssql.DateTime2, searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined)
-// .input('activeDirectoryLastLogon', mssql.DateTime2, searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined)
-// .input('activeDirectoryPwdLastSet', mssql.DateTime2, searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined)
-// .input('activeDirectoryLastLogonTimestamp', mssql.DateTime2, searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined)
-
-// const device:ActiveDirectoryDevice = {
-//   // mandatory
-//   observedByActiveDirectory: true,
-//   deviceName: searchEntries[i].cn.toString().trim(),
-//   activeDirectoryDN: searchEntries[i].dn.toString().trim(),
-//   // strings
-//   activeDirectoryOperatingSystem: Utilities.CleanedString(searchEntries[i].operatingSystem),
-//   activeDirectoryOperatingSystemVersion: Utilities.CleanedString(searchEntries[i].operatingSystemVersion),
-//   activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
-//   // numbers
-//   activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
-//   // dates
-//   activeDirectoryWhenCreated: Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
-//   activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
-//   activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
-//   activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
-//   activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
-// }
-// output.push(device)

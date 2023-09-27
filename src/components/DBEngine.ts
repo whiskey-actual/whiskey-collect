@@ -115,6 +115,13 @@ export class DBEngine {
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
                 this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
+            } else {
+                this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${keyField} ${keyValue} not found in ${objectName}, adding ..`)
+                    const r = this._sqlPool.request()
+                    r.input('keyValue', mssql.VarChar(255), keyValue)
+                    const query:string = `INSERT INTO ${objectName}(${keyField}) VALUES (@keyValue)`
+                    const result:mssql.IResult<any> = await this.executeSql(query, r)
+                    console.debug(result)
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
@@ -173,7 +180,7 @@ export class DBEngine {
                 }
 
                 if(!changeDetection || (changeDetection && changeDetected)) {
-                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
+                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                     const r = this._sqlPool.request()
                     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
                     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue )
