@@ -11,7 +11,7 @@ import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { ActiveDirectoryDevice, AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
+import { AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
 
 export class Collector {
 
