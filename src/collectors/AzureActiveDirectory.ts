@@ -147,7 +147,7 @@ export class AzureActiveDirectory {
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
 
         const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
-        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureDeviceId, 'AzureDeviceID')
+        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
         upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceAzureActiveDirectoryID", updateValue:DeviceAzureActiveDirectoryID, columnType:mssql.Int})
 
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDisplayName", updateValue:this.AzureActiveDirectoryObjects[i].azureDisplayName, columnType:mssql.VarChar(255) })
