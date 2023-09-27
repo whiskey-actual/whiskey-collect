@@ -117,11 +117,10 @@ export class DBEngine {
                 this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
             } else {
                 this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${keyField} ${keyValue} not found in ${objectName}, adding ..`)
-                    const r = this._sqlPool.request()
-                    r.input('keyValue', mssql.VarChar(255), keyValue)
-                    const query:string = `INSERT INTO ${objectName}(${keyField}) VALUES (@keyValue)`
-                    const result:mssql.IResult<any> = await this.executeSql(query, r)
-                    console.debug(result)
+                const r = this._sqlPool.request()
+                r.input('keyValue', mssql.VarChar(255), keyValue)
+                const query:string = `INSERT INTO ${objectName}(${keyField}) VALUES (@keyValue)`
+                await this.executeSql(query, r)
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
