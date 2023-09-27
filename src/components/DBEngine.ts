@@ -101,7 +101,7 @@ export class DBEngine {
             const result:mssql.IResult<any> = await this.executeSql(queryText, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `${objectName} "\x1b[96m${keyValue}\xa0" ID: \x1b[96m${output}\xa0`)
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `${objectName}: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
