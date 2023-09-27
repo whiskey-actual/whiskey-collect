@@ -2,7 +2,7 @@
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
-import mssql, { IProcedureResult, IRecordSet, IResult } from 'mssql'
+import mssql, { IProcedureResult, IResult } from 'mssql'
 
 export class DBEngine {
 
@@ -89,7 +89,7 @@ export class DBEngine {
 
     public async getID(objectName:string, keyValue:string, keyField:string=''):Promise<number> {
         this._le.logStack.push("getID");
-        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID for ${objectName} "${keyValue}".. `)
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID for \x1b[96m${objectName}\x1b[0m "\x1b[96m${keyValue}\x1b[0m".. `)
         let output:number=0
 
         try {
@@ -154,18 +154,16 @@ export class DBEngine {
                 currentValue = await this.getSingleValue(table, idColumn, idValue, updateColumn);
                 if(currentValue!==updateValue) {
                     this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `\x1b[96m${table}\x1b[0m.\x1b[96m${updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updateValue}\x1b[0m".. `)
+                    const r = this._sqlPool.request()
+                    r.input('idValue', mssql.Bit, idValue)
+                    r.input('updateValue', updateColumnType, updateValue)
+                    const queryText:string = `UPDATE ${table} SET ${updateColumn}=@updateValue WHERE ${idColumn}=@idValue`
+                    const result:mssql.IResult<any> = await this.executeSql(queryText, r)
                 } else {
-                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Success, `\x1b[96m${table}\x1b[0m.\x1b[96m${updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updateValue}\x1b[0m".. `)
+                    // no update needed
+                    this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${table}\x1b[0m.\x1b[96m${updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updateValue}\x1b[0m".. `)
                 }
             }
-
-            const r = this._sqlPool.request()
-            r.input('idValue', mssql.Bit, idValue)
-            r.input('updateValue', updateColumnType, updateValue)
-            const queryText:string = `UPDATE ${table} SET ${updateColumn}=@updateValue WHERE ${idColumn}=@idValue`
-
-            const result:mssql.IResult<any> = await this.executeSql(queryText, r)
-            console.debug(result)
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
