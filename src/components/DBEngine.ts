@@ -174,7 +174,7 @@ export class DBEngine {
                 let changeDetected:boolean = false
                 if(changeDetection) {
                     currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
-                    if(currentValue!=updatePackage.UpdatePackageItems[i].updateValue) {
+                    if(currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()) {
                         changeDetected=true
                     }
                 }

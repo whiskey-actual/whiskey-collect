@@ -4,12 +4,11 @@ import { Utilities } from 'whiskey-util'
 import { Client } from 'ldapts'
 
 import mssql from 'mssql'
-import { DBEngine, UpdatePackage, UpdatePackageItem } from '../components/DBEngine';
-import { ActiveDirectoryDevice } from '../models/Device';
+import { DBEngine, UpdatePackage } from '../components/DBEngine';
 
 export class ActiveDirectoryObject {
   // mandatory
-  public readonly observedByActiveDirectory:boolean=false
+  public readonly observedByActiveDirectory:boolean=true
   public readonly deviceName:string=''
   public readonly activeDirectoryDN:string=''
   // strings

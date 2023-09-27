@@ -30,6 +30,10 @@ export class Collector {
         await this._db.connect()
     }
 
+    public async disconnectFromDB() {
+        await this._db.disconnect()
+    }
+
     public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
         const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this._le);
         await mongoCheck.checkMongoDatabase(mongoAdminURI, this._mongoURI, dbName);
@@ -58,20 +62,20 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureActiveDirectoryDevice[]> {
+    public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this._le.logStack.push('AzureActiveDirectory');
-        let output:AzureActiveDirectoryDevice[]
 
         try {
-            const aad = new AzureActiveDirectory(this._le);
-            output = await aad.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+            const aad = new AzureActiveDirectory(this._le, this._db);
+            await aad.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+            await aad.persist()
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
         this._le.logStack.pop()
-        return new Promise<AzureActiveDirectoryDevice[]>((resolve) => {resolve(output)})
+        return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureManagedDevice[]> {
