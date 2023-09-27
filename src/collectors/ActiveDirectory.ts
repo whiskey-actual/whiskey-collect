@@ -112,7 +112,7 @@ export class ActiveDirectory
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
 
         await this._db.updateSingleValue("Device", "DeviceID", DeviceID, "DeviceActiveDirectoryID", DeviceActiveDirectoryID, mssql.Int, true)
-        await this._db.updateSingleValue("DeviceActiveDirectoryID", "DeviceActiveDirectoryID", DeviceActiveDirectoryID, "ActiveDirectoryDNSHostName", this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, mssql.VarChar(255), true )
+        await this._db.updateSingleValue("DeviceActiveDirectory", "DeviceActiveDirectoryID", DeviceActiveDirectoryID, "ActiveDirectoryDNSHostName", this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, mssql.VarChar(255), true )
 
         // const r:mssql.Request = new mssql.Request()
         // r.input('DeviceID', mssql.Int)
