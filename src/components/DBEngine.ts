@@ -114,7 +114,7 @@ export class DBEngine {
             const result:mssql.IResult<any> = await this.executeSql(queryText, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
+                this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
             } else {
                 this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${keyField} ${keyValue} not found in ${objectName}, adding ..`)
                     const r = this._sqlPool.request()
@@ -174,7 +174,7 @@ export class DBEngine {
                 let changeDetected:boolean = false
                 if(changeDetection) {
                     currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
-                    if(currentValue!==updatePackage.UpdatePackageItems[i].updateValue) {
+                    if(currentValue!=updatePackage.UpdatePackageItems[i].updateValue) {
                         changeDetected=true
                     }
                 }
