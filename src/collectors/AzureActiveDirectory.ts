@@ -58,9 +58,8 @@ export class AzureActiveDirectory {
   public readonly sprocName ='sp_add_azureActiveDirectory_device' 
   public readonly AzureActiveDirectoryObjects:AzureActiveDirectoryObject[]=[]
 
-  public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureActiveDirectoryObject[]> {
+  public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
     this._le.logStack.push('fetch')
-    let output:AzureActiveDirectoryObject[] = []
 
     try {
 
@@ -116,7 +115,7 @@ export class AzureActiveDirectory {
             azureIsRooted: deviceList[i].isRooted ? deviceList[i].isRooted : false,
           }
 
-          output.push(aado)
+          this.AzureActiveDirectoryObjects.push(aado)
         } catch (err) {
           this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
           throw(err)
@@ -132,7 +131,7 @@ export class AzureActiveDirectory {
       this._le.logStack.pop()
     }
     
-    return new Promise<AzureActiveDirectoryObject[]>((resolve) => {resolve(output)})
+    return new Promise<void>((resolve) => {resolve()})
   }
 
   public async persist() {

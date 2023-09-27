@@ -38,9 +38,8 @@ export class ActiveDirectory
   public readonly ActiveDirectoryObjects:ActiveDirectoryObject[]=[]
   
 
-  public async fetch(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryObject[]> {
+  public async fetch(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
     this._le.logStack.push('fetch')
-    let output:ActiveDirectoryObject[] = []
     
     const client = new Client({url: ldapURL, tlsOptions:{rejectUnauthorized: false}});
 
@@ -89,7 +88,7 @@ export class ActiveDirectory
 
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
     this._le.logStack.pop()
-    return new Promise<ActiveDirectoryObject[]>((resolve) => {resolve(output)})
+    return new Promise<void>((resolve) => {resolve()})
 
   }
 
