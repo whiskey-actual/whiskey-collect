@@ -39,11 +39,9 @@ export class ActiveDirectory
   
 
   public async fetch(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryObject[]> {
-
-    let output:ActiveDirectoryObject[] = []
     this._le.logStack.push('fetch')
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
-
+    let output:ActiveDirectoryObject[] = []
+    
     const client = new Client({url: ldapURL, tlsOptions:{rejectUnauthorized: false}});
 
     try {
@@ -123,6 +121,7 @@ export class ActiveDirectory
         //const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
       }
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
       await this._db.performUpdates(upDevice, true)
       await this._db.performUpdates(upActiveDirectoryDevice, true)
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
@@ -130,6 +129,8 @@ export class ActiveDirectory
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
+    } finally {
+      this._le.logStack.pop()
     }
 
   }

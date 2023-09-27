@@ -187,6 +187,7 @@ export class AzureActiveDirectory {
         //const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
       }
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
       await this._db.performUpdates(upDevice, true)
       await this._db.performUpdates(upAzureActiveDirectoryDevice, true)
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
@@ -194,6 +195,8 @@ export class AzureActiveDirectory {
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
+    } finally {
+      this._le.logStack.pop()
     }
 
   }

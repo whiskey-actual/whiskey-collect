@@ -161,7 +161,6 @@ export class DBEngine {
     }
 
     public async performUpdates(updatePackage:UpdatePackage, changeDetection:boolean=false):Promise<void> {
-
         this._le.logStack.push("performUpdates");
         this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `performing ${updatePackage.UpdatePackageItems.length} updates on \x1b[96m${updatePackage.tableName}\x1b[0m`)
 
@@ -194,6 +193,8 @@ export class DBEngine {
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
+        } finally {
+            this._le.logStack.pop()
         }
 
         return new Promise<void>((resolve) => {resolve()})

@@ -56,9 +56,10 @@ export class Collector {
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
+        } finally {
+            this._le.logStack.pop()
         }
         
-        this._le.logStack.pop()
         return new Promise<void>((resolve) => {resolve()})
     }
 
@@ -72,9 +73,10 @@ export class Collector {
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
+        } finally {
+            this._le.logStack.pop()
         }
         
-        this._le.logStack.pop()
         return new Promise<void>((resolve) => {resolve()})
     }
 
