@@ -108,7 +108,7 @@ export class ActiveDirectory
         const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
         //const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
-        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN)
+        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
 
         const r:mssql.Request = new mssql.Request()
         r.input('DeviceID', mssql.Int)

@@ -38,8 +38,6 @@ export class DBEngine {
             r.verbose = true
             output = await r.query(sqlQuery)
 
-            console.debug(output)
-
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
@@ -91,7 +89,7 @@ export class DBEngine {
 
     public async getID(objectName:string, keyValue:string, keyField:string=''):Promise<number> {
         this._le.logStack.push("getID");
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `getting ID for ${objectName}.. `)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `getting ID for ${objectName} "${keyValue}".. `)
         let output:number=0
 
         try {
@@ -103,7 +101,7 @@ export class DBEngine {
             const result:mssql.IResult<any> = await this.executeSql(queryText, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `retrieved ID: ${output}`)
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `retrieved ID: \x1b[96m${output}\xa0`)
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
