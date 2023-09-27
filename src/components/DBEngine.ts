@@ -171,9 +171,14 @@ export class DBEngine {
 
                 let changeDetected:boolean = false
                 if(changeDetection) {
-                    currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
-                    if(!currentValue || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()) {
-                        changeDetected=true
+                    try {
+                        currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
+                        if(!currentValue || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()) {
+                            changeDetected=true
+                        }
+                    } catch(err) {
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `currentValue: "${currentValue}": ${err}`)
+                        throw(err)
                     }
                 }
 
