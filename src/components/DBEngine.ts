@@ -4,6 +4,19 @@ import { Utilities } from 'whiskey-util'
 
 import mssql, { IProcedureResult, IResult } from 'mssql'
 
+export class UpdatePackage {
+    public tableName:string = ''
+    public idColumn:string = ''
+    public UpdatePackageItems:UpdatePackageItem[]=[]
+}
+
+export class UpdatePackageItem {
+    public idValue:number = 0
+    public updateColumn:string = ''
+    public updateValue:any = ''
+    public columnType:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams = mssql.Int
+}
+
 export class DBEngine {
 
     constructor(logEngine:LogEngine, sqlConfig:any) {
@@ -140,38 +153,43 @@ export class DBEngine {
     
     }
 
-    public async updateSingleValue(table:string, idColumn:string, idValue:number, updateColumn:string, updateValue:any, updateColumnType:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams, changeDetection:boolean=false) {
+    public async performUpdates(updatePackage:UpdatePackage, changeDetection:boolean=false):Promise<void> {
 
-        this._le.logStack.push("updateSingleValue");
-        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `updating \x1b[96m${table}\x1b[0m where \x1b[96m${idColumn}\x1b[0m="\x1b[96m${idValue}\x1b[0m".. `)
-        let output:number=0
+        this._le.logStack.push("performUpdates");
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `performing ${updatePackage.UpdatePackageItems.length} updates on \x1b[96m${updatePackage.tableName}\x1b[0m`)
 
         try {
 
-            let currentValue:any
+            for(let i=0; i<updatePackage.UpdatePackageItems.length; i++) {
 
-            if(changeDetection) {
-                currentValue = await this.getSingleValue(table, idColumn, idValue, updateColumn);
-                if(currentValue!==updateValue) {
-                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `\x1b[96m${table}\x1b[0m.\x1b[96m${updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updateValue}\x1b[0m".. `)
+                let currentValue:any
+
+                let changeDetected:boolean = false
+                if(changeDetection) {
+                    currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
+                    if(currentValue!==updatePackage.UpdatePackageItems[i].updateValue) {
+                        changeDetected=true
+                    }
+                }
+
+                if(!changeDetection || (changeDetection && changeDetected)) {
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                     const r = this._sqlPool.request()
-                    r.input('idValue', mssql.Bit, idValue)
-                    r.input('updateValue', updateColumnType, updateValue)
-                    const queryText:string = `UPDATE ${table} SET ${updateColumn}=@updateValue WHERE ${idColumn}=@idValue`
+                    r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
+                    r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue )
+                    const queryText:string = `UPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=@updateValue WHERE ${updatePackage.idColumn}=@idValue`
                     const result:mssql.IResult<any> = await this.executeSql(queryText, r)
                 } else {
                     // no update needed
-                    this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${table}\x1b[0m.\x1b[96m${updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updateValue}\x1b[0m".. `)
+                    this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                 }
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
-        } finally {
-            this._le.logStack.pop()
         }
 
-        return new Promise<number>((resolve) => {resolve(output)})
+        return new Promise<void>((resolve) => {resolve()})
 
     }
 
