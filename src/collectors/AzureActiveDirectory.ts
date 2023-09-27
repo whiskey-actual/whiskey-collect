@@ -11,33 +11,34 @@ export class AzureActiveDirectoryObject {
   // mandatory
   public readonly observedByAzureActiveDirectory:boolean=true;
   public readonly deviceName:string=''
-  public readonly azureDeviceId:string=''
-  // strings
   public readonly azureId:string=''
-  public readonly azureDeviceCategory:string=''
-  public readonly azureDeviceMetadata:string=''
-  public readonly azureDeviceOwnership:string=''
-  public readonly azureDeviceVersion:string=''
-  public readonly azureDomainName:string=''
-  public readonly azureEnrollmentProfileType:string=''
-  public readonly azureEnrollmentType:string=''
-  public readonly azureExternalSourceName:string=''
-  public readonly azureManagementType:string=''
-  public readonly azureManufacturer:string=''
-  public readonly azureMDMAppId:string=''
-  public readonly azureModel:string=''
-  public readonly azureOperatingSystem:string=''
-  public readonly azureOperatingSystemVersion:string=''
-  public readonly azureProfileType:string=''
-  public readonly azureSourceType:string=''
-  public readonly azureTrustType:string=''
+  
+  // strings
+  public readonly azureDeviceId:string|undefined=undefined
+  public readonly azureDeviceCategory:string|undefined=undefined
+  public readonly azureDeviceMetadata:string|undefined=undefined
+  public readonly azureDeviceOwnership:string|undefined=undefined
+  public readonly azureDeviceVersion:string|undefined=undefined
+  public readonly azureDomainName:string|undefined=undefined
+  public readonly azureEnrollmentProfileType:string|undefined=undefined
+  public readonly azureEnrollmentType:string|undefined=undefined
+  public readonly azureExternalSourceName:string|undefined=undefined
+  public readonly azureManagementType:string|undefined=undefined
+  public readonly azureManufacturer:string|undefined=undefined
+  public readonly azureMDMAppId:string|undefined=undefined
+  public readonly azureModel:string|undefined=undefined
+  public readonly azureOperatingSystem:string|undefined=undefined
+  public readonly azureOperatingSystemVersion:string|undefined=undefined
+  public readonly azureProfileType:string|undefined=undefined
+  public readonly azureSourceType:string|undefined=undefined
+  public readonly azureTrustType:string|undefined=undefined
   // dates
-  public readonly azureDeletedDateTime:Date=Utilities.minimumJsonDate;
-  public readonly azureApproximateLastSignInDateTime:Date=Utilities.minimumJsonDate;
-  public readonly azureComplianceExpirationDateTime:Date=Utilities.minimumJsonDate;
-  public readonly azureCreatedDateTime:Date=Utilities.minimumJsonDate;
-  public readonly azureOnPremisesLastSyncDateTime:Date=Utilities.minimumJsonDate;
-  public readonly azureRegistrationDateTime:Date=Utilities.minimumJsonDate;
+  public readonly azureDeletedDateTime:Date|undefined=undefined;
+  public readonly azureApproximateLastSignInDateTime:Date|undefined=undefined;
+  public readonly azureComplianceExpirationDateTime:Date|undefined=undefined;
+  public readonly azureCreatedDateTime:Date|undefined=undefined
+  public readonly azureOnPremisesLastSyncDateTime:Date|undefined=undefined
+  public readonly azureRegistrationDateTime:Date|undefined=undefined
   // booleans
   public readonly azureOnPremisesSyncEnabled:boolean=false;
   public readonly azureAccountEnabled:boolean=false;
@@ -78,9 +79,10 @@ export class AzureActiveDirectory {
             // mandatory
             observedByAzureActiveDirectory: true,
             deviceName: deviceList[i].displayName.toString().trim(),
-            azureDeviceId: deviceList[i].deviceId.toString().trim(),
+            azureId: deviceList[i].id.toString().trim(),
+            
             // strings
-            azureId: Utilities.CleanedString(deviceList[i].id),
+            azureDeviceId: Utilities.CleanedString(deviceList[i].deviceId),
             azureDeviceCategory: Utilities.CleanedString(deviceList[i].deviceCategory),
             azureDeviceMetadata: Utilities.CleanedString(deviceList[i].deviceMetadata),
             azureDeviceOwnership: Utilities.CleanedString(deviceList[i].deviceOwnership),
@@ -152,7 +154,7 @@ export class AzureActiveDirectory {
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceMetadata", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceMetadata, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceOwnership", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceOwnership, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceVersion", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceVersion, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDomainName", updateValue:this.AzureActiveDirectoryObjects[i].deviceName, columnType:mssql.VarChar(255) })
+        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDomainName", updateValue:this.AzureActiveDirectoryObjects[i].azureDomainName, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureEnrollmentProfileType", updateValue:this.AzureActiveDirectoryObjects[i].azureEnrollmentProfileType, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureEnrollmentType", updateValue:this.AzureActiveDirectoryObjects[i].azureEnrollmentType, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureExternalSourceName", updateValue:this.AzureActiveDirectoryObjects[i].azureExternalSourceName, columnType:mssql.VarChar(255) })

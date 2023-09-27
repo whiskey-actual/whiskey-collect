@@ -12,17 +12,17 @@ export class ActiveDirectoryObject {
   public readonly deviceName:string=''
   public readonly activeDirectoryDN:string=''
   // strings
-  public readonly activeDirectoryOperatingSystem:string=''
-  public readonly activeDirectoryOperatingSystemVersion:string=''
-  public readonly activeDirectoryDNSHostName:string=''
+  public readonly activeDirectoryOperatingSystem:string|undefined=undefined
+  public readonly activeDirectoryOperatingSystemVersion:string|undefined=undefined
+  public readonly activeDirectoryDNSHostName:string|undefined=undefined
   // numbers
   public readonly activeDirectoryLogonCount:number=0
   // dates
   public readonly activeDirectoryWhenCreated:Date=Utilities.minimumJsonDate
-  public readonly activeDirectoryWhenChanged:Date=Utilities.minimumJsonDate
-  public readonly activeDirectoryLastLogon:Date=Utilities.minimumJsonDate
-  public readonly activeDirectoryPwdLastSet:Date=Utilities.minimumJsonDate
-  public readonly activeDirectoryLastLogonTimestamp:Date=Utilities.minimumJsonDate
+  public readonly activeDirectoryWhenChanged:Date|undefined=undefined
+  public readonly activeDirectoryLastLogon:Date|undefined=undefined
+  public readonly activeDirectoryPwdLastSet:Date|undefined=undefined
+  public readonly activeDirectoryLastLogonTimestamp:Date|undefined=undefined
 }
 
 export class ActiveDirectory
