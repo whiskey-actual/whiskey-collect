@@ -13,7 +13,6 @@ export class AzureActiveDirectoryObject {
   public readonly deviceName:string=''
   public readonly azureDeviceId:string=''
   // strings
-  public readonly azureDisplayName:string=''
   public readonly azureId:string=''
   public readonly azureDeviceCategory:string=''
   public readonly azureDeviceMetadata:string=''
@@ -81,7 +80,6 @@ export class AzureActiveDirectory {
             deviceName: deviceList[i].displayName.toString().trim(),
             azureDeviceId: deviceList[i].deviceId.toString().trim(),
             // strings
-            azureDisplayName: Utilities.CleanedString(deviceList[i].displayName),
             azureId: Utilities.CleanedString(deviceList[i].id),
             azureDeviceCategory: Utilities.CleanedString(deviceList[i].deviceCategory),
             azureDeviceMetadata: Utilities.CleanedString(deviceList[i].deviceMetadata),
@@ -150,8 +148,6 @@ export class AzureActiveDirectory {
         const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
         upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceAzureActiveDirectoryID", updateValue:DeviceAzureActiveDirectoryID, columnType:mssql.Int})
 
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDisplayName", updateValue:this.AzureActiveDirectoryObjects[i].azureDisplayName, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureId", updateValue:this.AzureActiveDirectoryObjects[i].azureId, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceCategory", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceCategory, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceMetadata", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceMetadata, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceOwnership", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceOwnership, columnType:mssql.VarChar(255) })
