@@ -151,7 +151,7 @@ export class DBEngine {
             let currentValue:any
 
             if(changeDetection) {
-                currentValue = this.getSingleValue(table, idColumn, idValue, updateColumn);
+                currentValue = await this.getSingleValue(table, idColumn, idValue, updateColumn);
                 if(currentValue!==updateValue) {
                     this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${table}.${updateColumn}: "${currentValue}" -> "${updateValue}.. `)
                 } else {
