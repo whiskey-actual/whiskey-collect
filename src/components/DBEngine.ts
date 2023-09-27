@@ -122,7 +122,7 @@ export class DBEngine {
         try {
             const r = this._sqlPool.request()
             r.input('idValue', mssql.Int, idValue)
-            const query:string = `SELECT ${queryColumn} FROM ${table} WHERE {idColumn}=@idValue`
+            const query:string = `SELECT ${queryColumn} FROM ${table} WHERE ${idColumn}=@idValue`
             const result:mssql.IResult<any> = await this.executeSql(query, r)
             if(result.recordset.length===0) {
                 throw(`${table}.${idColumn}=${idValue} not found.`)
