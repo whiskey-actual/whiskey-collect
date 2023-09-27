@@ -31,7 +31,7 @@ export class DBEngine {
 
         try {
 
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `executing: ${sqlQuery}`)
+            this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `executing: ${sqlQuery}`)
             
             const r = this._sqlPool.request()
             r.parameters = sqlRequest.parameters
@@ -53,7 +53,7 @@ export class DBEngine {
 
         try {
 
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `executing ${sprocName} for ${sqlRequests.length} items .. `)
+            this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `executing ${sprocName} for ${sqlRequests.length} items .. `)
 
             let executionArray:Promise<void|IProcedureResult<any>>[] = []
 
@@ -89,7 +89,7 @@ export class DBEngine {
 
     public async getID(objectName:string, keyValue:string, keyField:string=''):Promise<number> {
         this._le.logStack.push("getID");
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `getting ID for ${objectName} "${keyValue}".. `)
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID for ${objectName} "${keyValue}".. `)
         let output:number=0
 
         try {
@@ -101,7 +101,7 @@ export class DBEngine {
             const result:mssql.IResult<any> = await this.executeSql(queryText, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `retrieved ID: \x1b[96m${output}\xa0`)
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `${objectName} "\x1b[96m${keyValue}\xa0" ID: \x1b[96m${output}\xa0`)
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)

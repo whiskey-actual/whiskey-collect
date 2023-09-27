@@ -125,7 +125,7 @@ export class ActiveDirectory
 
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. executing ..')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. executing ${this.sprocName} for ${sqlRequests.length} items`)
       await this._db.executeSprocs(this.sprocName, sqlRequests)
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
 
