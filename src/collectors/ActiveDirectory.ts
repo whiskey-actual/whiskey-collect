@@ -33,8 +33,8 @@ export class ActiveDirectory
     this._le=le
     this._db=db
   }
-  private _le:LogEngine = new LogEngine([])
-  private _db:DBEngine = new DBEngine(this._le, '')
+  private _le:LogEngine
+  private _db:DBEngine
   public readonly sprocName ='sp_add_activeDirectory_device' 
   public readonly ActiveDirectoryObjects:ActiveDirectoryObject[]=[]
   

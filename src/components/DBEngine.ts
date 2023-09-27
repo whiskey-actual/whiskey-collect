@@ -25,8 +25,8 @@ export class DBEngine {
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initialized; don't forget to call connect()!`)
         
     }
-    private _sqlPool:mssql.ConnectionPool = new mssql.ConnectionPool('')
-    private _le:LogEngine = new LogEngine([])
+    private _sqlPool:mssql.ConnectionPool
+    private _le:LogEngine
 
     public async connect() {
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql ..`)
