@@ -1,14 +1,10 @@
 // imports
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
-
-
-import mssql from 'mssql'
 import { Client } from 'ldapts'
 
-import { SqlRequestCollection } from '../database/SqlRequestCollection'
-import { MicrosoftSql } from '../database/MicrosoftSql';
-import { OperatingSystem } from '../components/OperatingSystem';
+import mssql from 'mssql'
+import { DBEngine } from '../components/DBEngine';
 
 export class ActiveDirectoryObject {
   // mandatory
@@ -32,12 +28,12 @@ export class ActiveDirectoryObject {
 export class ActiveDirectory
 {
 
-  constructor(le:LogEngine, sqlConfig:string) {
+  constructor(le:LogEngine, db:DBEngine) {
     this._le=le
-    this._sqlConfig = sqlConfig
+    this._db=db
   }
   private _le:LogEngine = new LogEngine([])
-  private _sqlConfig = ''
+  private _db:DBEngine = new DBEngine(this._le, '')
   public readonly sprocName ='sp_add_activeDirectory_device' 
   public readonly ActiveDirectoryObjects:ActiveDirectoryObject[]=[]
   
@@ -101,30 +97,41 @@ export class ActiveDirectory
 
   public async persist() {
 
-    const sql = new MicrosoftSql(this._le, this._sqlConfig)
-    
-    for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
-      const DeviceID:number = await sql.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
+    this._le.logStack.push('persist')
+    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
 
-      let os = new OperatingSystem(this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
-      const OperatingSystemID:number = await os.getId(this._le, this._sqlConfig);
-      await os.getValues(this._le, this._sqlConfig, OperatingSystemID)
+    try {
+      const sqlRequests:mssql.Request[]=[]
+      
+      for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
+        const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
+        const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
-      //const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
-      const DeviceActiveDirectoryID:number = await sql.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN)
+        //const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
+        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN)
 
-      let ps = new mssql.PreparedStatement()
-      ps.input('DeviceID', mssql.Int)
-      ps.input('OperatingSystemID', mssql.Int)
-      ps.input('ActiveDirectoryDN', mssql.VarChar(255))
-      ps.input('activeDirectoryDNSHostName', mssql.VarChar(255))
-      ps.input('activeDirectoryLogonCount', mssql.Int)
-      ps.input('activeDirectoryWhenCreated', mssql.DateTime2)
-      ps.input('activeDirectoryWhenChanged', mssql.DateTime2)
-      ps.input('activeDirectoryLastLogon', mssql.DateTime2)
-      ps.input('activeDirectoryPwdLastSet', mssql.DateTime2)
-      ps.input('activeDirectoryLastLogonTimestamp', mssql.DateTime2)
+        const r:mssql.Request = new mssql.Request()
+        r.input('DeviceID', mssql.Int)
+        r.input('OperatingSystemID', mssql.Int)
+        r.input('ActiveDirectoryDN', mssql.VarChar(255))
+        r.input('activeDirectoryDNSHostName', mssql.VarChar(255))
+        r.input('activeDirectoryLogonCount', mssql.Int)
+        r.input('activeDirectoryWhenCreated', mssql.DateTime2)
+        r.input('activeDirectoryWhenChanged', mssql.DateTime2)
+        r.input('activeDirectoryLastLogon', mssql.DateTime2)
+        r.input('activeDirectoryPwdLastSet', mssql.DateTime2)
+        r.input('activeDirectoryLastLogonTimestamp', mssql.DateTime2)
+        sqlRequests.push(r)
 
+      }
+
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. executing ..')
+      await this._db.executeSprocs(this.sprocName, sqlRequests)
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
+
+    } catch(err) {
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      throw(err);
     }
 
   }

@@ -2,9 +2,8 @@
 import { LogEngine } from 'whiskey-log'
 
 // components
-import { MicrosoftSql } from './database/MicrosoftSql'
+import { DBEngine } from './components/DBEngine'
 import { MongoDB } from './database/MongoDB'
-import { SqlRequestCollection } from './database/SqlRequestCollection'
 
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
@@ -18,20 +17,14 @@ export class Collector {
 
     constructor(logStack:string[], mongoURI:string='', sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false) {
         this._mongoURI=mongoURI
-        this._sqlConfig=sqlConfig
         this._logFrequency=logFrequency
         this._le = new LogEngine(logStack, showDebug);
+        this._db = new DBEngine(this._le, sqlConfig)
     }
     private _mongoURI:string=''
-    private _sqlConfig:string=''
     private _logFrequency:number=1000
     private _le:LogEngine = new LogEngine([])
-
-    public async persistToMicrosoftSql(sqlRequestCollection:SqlRequestCollection):Promise<boolean> {
-        const mssql:MicrosoftSql=new MicrosoftSql(this._le, this._sqlConfig)
-        await mssql.writeToSql(sqlRequestCollection, this._logFrequency)
-        return new Promise<boolean>((resolve) => {resolve(true)})
-    }
+    private _db:DBEngine = new DBEngine(this._le, '')
 
     public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
         const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this._le);
@@ -50,7 +43,7 @@ export class Collector {
         let output:ActiveDirectoryDevice[]
 
         try {
-            const ad = new ActiveDirectory(this._le, this._sqlConfig);
+            const ad = new ActiveDirectory(this._le, this._db);
             output = await ad.fetch(ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit)
             await ad.persist()
         } catch(err) {
