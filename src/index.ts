@@ -23,8 +23,8 @@ export class Collector {
     }
     private _mongoURI:string=''
     private _logFrequency:number=1000
-    private _le:LogEngine = new LogEngine([])
-    private _db:DBEngine = new DBEngine(this._le, '')
+    private _le:LogEngine
+    private _db:DBEngine
 
     public async connectToDB() {
         await this._db.connect()
@@ -42,13 +42,12 @@ export class Collector {
         return new Promise<boolean>((resolve) => {resolve(true)})
     }
 
-    public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryDevice[]> {
+    public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
         this._le.logStack.push('ActiveDirectory');
-        let output:ActiveDirectoryDevice[]
 
         try {
             const ad = new ActiveDirectory(this._le, this._db);
-            output = await ad.fetch(ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit)
+            await ad.fetch(ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit)
             await ad.persist()
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
@@ -56,7 +55,7 @@ export class Collector {
         }
         
         this._le.logStack.pop()
-        return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
+        return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureActiveDirectoryDevice[]> {

@@ -2,7 +2,7 @@
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
-import mssql, { IProcedureResult } from 'mssql'
+import mssql, { IProcedureResult, IRecordSet, IResult } from 'mssql'
 
 export class DBEngine {
 
@@ -25,9 +25,9 @@ export class DBEngine {
         await this._sqlPool.close()
     }
 
-    public async executeSql(sqlQuery:string, sqlRequest:mssql.Request, logFrequency:number=1000):Promise<mssql.IProcedureResult<any>> {
+    public async executeSql(sqlQuery:string, sqlRequest:mssql.Request, logFrequency:number=1000):Promise<mssql.IResult<any>> {
         this._le.logStack.push("executeSql");
-        let output:mssql.IProcedureResult<any>
+        let output:mssql.IResult<any>
 
         try {
 
@@ -36,7 +36,9 @@ export class DBEngine {
             const r = this._sqlPool.request()
             r.parameters = sqlRequest.parameters
             r.verbose = true
-            output = await r.execute(sqlQuery)
+            output = await r.query(sqlQuery)
+
+            console.debug(output)
 
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
@@ -45,7 +47,7 @@ export class DBEngine {
             this._le.logStack.pop()
         }
 
-        return new Promise<IProcedureResult<any>>((resolve) => {resolve(output)})
+        return new Promise<IResult<any>>((resolve) => {resolve(output)})
     }
 
     public async executeSprocs(sprocName:string, sqlRequests:mssql.Request[], logFrequency:number=1000) {
@@ -98,7 +100,7 @@ export class DBEngine {
             r.input('keyValue', mssql.VarChar(255), keyValue)
             const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}=@keyValue`
 
-            const result:mssql.IProcedureResult<any> = await this.executeSql(queryText, r)
+            const result:mssql.IResult<any> = await this.executeSql(queryText, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
                 this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `retrieved ID: ${output}`)
