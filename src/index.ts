@@ -26,6 +26,10 @@ export class Collector {
     private _le:LogEngine = new LogEngine([])
     private _db:DBEngine = new DBEngine(this._le, '')
 
+    public async connectToDB() {
+        await this._db.connect()
+    }
+
     public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
         const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this._le);
         await mongoCheck.checkMongoDatabase(mongoAdminURI, this._mongoURI, dbName);
