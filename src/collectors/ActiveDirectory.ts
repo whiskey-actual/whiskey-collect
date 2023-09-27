@@ -5,6 +5,7 @@ import { Client } from 'ldapts'
 
 import mssql from 'mssql'
 import { DBEngine } from '../components/DBEngine';
+import { ActiveDirectoryDevice } from '../models/Device';
 
 export class ActiveDirectoryObject {
   // mandatory
@@ -110,18 +111,21 @@ export class ActiveDirectory
         //const OperatingSystemID:number = await sql.getID("OperatingSystem", this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
 
-        const r:mssql.Request = new mssql.Request()
-        r.input('DeviceID', mssql.Int)
-        r.input('OperatingSystemID', mssql.Int)
-        r.input('ActiveDirectoryDN', mssql.VarChar(255))
-        r.input('activeDirectoryDNSHostName', mssql.VarChar(255))
-        r.input('activeDirectoryLogonCount', mssql.Int)
-        r.input('activeDirectoryWhenCreated', mssql.DateTime2)
-        r.input('activeDirectoryWhenChanged', mssql.DateTime2)
-        r.input('activeDirectoryLastLogon', mssql.DateTime2)
-        r.input('activeDirectoryPwdLastSet', mssql.DateTime2)
-        r.input('activeDirectoryLastLogonTimestamp', mssql.DateTime2)
-        sqlRequests.push(r)
+        await this._db.updateSingleValue("Device", "DeviceID", DeviceID, "DeviceActiveDirectoryID", DeviceActiveDirectoryID, mssql.Int, true)
+        await this._db.updateSingleValue("DeviceActiveDirectoryID", "DeviceActiveDirectoryID", DeviceActiveDirectoryID, "ActiveDirectoryDNSHostName", this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, mssql.VarChar(255), true )
+
+        // const r:mssql.Request = new mssql.Request()
+        // r.input('DeviceID', mssql.Int)
+        // r.input('OperatingSystemID', mssql.Int)
+        // r.input('ActiveDirectoryDN', mssql.VarChar(255))
+        // r.input('activeDirectoryDNSHostName', mssql.VarChar(255))
+        // r.input('activeDirectoryLogonCount', mssql.Int)
+        // r.input('activeDirectoryWhenCreated', mssql.DateTime2)
+        // r.input('activeDirectoryWhenChanged', mssql.DateTime2)
+        // r.input('activeDirectoryLastLogon', mssql.DateTime2)
+        // r.input('activeDirectoryPwdLastSet', mssql.DateTime2)
+        // r.input('activeDirectoryLastLogonTimestamp', mssql.DateTime2)
+        // sqlRequests.push(r)
 
       }
 

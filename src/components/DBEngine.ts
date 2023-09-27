@@ -113,4 +113,69 @@ export class DBEngine {
         return new Promise<number>((resolve) => {resolve(output)})
     }
 
+    public async getSingleValue(table:string, idColumn:string, idValue:number, queryColumn:string):Promise<any> {
+
+        this._le.logStack.push("getSingleValue");
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `getting ${queryColumn} from ${table} where ${idColumn}="${idValue}".. `)
+        let output:any
+        
+        try {
+            const r = this._sqlPool.request()
+            r.input('idValue', mssql.Int, idValue)
+            const query:string = `SELECT ${queryColumn} FROM ${table} WHERE {idColumn}=@idValue`
+            const result:mssql.IResult<any> = await this.executeSql(query, r)
+            if(result.recordset.length===0) {
+                throw(`${table}.${idColumn}=${idValue} not found.`)
+            } else {
+                output = result.recordset[0][queryColumn]
+            }
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            this._le.logStack.pop()
+        }
+
+        return new Promise<any>((resolve) => {resolve(output)})
+    
+    }
+
+    public async updateSingleValue(table:string, idColumn:string, idValue:number, updateColumn:string, updateValue:any, updateColumnType:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams, changeDetection:boolean=false) {
+
+        this._le.logStack.push("updateSingleValue");
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `updating ${table} where ${idColumn}="${idValue}".. `)
+        let output:number=0
+
+        try {
+
+            let currentValue:any
+
+            if(changeDetection) {
+                currentValue = this.getSingleValue(table, idColumn, idValue, updateColumn);
+                if(currentValue!==updateValue) {
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${table}.${updateColumn}: "${currentValue}" -> "${updateValue}.. `)
+                } else {
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${table}.${updateColumn}: "${currentValue}" = "${updateValue}.. `)
+                }
+            }
+
+            const r = this._sqlPool.request()
+            r.input('updateValue', updateColumnType, updateValue)
+            const queryText:string = `UPDATE ${table} SET ${updateColumn}=@updateValue WHERE ${idColumn}=@idValue`
+
+            const result:mssql.IResult<any> = await this.executeSql(queryText, r)
+            console.debug(result)
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            this._le.logStack.pop()
+        }
+
+        return new Promise<number>((resolve) => {resolve(output)})
+
+    }
+
+
+
 }
