@@ -153,13 +153,14 @@ export class DBEngine {
             if(changeDetection) {
                 currentValue = await this.getSingleValue(table, idColumn, idValue, updateColumn);
                 if(currentValue!==updateValue) {
-                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${table}.${updateColumn}: "${currentValue}" -> "${updateValue}.. `)
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${table}.${updateColumn}: "${currentValue}" -> "${updateValue}".. `)
                 } else {
-                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Change, `${table}.${updateColumn}: "${currentValue}" = "${updateValue}.. `)
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Success, `${table}.${updateColumn}: "${currentValue}" = "${updateValue}".. `)
                 }
             }
 
             const r = this._sqlPool.request()
+            r.input('idValue', mssql.Bit, idValue)
             r.input('updateValue', updateColumnType, updateValue)
             const queryText:string = `UPDATE ${table} SET ${updateColumn}=@updateValue WHERE ${idColumn}=@idValue`
 
