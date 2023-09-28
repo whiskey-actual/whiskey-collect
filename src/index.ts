@@ -10,8 +10,7 @@ import { ActiveDirectory } from './collectors/ActiveDirectory'
 import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 
-import { ConnectwiseComputer } from './collectors/ConnectwiseComputer'
-import { ConnectwiseNetwork } from './collectors/ConnectwiseNetwork'
+import { Connectwise } from './collectors/Connectwise'
 
 import { Crowdstrike } from './collectors/Crowdstrike'
 import { CrowdstrikeDevice } from './models/Device'
@@ -100,12 +99,12 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchConnectwiseComputer(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
-        this._le.logStack.push('ConnectwiseComputer');
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: ConnectwiseComputer ----------")
+    public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
+        this._le.logStack.push('Connectwise');
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: Connectwise ------------------")
 
         try {
-            const cw = new ConnectwiseComputer(this._le, this._db);
+            const cw = new Connectwise(this._le, this._db);
             await cw.fetch(baseURL, clientId, userName, password);
             await cw.persist()
         } catch(err) {
@@ -116,24 +115,7 @@ export class Collector {
         this._le.logStack.pop()
         return new Promise<void>((resolve) => {resolve()})
     }
-
-    public async fetchConnectwiseNetwork(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
-        this._le.logStack.push('ConnectwiseNetwork');
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: ConnectwiseNetwork -----------")
-
-        try {
-            const cw = new ConnectwiseNetwork(this._le, this._db);
-            await cw.fetch(baseURL, clientId, userName, password);
-            await cw.persist()
-        } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-            throw(err);
-        }
-        
-        this._le.logStack.pop()
-        return new Promise<void>((resolve) => {resolve()})
-    }
-
+    
     public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<CrowdstrikeDevice[]> {
         this._le.logStack.push('Crowdstrike');
         let output:CrowdstrikeDevice[]
