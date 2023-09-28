@@ -181,8 +181,8 @@ export class DBEngine {
                     try {
                         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
                         if(
-                            (currentValue===null && updatePackage.UpdatePackageItems[i].updateValue)
-                            || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()
+                            updatePackage.UpdatePackageItems[i].updateValue
+                            && currentValue!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()
                         ) 
                         {
                             changeDetected=true
@@ -205,7 +205,7 @@ export class DBEngine {
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                 }
 
-                if(i>0 && i%this._persistLogFrequency) {
+                if(i>0 && i%this._persistLogFrequency===0) {
                     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', i, updatePackage.UpdatePackageItems.length, startDate, new Date()))
                 }
 
