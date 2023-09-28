@@ -11,7 +11,7 @@ import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
+import { ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
 
 export class Collector {
 
@@ -77,20 +77,21 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<AzureManagedDevice[]> {
+    public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this._le.logStack.push('AzureManaged');
-        let output:AzureManagedDevice[]
 
         try {
-            const am = new AzureManaged(this._le);
-            output = await am.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+            const am = new AzureManaged(this._le, this._db);
+            await am.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+            await am.persist()
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
+        } finally {
+            this._le.logStack.pop()
         }
         
-        this._le.logStack.pop()
-        return new Promise<AzureManagedDevice[]>((resolve) => {resolve(output)})
+        return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<ConnectwiseDevice[]> {
