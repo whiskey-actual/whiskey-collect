@@ -172,7 +172,7 @@ export class DBEngine {
 
             const startDate:Date = new Date()
 
-            let executionArray:Promise<IResult<any>>[] = []
+            let executionArray:Promise<void|IResult<any>>[] = []
 
             for(let i=0; i<updatePackage.UpdatePackageItems.length; i++) {
 
@@ -202,7 +202,11 @@ export class DBEngine {
                     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
                     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue)
                     const queryText:string = `UPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=@updateValue WHERE ${updatePackage.idColumn}=@idValue`
-                    executionArray.push(this.executeSql(queryText, r))
+                    executionArray.push(this.executeSql(queryText, r).catch((err) => {
+                        throw(`${err}\nUPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=${updatePackage.UpdatePackageItems[i].updateValue} WHERE ${updatePackage.idColumn}=${updatePackage.UpdatePackageItems[i].idValue}`)
+                    }))
+                        
+                        
                 } else {
                     // no update needed
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
