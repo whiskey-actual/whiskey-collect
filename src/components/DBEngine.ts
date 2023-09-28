@@ -11,7 +11,6 @@ export class TableUpdate {
         this.tableName=tableName
         this.primaryKeyColumnName=primaryKeyColumnName
     }
-    public updateName:string = ''
     public tableName:string = ''
     public primaryKeyColumnName:string = ''
     public RowUpdates:RowUpdate[] = []
@@ -21,6 +20,7 @@ export class RowUpdate {
     constructor(primaryKeyValue:number) {
         this.primaryKeyValue=primaryKeyValue
     }
+    public updateName:string = ''
     public primaryKeyValue:number = 0
     public ColumnUpdates:ColumnUpdate[] = []
 }
@@ -302,7 +302,7 @@ export class DBEngine {
                     const newValue:any = tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnValue
 
                     if(newValue && (!currentValue || currentValue==null || newValue!==currentValue)) {
-                        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${tableUpdate.updateName}\x1b[0m :: \x1b[96m${tableUpdate.tableName}\x1b[0m.\x1b[96m${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${newValue}\x1b[0m".. `)
+                        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${tableUpdate.RowUpdates[i].updateName}\x1b[0m :: \x1b[96m${tableUpdate.tableName}\x1b[0m.\x1b[96m${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${newValue}\x1b[0m".. `)
                         columnUpdateStatements.push(`${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}=@${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}`)
                         updateRequest.input(tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName, tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnType, tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnValue)
                     }
