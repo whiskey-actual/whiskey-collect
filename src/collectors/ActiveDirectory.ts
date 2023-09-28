@@ -113,7 +113,7 @@ export class ActiveDirectory
         ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryID", mssql.Int, DeviceActiveDirectoryID))
 
         let ruActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
-        ruActiveDirectory.updateName==this.ActiveDirectoryObjects[i].deviceName
+        ruActiveDirectory.updateName=this.ActiveDirectoryObjects[i].deviceName
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName))
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.ActiveDirectoryObjects[i].activeDirectoryLogonCount))
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated))
