@@ -145,7 +145,7 @@ export class AzureActiveDirectory {
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
         
         const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
-        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
+        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
 
         // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)

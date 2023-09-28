@@ -128,8 +128,8 @@ export class ActiveDirectory
       }
 
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      this._db.updateTable(tuDevice, true)
-      this._db.updateTable(tuActiveDirectory, true)
+      await this._db.updateTable(tuDevice, true)
+      await this._db.updateTable(tuActiveDirectory, true)
       
       //await this._db.performUpdates(upDevice, true)
       //await this._db.performUpdates(upActiveDirectoryDevice, true)
