@@ -182,7 +182,8 @@ export class DBEngine {
                         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
                         if(
                             updatePackage.UpdatePackageItems[i].updateValue
-                            && currentValue!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()
+                            && (!currentValue || currentValue===null)
+                            && currentValue!==updatePackage.UpdatePackageItems[i].updateValue
                         ) 
                         {
                             changeDetected=true

@@ -141,7 +141,6 @@ export class AzureActiveDirectory {
     try {
 
       let upDevice:UpdatePackage = { tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
-      
       let upAzureActiveDirectoryDevice:UpdatePackage = { tableName:'DeviceAzureActiveDirectory', idColumn:"DeviceAzureActiveDirectoryID", UpdatePackageItems:[]}
       
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
