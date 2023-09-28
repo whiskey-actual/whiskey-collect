@@ -3,8 +3,8 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 import { Client } from 'ldapts'
 
-import mssql from 'mssql'
-import { DBEngine, UpdatePackage } from '../components/DBEngine';
+import mssql, { Table } from 'mssql'
+import { ColumnUpdate, DBEngine, RowUpdate, TableUpdate, UpdatePackage } from '../components/DBEngine';
 
 export class ActiveDirectoryObject {
   // mandatory
@@ -99,32 +99,44 @@ export class ActiveDirectory
 
     try {
 
+      
+      let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+      let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
+      
       let upDevice:UpdatePackage = { objectName:'', tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
       let upActiveDirectoryDevice:UpdatePackage = { objectName:'', tableName:'DeviceActiveDirectory', idColumn:"DeviceActiveDirectoryID", UpdatePackageItems:[]}
       
       for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
 
+        tuDevice.updateName=this.ActiveDirectoryObjects[i].deviceName
+        tuActiveDirectory.updateName=this.ActiveDirectoryObjects[i].deviceName
+        
         const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
-        
-        upDevice.objectName=this.ActiveDirectoryObjects[i].deviceName
-        upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceActiveDirectoryID", updateValue:DeviceActiveDirectoryID, columnType:mssql.Int})
 
-        upActiveDirectoryDevice.objectName=this.ActiveDirectoryObjects[i].deviceName
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "ActiveDirectoryDNSHostName", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, columnType: mssql.VarChar(255) })
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLogonCount", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLogonCount, columnType: mssql.Int })
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenCreated", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated, columnType: mssql.DateTime2 })
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenChanged", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenChanged, columnType: mssql.DateTime2 })
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLastLogon", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLastLogon, columnType: mssql.DateTime2 })
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryPwdLastSet", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryPwdLastSet, columnType: mssql.DateTime2 })
-        upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLastLogonTimestamp", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLastLogonTimestamp, columnType: mssql.DateTime2 })
-        
+        let ruDevice = new RowUpdate(DeviceID)
+        ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryID", mssql.Int, DeviceActiveDirectoryID))
+
+        let ruActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName))
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.ActiveDirectoryObjects[i].activeDirectoryLogonCount))
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated))
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryWhenChanged))
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryLastLogon))
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryPwdLastSet))
+        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryLastLogonTimestamp))
+        tuActiveDirectory.RowUpdates.push(ruActiveDirectory)
+
+ 
         //const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
       }
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      await this._db.performUpdates(upDevice, true)
-      await this._db.performUpdates(upActiveDirectoryDevice, true)
+      this._db.updateTable(tuDevice, true)
+      this._db.updateTable(tuActiveDirectory, true)
+      
+      //await this._db.performUpdates(upDevice, true)
+      //await this._db.performUpdates(upActiveDirectoryDevice, true)
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
 
     } catch(err) {

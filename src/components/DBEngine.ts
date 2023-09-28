@@ -4,6 +4,37 @@ import { Utilities } from 'whiskey-util'
 
 import mssql, { IProcedureResult, IResult } from 'mssql'
 
+
+export class TableUpdate {
+    constructor(tableName:string, primaryKeyColumnName:string) {
+        this.tableName=tableName
+        this.primaryKeyColumnName=primaryKeyColumnName
+    }
+    public updateName:string = ''
+    public tableName:string = ''
+    public primaryKeyColumnName:string = ''
+    public RowUpdates:RowUpdate[] = []
+}
+
+export class RowUpdate {
+    constructor(primaryKeyValue:number) {
+        this.primaryKeyValue=primaryKeyValue
+    }
+    public primaryKeyValue:number = 0
+    public ColumnUpdates:ColumnUpdate[] = []
+}
+
+export class ColumnUpdate {
+    constructor(ColumnName:string, ColumnType:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams, ColumnValue:any) {
+        this.ColumnName=ColumnName
+        this.ColumnType=ColumnType
+        this.ColumnValue=ColumnValue
+    }
+    public ColumnName:string = ''
+    public ColumnType:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams = mssql.Int
+    public ColumnValue:any = undefined
+}
+
 export class UpdatePackage {
     public objectName:string=''
     public tableName:string = ''
@@ -224,6 +255,82 @@ export class DBEngine {
             throw(err)
         } finally {
             this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', updatePackage.UpdatePackageItems.length, updatePackage.UpdatePackageItems.length, startDate, new Date))
+            this._le.logStack.pop()
+        }
+
+        return new Promise<void>((resolve) => {resolve()})
+
+    }
+
+    public async updateTable(tableUpdate:TableUpdate, changeDetection:boolean=false):Promise<void> {
+        this._le.logStack.push("updateTable");
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `updating ${tableUpdate.RowUpdates.length} rows on \x1b[96m${tableUpdate.tableName}\x1b[0m`)
+        const startDate:Date = new Date()
+
+        try {
+
+            for(let i=0; i<tableUpdate.RowUpdates.length; i++) {
+
+                let selectQuery = 'SELECT '
+
+                for(let j=0; j<tableUpdate.RowUpdates[i].ColumnUpdates.length; j++) {
+                    selectQuery += tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName
+                    if(j<tableUpdate.RowUpdates[i].ColumnUpdates.length-1) {selectQuery += ','}
+                    selectQuery += ' '
+                }
+
+                selectQuery += `FROM ${tableUpdate.tableName} WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
+
+                const r = this._sqlPool.request()
+                r.input('PrimaryKeyValue', mssql.Int, tableUpdate.RowUpdates[i].primaryKeyValue)
+
+                const result = await this.executeSql(selectQuery, r)
+
+                console.debug(result);
+                
+
+                // let currentValue:any
+
+                // let changeDetected:boolean = false
+                // if(changeDetection) {
+                //     try {
+                //         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
+                //         if(
+                //             updatePackage.UpdatePackageItems[i].updateValue
+                //             && (!currentValue || currentValue===null)
+                //             && currentValue!==updatePackage.UpdatePackageItems[i].updateValue
+                //         ) 
+                //         {
+                //             changeDetected=true
+                //         }
+                //     } catch(err) {
+                //         this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `currentValue:"${currentValue}", "updateValue:"${updatePackage.UpdatePackageItems[i].updateValue}" :: ${err}`)
+                //         throw(err)
+                //     }
+                // }
+
+                // if(!changeDetection || (changeDetection && changeDetected)) {
+                //     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${updatePackage.objectName}\x1b[0m :: \x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
+                //     const r = this._sqlPool.request()
+                //     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
+                //     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue)
+                //     const queryText:string = `UPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=@updateValue WHERE ${updatePackage.idColumn}=@idValue`
+                //     await this.executeSql(queryText, r)
+                // } else {
+                //     // no update needed
+                //     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
+                // }
+
+                // if(i>0 && i%this._persistLogFrequency===0) {
+                //     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', i, updatePackage.UpdatePackageItems.length, startDate, new Date))
+                // }
+
+            }
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            //this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', updatePackage.UpdatePackageItems.length, updatePackage.UpdatePackageItems.length, startDate, new Date))
             this._le.logStack.pop()
         }
 
