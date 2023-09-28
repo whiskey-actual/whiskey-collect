@@ -34,7 +34,6 @@ export class ActiveDirectory
   }
   private _le:LogEngine
   private _db:DBEngine
-  public readonly sprocName ='sp_add_activeDirectory_device' 
   public readonly ActiveDirectoryObjects:ActiveDirectoryObject[]=[]
   
 
@@ -84,10 +83,10 @@ export class ActiveDirectory
       throw ex;
     } finally {
       await client.unbind();
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
+      this._le.logStack.pop()
     }
-
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
-    this._le.logStack.pop()
+    
     return new Promise<void>((resolve) => {resolve()})
 
   }

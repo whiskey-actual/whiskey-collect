@@ -3,7 +3,6 @@ import { LogEngine } from 'whiskey-log'
 
 // components
 import { DBEngine } from './components/DBEngine'
-import { MongoDB } from './database/MongoDB'
 
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
@@ -11,7 +10,7 @@ import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
+import { CrowdstrikeDevice } from './models/Device'
 
 export class Collector {
 
@@ -90,24 +89,24 @@ export class Collector {
         } finally {
             this._le.logStack.pop()
         }
-        
+
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<ConnectwiseDevice[]> {
+    public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
         this._le.logStack.push('Connectwise');
-        let output:ConnectwiseDevice[]
 
         try {
-            const cw = new Connectwise(this._le);
-            output = await cw.fetch(baseURL, clientId, userName, password);
+            const cw = new Connectwise(this._le, this._db);
+            await cw.fetch(baseURL, clientId, userName, password);
+            await cw.persist()
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
         this._le.logStack.pop()
-        return new Promise<ConnectwiseDevice[]>((resolve) => {resolve(output)})
+        return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<CrowdstrikeDevice[]> {

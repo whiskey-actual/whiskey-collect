@@ -192,12 +192,11 @@ export class AzureActiveDirectory {
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
       await this._db.updateTable(tuDevice, true)
       await this._db.updateTable(tuAzureActiveDirectory, true)
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
-
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
     } finally {
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
       this._le.logStack.pop()
     }
 
