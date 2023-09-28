@@ -321,8 +321,6 @@ export class DBEngine {
 
                     updateStatement += `WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
 
-                    
-
                     try {
                         await this.executeSql(updateStatement, updateRequest)
                     } catch(err) {
@@ -331,44 +329,6 @@ export class DBEngine {
                         throw(err)
                     }
                 }
-                
-
-                // let currentValue:any
-
-                // let changeDetected:boolean = false
-                // if(changeDetection) {
-                //     try {
-                //         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
-                //         if(
-                //             updatePackage.UpdatePackageItems[i].updateValue
-                //             && (!currentValue || currentValue===null)
-                //             && currentValue!==updatePackage.UpdatePackageItems[i].updateValue
-                //         ) 
-                //         {
-                //             changeDetected=true
-                //         }
-                //     } catch(err) {
-                //         this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `currentValue:"${currentValue}", "updateValue:"${updatePackage.UpdatePackageItems[i].updateValue}" :: ${err}`)
-                //         throw(err)
-                //     }
-                // }
-
-                // if(!changeDetection || (changeDetection && changeDetected)) {
-                //     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${updatePackage.objectName}\x1b[0m :: \x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
-                //     const r = this._sqlPool.request()
-                //     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
-                //     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue)
-                //     const queryText:string = `UPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=@updateValue WHERE ${updatePackage.idColumn}=@idValue`
-                //     await this.executeSql(queryText, r)
-                // } else {
-                //     // no update needed
-                //     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
-                // }
-
-                // if(i>0 && i%this._persistLogFrequency===0) {
-                //     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', i, updatePackage.UpdatePackageItems.length, startDate, new Date))
-                // }
-
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
