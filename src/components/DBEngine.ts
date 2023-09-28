@@ -19,23 +19,28 @@ export class UpdatePackageItem {
 
 export class DBEngine {
 
-    constructor(logEngine:LogEngine, sqlConfig:any) {
+    constructor(logEngine:LogEngine, sqlConfig:any, persistLogFrequency:number=250) {
         this._le = logEngine;
         this._sqlPool = new mssql.ConnectionPool(sqlConfig)
+        this._persistLogFrequency = persistLogFrequency
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initialized; don't forget to call connect()!`)
         
     }
-    private _sqlPool:mssql.ConnectionPool
     private _le:LogEngine
+    private _sqlPool:mssql.ConnectionPool
+    private _persistLogFrequency:number
+    
 
     public async connect() {
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. connecting to mssql ..`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `connecting to mssql ..`)
         await this._sqlPool.connect()
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected;`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. connected.`)
     }
 
     public async disconnect() {
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `disconnecting from mssql ..`)
         await this._sqlPool.close()
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. disconnected.`)
     }
 
     public async executeSql(sqlQuery:string, sqlRequest:mssql.Request, logFrequency:number=1000):Promise<mssql.IResult<any>> {
@@ -165,6 +170,8 @@ export class DBEngine {
 
         try {
 
+            const startDate:Date = new Date()
+
             for(let i=0; i<updatePackage.UpdatePackageItems.length; i++) {
 
                 let currentValue:any
@@ -174,14 +181,14 @@ export class DBEngine {
                     try {
                         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
                         if(
-                            (currentValue==null && updatePackage.UpdatePackageItems[i].updateValue)
+                            (currentValue===null && updatePackage.UpdatePackageItems[i].updateValue)
                             || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()
                         ) 
                         {
                             changeDetected=true
                         }
                     } catch(err) {
-                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `currentValue: "${currentValue}": ${err}`)
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `currentValue:"${currentValue}", "updateValue:"${updatePackage.UpdatePackageItems[i].updateValue}" :: ${err}`)
                         throw(err)
                     }
                 }
@@ -197,6 +204,11 @@ export class DBEngine {
                     // no update needed
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                 }
+
+                if(i>0 && i%this._persistLogFrequency) {
+                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', i, updatePackage.UpdatePackageItems.length, startDate, new Date()))
+                }
+
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
