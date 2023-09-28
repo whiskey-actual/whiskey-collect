@@ -5,6 +5,7 @@ import { Utilities } from 'whiskey-util'
 import mssql, { IProcedureResult, IResult } from 'mssql'
 
 export class UpdatePackage {
+    public objectName:string=''
     public tableName:string = ''
     public idColumn:string = ''
     public UpdatePackageItems:UpdatePackageItem[]=[]
@@ -166,7 +167,7 @@ export class DBEngine {
 
     public async performUpdates(updatePackage:UpdatePackage, changeDetection:boolean=false):Promise<void> {
         this._le.logStack.push("performUpdates");
-        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `performing ${updatePackage.UpdatePackageItems.length} updates on \x1b[96m${updatePackage.tableName}\x1b[0m`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `processing ${updatePackage.UpdatePackageItems.length} updates on \x1b[96m${updatePackage.tableName}\x1b[0m`)
 
         try {
 
@@ -197,7 +198,7 @@ export class DBEngine {
                 }
 
                 if(!changeDetection || (changeDetection && changeDetected)) {
-                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
+                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${updatePackage.objectName}\x1b[0m :: \x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                     const r = this._sqlPool.request()
                     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
                     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue)

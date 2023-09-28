@@ -140,15 +140,18 @@ export class AzureActiveDirectory {
 
     try {
 
-      let upDevice:UpdatePackage = { tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
-      let upAzureActiveDirectoryDevice:UpdatePackage = { tableName:'DeviceAzureActiveDirectory', idColumn:"DeviceAzureActiveDirectoryID", UpdatePackageItems:[]}
+      let upDevice:UpdatePackage = { objectName:'', tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
+      let upAzureActiveDirectoryDevice:UpdatePackage = { objectName:'', tableName:'DeviceAzureActiveDirectory', idColumn:"DeviceAzureActiveDirectoryID", UpdatePackageItems:[]}
       
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
 
         const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
+        
+        upDevice.objectName = this.AzureActiveDirectoryObjects[i].deviceName
         upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceAzureActiveDirectoryID", updateValue:DeviceAzureActiveDirectoryID, columnType:mssql.Int})
 
+        upAzureActiveDirectoryDevice.objectName=this.AzureActiveDirectoryObjects[i].deviceName
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceCategory", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceCategory, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceMetadata", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceMetadata, columnType:mssql.VarChar(255) })
         upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceOwnership", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceOwnership, columnType:mssql.VarChar(255) })

@@ -99,15 +99,18 @@ export class ActiveDirectory
 
     try {
 
-      let upDevice:UpdatePackage = { tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
-      let upActiveDirectoryDevice:UpdatePackage = { tableName:'DeviceActiveDirectory', idColumn:"DeviceActiveDirectoryID", UpdatePackageItems:[]}
+      let upDevice:UpdatePackage = { objectName:'', tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
+      let upActiveDirectoryDevice:UpdatePackage = { objectName:'', tableName:'DeviceActiveDirectory', idColumn:"DeviceActiveDirectoryID", UpdatePackageItems:[]}
       
       for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
 
         const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
+        
+        upDevice.objectName=this.ActiveDirectoryObjects[i].deviceName
         upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceActiveDirectoryID", updateValue:DeviceActiveDirectoryID, columnType:mssql.Int})
 
+        upActiveDirectoryDevice.objectName=this.ActiveDirectoryObjects[i].deviceName
         upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "ActiveDirectoryDNSHostName", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName, columnType: mssql.VarChar(255) })
         upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryLogonCount", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryLogonCount, columnType: mssql.Int })
         upActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceActiveDirectoryID, updateColumn: "activeDirectoryWhenCreated", updateValue: this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated, columnType: mssql.DateTime2 })
