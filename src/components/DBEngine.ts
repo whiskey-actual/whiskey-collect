@@ -24,7 +24,7 @@ export class DBEngine {
         this._le = logEngine;
         this._sqlPool = new mssql.ConnectionPool(sqlConfig)
         this._persistLogFrequency = persistLogFrequency
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `initialized; don't forget to call connect()!`)
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `DBEngine initialized ( don't forget to call connect()! )`)
         
     }
     private _le:LogEngine
@@ -132,6 +132,7 @@ export class DBEngine {
                     throw(`ID not found for newly added row: ${objectName}.${keyField}=${keyValue}`)
                 } else {
                     output = result.recordset[0][objectName+'ID']
+                    this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
                 }
 
             }
@@ -175,6 +176,7 @@ export class DBEngine {
     public async performUpdates(updatePackage:UpdatePackage, changeDetection:boolean=false):Promise<void> {
         this._le.logStack.push("performUpdates");
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `processing ${updatePackage.UpdatePackageItems.length} updates on \x1b[96m${updatePackage.tableName}\x1b[0m`)
+        const startDate:Date = new Date()
 
         try {
 
@@ -211,11 +213,17 @@ export class DBEngine {
                     // no update needed
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                 }
+
+                if(i>0 && i%this._persistLogFrequency===0) {
+                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', i, updatePackage.UpdatePackageItems.length, startDate, new Date))
+                }
+
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
         } finally {
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', updatePackage.UpdatePackageItems.length, updatePackage.UpdatePackageItems.length, startDate, new Date))
             this._le.logStack.pop()
         }
 
