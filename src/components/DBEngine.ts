@@ -3,6 +3,7 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
 import mssql, { IProcedureResult, IResult } from 'mssql'
+import { SaslBindInProgressError } from 'ldapts';
 
 
 export class TableUpdate {
@@ -273,6 +274,7 @@ export class DBEngine {
 
                 let selectQuery = 'SELECT '
 
+                // iterate through the column updates to build the select statement
                 for(let j=0; j<tableUpdate.RowUpdates[i].ColumnUpdates.length; j++) {
                     selectQuery += tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName
                     if(j<tableUpdate.RowUpdates[i].ColumnUpdates.length-1) {selectQuery += ','}
@@ -281,12 +283,47 @@ export class DBEngine {
 
                 selectQuery += `FROM ${tableUpdate.tableName} WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
 
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, selectQuery);
+
                 const r = this._sqlPool.request()
                 r.input('PrimaryKeyValue', mssql.Int, tableUpdate.RowUpdates[i].primaryKeyValue)
 
                 const result = await this.executeSql(selectQuery, r)
+                
+                let columnUpdateStatements:string[] = []
 
-                console.debug(result);
+                const updateRequest = this._sqlPool.request()
+                updateRequest.input('PrimaryKeyValue', mssql.Int, tableUpdate.RowUpdates[i].primaryKeyValue)
+                
+                // iterate over the column updates again to compare values, and build the update statement
+                for(let j=0; j<tableUpdate.RowUpdates[i].ColumnUpdates.length; j++) {
+
+                    const currentValue:any = result.recordset[0][tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName]
+                    const newValue:any = tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnValue
+
+                    if(newValue!==currentValue) {
+                        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${tableUpdate.updateName}\x1b[0m :: \x1b[96m${tableUpdate.tableName}\x1b[0m.\x1b[96m${currentValue}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${newValue}\x1b[0m".. `)
+                        columnUpdateStatements.push(`${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}=@${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}`)
+                        updateRequest.input(tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName, tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnType, tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnValue)
+                    }
+                }
+
+                // do we have updates to perform?
+                if(columnUpdateStatements.length>0) {
+
+                    let updateStatement:string = `UPDATE ${tableUpdate.tableName} SET `
+
+                    for(let j=0; j<columnUpdateStatements.length; j++) {
+                        updateStatement += columnUpdateStatements[j]
+                        if(j<columnUpdateStatements.length-1) { updateStatement += ','}
+                        updateStatement += ' '
+                    }
+
+                    updateStatement += `WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
+
+                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, updateStatement);
+
+                }
                 
 
                 // let currentValue:any
