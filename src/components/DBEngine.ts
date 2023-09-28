@@ -283,7 +283,7 @@ export class DBEngine {
 
                 selectQuery += `FROM ${tableUpdate.tableName} WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
 
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, selectQuery);
+                this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, selectQuery);
 
                 const r = this._sqlPool.request()
                 r.input('PrimaryKeyValue', mssql.Int, tableUpdate.RowUpdates[i].primaryKeyValue)
@@ -301,8 +301,8 @@ export class DBEngine {
                     const currentValue:any = result.recordset[0][tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName]
                     const newValue:any = tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnValue
 
-                    if(newValue!==currentValue) {
-                        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${tableUpdate.updateName}\x1b[0m :: \x1b[96m${tableUpdate.tableName}\x1b[0m.\x1b[96m${currentValue}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${newValue}\x1b[0m".. `)
+                    if(newValue && (!currentValue || currentValue==null || newValue!==currentValue)) {
+                        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Change, `\x1b[96m${tableUpdate.updateName}\x1b[0m :: \x1b[96m${tableUpdate.tableName}\x1b[0m.\x1b[96m${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"->"\x1b[96m${newValue}\x1b[0m".. `)
                         columnUpdateStatements.push(`${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}=@${tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName}`)
                         updateRequest.input(tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnName, tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnType, tableUpdate.RowUpdates[i].ColumnUpdates[j].ColumnValue)
                     }
@@ -321,8 +321,15 @@ export class DBEngine {
 
                     updateStatement += `WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
 
-                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, updateStatement);
+                    
 
+                    try {
+                        await this.executeSql(updateStatement, updateRequest)
+                    } catch(err) {
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, updateStatement);
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`);
+                        throw(err)
+                    }
                 }
                 
 
