@@ -11,16 +11,15 @@ import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { AzureActiveDirectoryDevice, AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
+import { AzureManagedDevice, ConnectwiseDevice, CrowdstrikeDevice } from './models/Device'
 
 export class Collector {
 
-    constructor(logStack:string[], mongoURI:string='', sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false, logStackColumnWidth:number=48) {
-        this._mongoURI=mongoURI
+    constructor(logStack:string[], sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false, logStackColumnWidth:number=48) {
         this._le = new LogEngine(logStack, showDebug, logStackColumnWidth);
         this._db = new DBEngine(this._le, sqlConfig, logFrequency)
     }
-    private _mongoURI:string=''
+    //private _mongoURI:string=''
     private _le:LogEngine
     private _db:DBEngine
 
@@ -32,17 +31,17 @@ export class Collector {
         await this._db.disconnect()
     }
 
-    public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
-        const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this._le);
-        await mongoCheck.checkMongoDatabase(mongoAdminURI, this._mongoURI, dbName);
-        return new Promise<boolean>((resolve) => {resolve(true)})
-    }
+    // public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
+    //     const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this._le);
+    //     await mongoCheck.checkMongoDatabase(mongoAdminURI, this._mongoURI, dbName);
+    //     return new Promise<boolean>((resolve) => {resolve(true)})
+    // }
 
-    public async persistToMongoDB(deviceObjects:any):Promise<boolean> {
-        const mongodb:MongoDB.Persist = new MongoDB.Persist(this._le, this._mongoURI)
-        await mongodb.persistDevices(deviceObjects)
-        return new Promise<boolean>((resolve) => {resolve(true)})
-    }
+    // public async persistToMongoDB(deviceObjects:any):Promise<boolean> {
+    //     const mongodb:MongoDB.Persist = new MongoDB.Persist(this._le, this._mongoURI)
+    //     await mongodb.persistDevices(deviceObjects)
+    //     return new Promise<boolean>((resolve) => {resolve(true)})
+    // }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
         this._le.logStack.push('ActiveDirectory');
