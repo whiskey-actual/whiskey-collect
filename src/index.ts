@@ -44,6 +44,7 @@ export class Collector {
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
         this._le.logStack.push('ActiveDirectory');
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: ActiveDirectory --------------")
 
         try {
             const ad = new ActiveDirectory(this._le, this._db);
@@ -61,6 +62,7 @@ export class Collector {
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this._le.logStack.push('AzureActiveDirectory');
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: AzureActiveDirectory ---------")
 
         try {
             const aad = new AzureActiveDirectory(this._le, this._db);
@@ -78,6 +80,7 @@ export class Collector {
 
     public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this._le.logStack.push('AzureManaged');
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: AzureManaged -----------------")
 
         try {
             const am = new AzureManaged(this._le, this._db);
@@ -95,6 +98,7 @@ export class Collector {
 
     public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
         this._le.logStack.push('Connectwise');
+        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: Connectwise ------------------")
 
         try {
             const cw = new Connectwise(this._le, this._db);

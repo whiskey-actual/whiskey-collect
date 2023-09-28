@@ -106,6 +106,7 @@ export class Connectwise
           this.ConnectwiseObjects.push(o)
         } catch (err) {
           this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          console.debug(computers[i])
           throw(err)
         } 
       }
@@ -152,6 +153,7 @@ export class Connectwise
 
           }  catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${err}`)
+            console.debug(networkDevices[i])
             throw(err)
           }
           

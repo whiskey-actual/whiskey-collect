@@ -83,15 +83,13 @@ export class AzureManaged {
 
     try {
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'initializing ..')
-      
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token.. ')
-      
       const authResponse = await this.getToken(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
       const accessToken = authResponse.accessToken;
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. got access token, fetching devices ..')
+
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'fetching devices ..')
       
       const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/deviceManagement/managedDevices`)
+      
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; processing ..`)
 
       for(let i=0; i<deviceList.length; i++) {
@@ -266,6 +264,7 @@ export class AzureManaged {
     }
   }
 
+
   private async getToken(AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<msal.AuthenticationResult> {
     this._le.logStack.push("getToken")
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'getting access token.. ')
@@ -281,14 +280,14 @@ export class AzureManaged {
           clientSecret: CLIENT_SECRET
         }
       }
-
+  
       const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
-
+  
       const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
-
-
+  
+  
       const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
-
+  
       if(result!=null) {
         this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. access token acquired.')
         output = result
@@ -311,7 +310,7 @@ export class AzureManaged {
   private async callAPI(accessToken:string, endpoint:string):Promise<any> {
     this._le.logStack.push('callAPI')
     let output:any = undefined
-  
+   
     try {
       const options = { headers: { Authorization: `Bearer ${accessToken}`}}
       const response = await axios.get(endpoint, options)
@@ -330,30 +329,30 @@ export class AzureManaged {
   private async getData(accesstoken:string, uri:string):Promise<any> {
     this._le.logStack.push('getData')
     var output:any = []
-  
+   
     try {
 
-      const response = await this.callAPI(accesstoken, uri);
-      for(const value of response.value) {
+       const response = await this.callAPI(accesstoken, uri);
+       for(const value of response.value) {
         output.push(value)
-      }
+       }
 
-      var nextLink = response['@odata.nextLink']
-      while(nextLink) {
+       var nextLink = response['@odata.nextLink']
+       while(nextLink) {
         const nextPage = await this.callAPI(accesstoken, nextLink)
         nextLink = nextPage['@odata.nextLink']
 
         for(const value of nextPage.value) {
           output.push(value)
         }
-      }
+       }
     } catch (err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
       this._le.logStack.pop()
     }
-  
+   
     return new Promise<any>((resolve) => {resolve(output)})
 
   }
