@@ -100,7 +100,6 @@ export class ActiveDirectory
     try {
 
       let upDevice:UpdatePackage = { tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
-      
       let upActiveDirectoryDevice:UpdatePackage = { tableName:'DeviceActiveDirectory', idColumn:"DeviceActiveDirectoryID", UpdatePackageItems:[]}
       
       for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {

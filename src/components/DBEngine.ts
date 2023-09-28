@@ -172,6 +172,8 @@ export class DBEngine {
 
             const startDate:Date = new Date()
 
+            let executionArray:Promise<IResult<any>>[] = []
+
             for(let i=0; i<updatePackage.UpdatePackageItems.length; i++) {
 
                 let currentValue:any
@@ -200,17 +202,15 @@ export class DBEngine {
                     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
                     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue)
                     const queryText:string = `UPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=@updateValue WHERE ${updatePackage.idColumn}=@idValue`
-                    const result:mssql.IResult<any> = await this.executeSql(queryText, r)
+                    executionArray.push(this.executeSql(queryText, r))
                 } else {
                     // no update needed
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                 }
-
-                if(i>0 && i%this._persistLogFrequency===0) {
-                    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, Utilities.getProgressMessage(updatePackage.tableName, 'persisted', i, updatePackage.UpdatePackageItems.length, startDate, new Date()))
-                }
-
             }
+
+            await Utilities.executePromisesWithProgress(this._le, executionArray, this._persistLogFrequency)
+
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
