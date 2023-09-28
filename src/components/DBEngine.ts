@@ -131,7 +131,7 @@ export class DBEngine {
                 if(newResult.recordset.length===0) {
                     throw(`ID not found for newly added row: ${objectName}.${keyField}=${keyValue}`)
                 } else {
-                    output = result.recordset[0][objectName+'ID']
+                    output = newResult.recordset[0][objectName+'ID']
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
                 }
 
