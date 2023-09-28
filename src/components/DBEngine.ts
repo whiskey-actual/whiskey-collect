@@ -174,8 +174,7 @@ export class DBEngine {
                     try {
                         currentValue = await this.getSingleValue(updatePackage.tableName, updatePackage.idColumn, updatePackage.UpdatePackageItems[i].idValue, updatePackage.UpdatePackageItems[i].updateColumn);
                         if(
-                            !currentValue 
-                            || (currentValue && !updatePackage.UpdatePackageItems[i].updateValue)
+                            (!currentValue && updatePackage.UpdatePackageItems[i].updateValue)
                             || currentValue.toString().trim()!=updatePackage.UpdatePackageItems[i].updateValue.toString().trim()
                         ) 
                         {
