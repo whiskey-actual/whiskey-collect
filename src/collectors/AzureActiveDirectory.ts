@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import axios from "axios";
 import * as msal from '@azure/msal-node'
 import mssql from 'mssql'
-import { DBEngine, UpdatePackage } from '../components/DBEngine';
+import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
 export class AzureActiveDirectoryObject {
   // mandatory
@@ -55,7 +55,6 @@ export class AzureActiveDirectory {
   }
   private _le:LogEngine
   private _db:DBEngine
-  public readonly sprocName ='sp_add_azureActiveDirectory_device' 
   public readonly AzureActiveDirectoryObjects:AzureActiveDirectoryObject[]=[]
 
   public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
@@ -140,55 +139,59 @@ export class AzureActiveDirectory {
 
     try {
 
-      let upDevice:UpdatePackage = { objectName:'', tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
-      let upAzureActiveDirectoryDevice:UpdatePackage = { objectName:'', tableName:'DeviceAzureActiveDirectory', idColumn:"DeviceAzureActiveDirectoryID", UpdatePackageItems:[]}
+      let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+      let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
       
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
-
-        const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
-        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
         
-        upDevice.objectName = this.AzureActiveDirectoryObjects[i].deviceName
-        upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceAzureActiveDirectoryID", updateValue:DeviceAzureActiveDirectoryID, columnType:mssql.Int})
+        const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
+        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
 
-        upAzureActiveDirectoryDevice.objectName=this.AzureActiveDirectoryObjects[i].deviceName
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceCategory", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceCategory, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceMetadata", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceMetadata, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceOwnership", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceOwnership, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeviceVersion", updateValue:this.AzureActiveDirectoryObjects[i].azureDeviceVersion, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDomainName", updateValue:this.AzureActiveDirectoryObjects[i].azureDomainName, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureEnrollmentProfileType", updateValue:this.AzureActiveDirectoryObjects[i].azureEnrollmentProfileType, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureEnrollmentType", updateValue:this.AzureActiveDirectoryObjects[i].azureEnrollmentType, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureExternalSourceName", updateValue:this.AzureActiveDirectoryObjects[i].azureExternalSourceName, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureManagementType", updateValue:this.AzureActiveDirectoryObjects[i].azureManagementType, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureManufacturer", updateValue:this.AzureActiveDirectoryObjects[i].azureManufacturer, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureMDMAppId", updateValue:this.AzureActiveDirectoryObjects[i].azureMDMAppId, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureModel", updateValue:this.AzureActiveDirectoryObjects[i].azureModel, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureOperatingSystem", updateValue:this.AzureActiveDirectoryObjects[i].azureOperatingSystem, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureOperatingSystemVersion", updateValue:this.AzureActiveDirectoryObjects[i].azureOperatingSystemVersion, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureProfileType", updateValue:this.AzureActiveDirectoryObjects[i].azureProfileType, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureSourceType", updateValue:this.AzureActiveDirectoryObjects[i].azureSourceType, columnType:mssql.VarChar(255) })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureTrustType", updateValue:this.AzureActiveDirectoryObjects[i].azureTrustType, columnType:mssql.VarChar(255) })
-        // dates
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureDeletedDateTime", updateValue:this.AzureActiveDirectoryObjects[i].azureDeletedDateTime, columnType:mssql.DateTime2 })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureApproximateLastSignInDateTime", updateValue:this.AzureActiveDirectoryObjects[i].azureApproximateLastSignInDateTime, columnType:mssql.DateTime2 })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureComplianceExpirationDateTime", updateValue:this.AzureActiveDirectoryObjects[i].azureComplianceExpirationDateTime, columnType:mssql.DateTime2 })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureCreatedDateTime", updateValue:this.AzureActiveDirectoryObjects[i].azureCreatedDateTime, columnType:mssql.DateTime2 })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureOnPremisesLastSyncDateTime", updateValue:this.AzureActiveDirectoryObjects[i].azureOnPremisesLastSyncDateTime, columnType:mssql.DateTime2 })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureRegistrationDateTime", updateValue:this.AzureActiveDirectoryObjects[i].azureRegistrationDateTime, columnType:mssql.DateTime2 })
-        // boolean
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureOnPremisesSyncEnabled", updateValue:this.AzureActiveDirectoryObjects[i].azureOnPremisesSyncEnabled, columnType:mssql.Bit })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureAccountEnabled", updateValue:this.AzureActiveDirectoryObjects[i].azureAccountEnabled, columnType:mssql.Bit })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureIsCompliant", updateValue:this.AzureActiveDirectoryObjects[i].azureIsCompliant, columnType:mssql.Bit })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureIsManaged", updateValue:this.AzureActiveDirectoryObjects[i].azureIsManaged, columnType:mssql.Bit })
-        upAzureActiveDirectoryDevice.UpdatePackageItems.push({idValue: DeviceAzureActiveDirectoryID, updateColumn: "azureIsRooted", updateValue:this.AzureActiveDirectoryObjects[i].azureIsRooted, columnType:mssql.Bit })
+        // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
+        let ruDevice = new RowUpdate(DeviceID)
+        ruDevice.updateName=this.AzureActiveDirectoryObjects[i].deviceName
+        ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryID", mssql.Int, DeviceAzureActiveDirectoryID))
+        tuDevice.RowUpdates.push(ruDevice)
+
+        // update the DeviceActiveDirectory table values ..
+        let ruAzureActiveDirectory = new RowUpdate(DeviceAzureActiveDirectoryID)
+        ruAzureActiveDirectory.updateName=this.AzureActiveDirectoryObjects[i].deviceName
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceCategory", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceCategory))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceMetadata", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceMetadata))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceOwnership", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceOwnership))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceVersion", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceVersion))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDomainName", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDomainName))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureEnrollmentProfileType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureEnrollmentProfileType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureEnrollmentType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureEnrollmentType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureExternalSourceName", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureExternalSourceName))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureManagementType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureManagementType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureManufacturer", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureManufacturer))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureMDMAppId", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureMDMAppId))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureModel", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureModel))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystem", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureOperatingSystem))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemVersion", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureOperatingSystemVersion))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureProfileType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureProfileType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureSourceType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureSourceType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureTrustType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureTrustType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureDeletedDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureApproximateLastSignInDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureApproximateLastSignInDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureComplianceExpirationDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureComplianceExpirationDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureCreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureCreatedDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesLastSyncDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureOnPremisesLastSyncDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureRegistrationDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureRegistrationDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesSyncEnabled", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureOnPremisesSyncEnabled))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureAccountEnabled", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureAccountEnabled))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsCompliant", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsCompliant))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsManaged", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsManaged))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsRooted", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsRooted))
+        tuAzureActiveDirectory.RowUpdates.push(ruAzureActiveDirectory)
 
         //const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
 
       }
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      await this._db.performUpdates(upDevice, true)
-      await this._db.performUpdates(upAzureActiveDirectoryDevice, true)
+      await this._db.updateTable(tuDevice, true)
+      await this._db.updateTable(tuAzureActiveDirectory, true)
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
 
     } catch(err) {

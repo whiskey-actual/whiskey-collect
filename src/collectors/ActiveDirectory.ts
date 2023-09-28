@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 import { Client } from 'ldapts'
 
 import mssql from 'mssql'
-import { ColumnUpdate, DBEngine, RowUpdate, TableUpdate, UpdatePackage } from '../components/DBEngine';
+import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
 export class ActiveDirectoryObject {
   // mandatory
@@ -98,7 +98,6 @@ export class ActiveDirectory
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
 
     try {
-
       
       let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
       let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
@@ -108,10 +107,13 @@ export class ActiveDirectory
         const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
 
+        // update the device table to add the corresponding DeviceActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)
         ruDevice.updateName=this.ActiveDirectoryObjects[i].deviceName
         ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryID", mssql.Int, DeviceActiveDirectoryID))
+        tuDevice.RowUpdates.push(ruDevice)
 
+        // update the DeviceActiveDirectory table values ..
         let ruActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
         ruActiveDirectory.updateName=this.ActiveDirectoryObjects[i].deviceName
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName))
