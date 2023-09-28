@@ -115,9 +115,9 @@ export class DBEngine {
 
             const r = this._sqlPool.request()
             r.input('keyValue', mssql.VarChar(255), keyValue)
-            const queryText:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}=@keyValue`
+            const selectQuery:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}=@keyValue`
 
-            const result:mssql.IResult<any> = await this.executeSql(queryText, r)
+            const result:mssql.IResult<any> = await this.executeSql(selectQuery, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
                 this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
@@ -125,8 +125,15 @@ export class DBEngine {
                 this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${keyField} ${keyValue} not found in ${objectName}, adding ..`)
                 const r = this._sqlPool.request()
                 r.input('keyValue', mssql.VarChar(255), keyValue)
-                const query:string = `INSERT INTO ${objectName}(${keyField}) VALUES (@keyValue)`
-                await this.executeSql(query, r)
+                const insertQuery:string = `INSERT INTO ${objectName}(${keyField}) VALUES (@keyValue)`
+                await this.executeSql(insertQuery, r)
+                let newResult:mssql.IResult<any> = await this.executeSql(selectQuery, r)
+                if(newResult.recordset.length===0) {
+                    throw(`ID not found for newly added row: ${objectName}.${keyField}=${keyValue}`)
+                } else {
+                    output = result.recordset[0][objectName+'ID']
+                }
+
             }
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
@@ -171,10 +178,6 @@ export class DBEngine {
 
         try {
 
-            const startDate:Date = new Date()
-
-            let executionArray:Promise<void|IResult<any>>[] = []
-
             for(let i=0; i<updatePackage.UpdatePackageItems.length; i++) {
 
                 let currentValue:any
@@ -203,19 +206,12 @@ export class DBEngine {
                     r.input('idValue', mssql.Int, updatePackage.UpdatePackageItems[i].idValue)
                     r.input('updateValue', updatePackage.UpdatePackageItems[i].columnType, updatePackage.UpdatePackageItems[i].updateValue)
                     const queryText:string = `UPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=@updateValue WHERE ${updatePackage.idColumn}=@idValue`
-                    executionArray.push(this.executeSql(queryText, r).catch((err) => {
-                        throw(`${err}\nUPDATE ${updatePackage.tableName} SET ${updatePackage.UpdatePackageItems[i].updateColumn}=${updatePackage.UpdatePackageItems[i].updateValue} WHERE ${updatePackage.idColumn}=${updatePackage.UpdatePackageItems[i].idValue}`)
-                    }))
-                        
-                        
+                    await this.executeSql(queryText, r)
                 } else {
                     // no update needed
                     this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${updatePackage.tableName}\x1b[0m.\x1b[96m${updatePackage.UpdatePackageItems[i].updateColumn}\x1b[0m: "\x1b[96m${currentValue}\x1b[0m"="\x1b[96m${updatePackage.UpdatePackageItems[i].updateValue}\x1b[0m".. `)
                 }
             }
-
-            await Utilities.executePromisesWithProgress(this._le, executionArray, this._persistLogFrequency)
-
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err)
