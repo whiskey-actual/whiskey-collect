@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import axios from "axios";
 import * as msal from '@azure/msal-node'
 import mssql from 'mssql'
-import { DBEngine, UpdatePackage } from '../components/DBEngine';
+  import { DBEngine } from '../components/DBEngine';
 
 export class AzureManagedObject {
   public readonly observedByAzureMDM:boolean = true
@@ -182,79 +182,79 @@ export class AzureManaged {
 
     try {
 
-      let upDevice:UpdatePackage = { objectName:'', tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
-      let upAzureManagedDevice:UpdatePackage = { objectName:'', tableName:'DeviceAzureManaged', idColumn:"DeviceAzureManagedID", UpdatePackageItems:[]}
+      // let upDevice:UpdatePackage = { objectName:'', tableName:"Device", idColumn:"DeviceID", UpdatePackageItems:[]}
+      // let upAzureManagedDevice:UpdatePackage = { objectName:'', tableName:'DeviceAzureManaged', idColumn:"DeviceAzureManagedID", UpdatePackageItems:[]}
       
-      for(let i=0; i<this.AzureManagedObjects.length; i++) {
+      // for(let i=0; i<this.AzureManagedObjects.length; i++) {
 
-        const DeviceID:number = await this._db.getID("Device", this.AzureManagedObjects[i].deviceName, "deviceName")
-        const DeviceAzureManagedID:number = await this._db.getID("DeviceAzureManaged", this.AzureManagedObjects[i].azureManagedId, 'AzureManagedID')
+      //   const DeviceID:number = await this._db.getID("Device", this.AzureManagedObjects[i].deviceName, "deviceName")
+      //   const DeviceAzureManagedID:number = await this._db.getID("DeviceAzureManaged", this.AzureManagedObjects[i].azureManagedId, 'AzureManagedID')
         
-        upDevice.objectName = this.AzureManagedObjects[i].deviceName
-        upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceAzureManagedID", updateValue:DeviceAzureManagedID, columnType:mssql.Int})
+      //   upDevice.objectName = this.AzureManagedObjects[i].deviceName
+      //   upDevice.UpdatePackageItems.push({idValue:DeviceID, updateColumn:"DeviceAzureManagedID", updateValue:DeviceAzureManagedID, columnType:mssql.Int})
 
-        upAzureManagedDevice.objectName=this.AzureManagedObjects[i].deviceName
+      //   upAzureManagedDevice.objectName=this.AzureManagedObjects[i].deviceName
 
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceName", updateValue:this.AzureManagedObjects[i].azureManagedDeviceName, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUserId", updateValue:this.AzureManagedObjects[i].azureManagedUserId, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceOwnerType", updateValue:this.AzureManagedObjects[i].azureManagedDeviceOwnerType, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedOperatingSystem", updateValue:this.AzureManagedObjects[i].azureManagedOperatingSystem, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedComplianceState", updateValue:this.AzureManagedObjects[i].azureManagedComplianceState, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedJailBroken", updateValue:this.AzureManagedObjects[i].azureManagedJailBroken, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedManagementAgent", updateValue:this.AzureManagedObjects[i].azureManagedManagementAgent, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedOperatingSystemVersion", updateValue:this.AzureManagedObjects[i].azureManagedOperatingSystemVersion, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEASDeviceID", updateValue:this.AzureManagedObjects[i].azureManagedEASDeviceID, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceEnrollmentType", updateValue:this.AzureManagedObjects[i].azureManagedDeviceEnrollmentType, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedActivationLockBypassCode", updateValue:this.AzureManagedObjects[i].azureManagedActivationLockBypassCode, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEmailAddress", updateValue:this.AzureManagedObjects[i].azureManagedEmailAddress, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedAzureADDeviceID", updateValue:this.AzureManagedObjects[i].azureManagedAzureADDeviceID, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceRegistrationState", updateValue:this.AzureManagedObjects[i].azureManagedDeviceRegistrationState, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceCategoryDisplayName", updateValue:this.AzureManagedObjects[i].azureManagedDeviceCategoryDisplayName, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedExchangeAccessState", updateValue:this.AzureManagedObjects[i].azureManagedExchangeAccessState, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedExchangeAccessStateReason", updateValue:this.AzureManagedObjects[i].azureManagedExchangeAccessStateReason, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedRemoteAssistanceSessionUrl", updateValue:this.AzureManagedObjects[i].azureManagedRemoteAssistanceSessionUrl, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedRemoteAssistanceErrorDetails", updateValue:this.AzureManagedObjects[i].azureManagedRemoteAssistanceErrorDetails, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUserPrincipalName", updateValue:this.AzureManagedObjects[i].azureManagedUserPrincipalName, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedModel", updateValue:this.AzureManagedObjects[i].azureManagedModel, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedManufacturer", updateValue:this.AzureManagedObjects[i].azureManagedManufacturer, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIMEI", updateValue:this.AzureManagedObjects[i].azureManagedIMEI, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedSerialNumber", updateValue:this.AzureManagedObjects[i].azureManagedSerialNumber, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedPhoneNumber", updateValue:this.AzureManagedObjects[i].azureManagedPhoneNumber, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedAndroidSecurityPatchLevel", updateValue:this.AzureManagedObjects[i].azureManagedAndroidSecurityPatchLevel, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUserDisplayName", updateValue:this.AzureManagedObjects[i].azureManagedUserDisplayName, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedConfigurationManagerClientEnabledFeatures", updateValue:this.AzureManagedObjects[i].azureManagedConfigurationManagerClientEnabledFeatures, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedWiFiMACAddress", updateValue:this.AzureManagedObjects[i].azureManagedWiFiMACAddress, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceHealthAttestationState", updateValue:this.AzureManagedObjects[i].azureManagedDeviceHealthAttestationState, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedSubscriberCarrier", updateValue:this.AzureManagedObjects[i].azureManagedSubscriberCarrier, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedMEID", updateValue:this.AzureManagedObjects[i].azureManagedMEID, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedPartnerReportedThreatState", updateValue:this.AzureManagedObjects[i].azureManagedPartnerReportedThreatState, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedRequireUserEnrollmentApproval", updateValue:this.AzureManagedObjects[i].azureManagedRequireUserEnrollmentApproval, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedICCID", updateValue:this.AzureManagedObjects[i].azureManagedICCID, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUDID", updateValue:this.AzureManagedObjects[i].azureManagedUDID, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedNotes", updateValue:this.AzureManagedObjects[i].azureManagedNotes, columnType:mssql.VarChar(255) })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEthernetMacAddress", updateValue:this.AzureManagedObjects[i].azureManagedEthernetMacAddress, columnType:mssql.VarChar(255) })
-        // numbers
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedPhysicalMemoryInBytes", updateValue:this.AzureManagedObjects[i].azureManagedPhysicalMemoryInBytes, columnType:mssql.BigInt })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedTotalStorageSpaceInBytes", updateValue:this.AzureManagedObjects[i].azureManagedTotalStorageSpaceInBytes, columnType:mssql.BigInt })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedFreeStorageSpaceInBytes", updateValue:this.AzureManagedObjects[i].azureManagedFreeStorageSpaceInBytes, columnType:mssql.BigInt })
-        // datetime
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEnrolledDateTime", updateValue:this.AzureManagedObjects[i].azureManagedEnrolledDateTime, columnType:mssql.DateTime2 })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedLastSyncDateTime", updateValue:this.AzureManagedObjects[i].azureManagedLastSyncDateTime, columnType:mssql.DateTime2 })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEASActivationDateTime", updateValue:this.AzureManagedObjects[i].azureManagedEASActivationDateTime, columnType:mssql.DateTime2 })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedExchangeLastSuccessfulSyncDateTime", updateValue:this.AzureManagedObjects[i].azureManagedExchangeLastSuccessfulSyncDateTime, columnType:mssql.DateTime2 })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedComplianceGracePeriodExpirationDateTime", updateValue:this.AzureManagedObjects[i].azureManagedComplianceGracePeriodExpirationDateTime, columnType:mssql.DateTime2 })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedManagementCertificateExpirationDateTime", updateValue:this.AzureManagedObjects[i].azureManagedManagementCertificateExpirationDateTime, columnType:mssql.DateTime2 })
-        // boolean
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsEASActivated", updateValue:this.AzureManagedObjects[i].azureManagedIsEASActivated, columnType:mssql.Bit })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsAzureADRegistered", updateValue:this.AzureManagedObjects[i].azureManagedIsAzureADRegistered, columnType:mssql.Bit })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsSupervised", updateValue:this.AzureManagedObjects[i].azureManagedIsSupervised, columnType:mssql.Bit })
-        upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsEncrypted", updateValue:this.AzureManagedObjects[i].azureManagedIsEncrypted, columnType:mssql.Bit })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceName", updateValue:this.AzureManagedObjects[i].azureManagedDeviceName, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUserId", updateValue:this.AzureManagedObjects[i].azureManagedUserId, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceOwnerType", updateValue:this.AzureManagedObjects[i].azureManagedDeviceOwnerType, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedOperatingSystem", updateValue:this.AzureManagedObjects[i].azureManagedOperatingSystem, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedComplianceState", updateValue:this.AzureManagedObjects[i].azureManagedComplianceState, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedJailBroken", updateValue:this.AzureManagedObjects[i].azureManagedJailBroken, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedManagementAgent", updateValue:this.AzureManagedObjects[i].azureManagedManagementAgent, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedOperatingSystemVersion", updateValue:this.AzureManagedObjects[i].azureManagedOperatingSystemVersion, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEASDeviceID", updateValue:this.AzureManagedObjects[i].azureManagedEASDeviceID, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceEnrollmentType", updateValue:this.AzureManagedObjects[i].azureManagedDeviceEnrollmentType, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedActivationLockBypassCode", updateValue:this.AzureManagedObjects[i].azureManagedActivationLockBypassCode, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEmailAddress", updateValue:this.AzureManagedObjects[i].azureManagedEmailAddress, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedAzureADDeviceID", updateValue:this.AzureManagedObjects[i].azureManagedAzureADDeviceID, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceRegistrationState", updateValue:this.AzureManagedObjects[i].azureManagedDeviceRegistrationState, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceCategoryDisplayName", updateValue:this.AzureManagedObjects[i].azureManagedDeviceCategoryDisplayName, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedExchangeAccessState", updateValue:this.AzureManagedObjects[i].azureManagedExchangeAccessState, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedExchangeAccessStateReason", updateValue:this.AzureManagedObjects[i].azureManagedExchangeAccessStateReason, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedRemoteAssistanceSessionUrl", updateValue:this.AzureManagedObjects[i].azureManagedRemoteAssistanceSessionUrl, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedRemoteAssistanceErrorDetails", updateValue:this.AzureManagedObjects[i].azureManagedRemoteAssistanceErrorDetails, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUserPrincipalName", updateValue:this.AzureManagedObjects[i].azureManagedUserPrincipalName, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedModel", updateValue:this.AzureManagedObjects[i].azureManagedModel, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedManufacturer", updateValue:this.AzureManagedObjects[i].azureManagedManufacturer, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIMEI", updateValue:this.AzureManagedObjects[i].azureManagedIMEI, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedSerialNumber", updateValue:this.AzureManagedObjects[i].azureManagedSerialNumber, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedPhoneNumber", updateValue:this.AzureManagedObjects[i].azureManagedPhoneNumber, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedAndroidSecurityPatchLevel", updateValue:this.AzureManagedObjects[i].azureManagedAndroidSecurityPatchLevel, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUserDisplayName", updateValue:this.AzureManagedObjects[i].azureManagedUserDisplayName, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedConfigurationManagerClientEnabledFeatures", updateValue:this.AzureManagedObjects[i].azureManagedConfigurationManagerClientEnabledFeatures, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedWiFiMACAddress", updateValue:this.AzureManagedObjects[i].azureManagedWiFiMACAddress, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedDeviceHealthAttestationState", updateValue:this.AzureManagedObjects[i].azureManagedDeviceHealthAttestationState, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedSubscriberCarrier", updateValue:this.AzureManagedObjects[i].azureManagedSubscriberCarrier, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedMEID", updateValue:this.AzureManagedObjects[i].azureManagedMEID, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedPartnerReportedThreatState", updateValue:this.AzureManagedObjects[i].azureManagedPartnerReportedThreatState, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedRequireUserEnrollmentApproval", updateValue:this.AzureManagedObjects[i].azureManagedRequireUserEnrollmentApproval, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedICCID", updateValue:this.AzureManagedObjects[i].azureManagedICCID, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedUDID", updateValue:this.AzureManagedObjects[i].azureManagedUDID, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedNotes", updateValue:this.AzureManagedObjects[i].azureManagedNotes, columnType:mssql.VarChar(255) })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEthernetMacAddress", updateValue:this.AzureManagedObjects[i].azureManagedEthernetMacAddress, columnType:mssql.VarChar(255) })
+      //   // numbers
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedPhysicalMemoryInBytes", updateValue:this.AzureManagedObjects[i].azureManagedPhysicalMemoryInBytes, columnType:mssql.BigInt })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedTotalStorageSpaceInBytes", updateValue:this.AzureManagedObjects[i].azureManagedTotalStorageSpaceInBytes, columnType:mssql.BigInt })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedFreeStorageSpaceInBytes", updateValue:this.AzureManagedObjects[i].azureManagedFreeStorageSpaceInBytes, columnType:mssql.BigInt })
+      //   // datetime
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEnrolledDateTime", updateValue:this.AzureManagedObjects[i].azureManagedEnrolledDateTime, columnType:mssql.DateTime2 })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedLastSyncDateTime", updateValue:this.AzureManagedObjects[i].azureManagedLastSyncDateTime, columnType:mssql.DateTime2 })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedEASActivationDateTime", updateValue:this.AzureManagedObjects[i].azureManagedEASActivationDateTime, columnType:mssql.DateTime2 })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedExchangeLastSuccessfulSyncDateTime", updateValue:this.AzureManagedObjects[i].azureManagedExchangeLastSuccessfulSyncDateTime, columnType:mssql.DateTime2 })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedComplianceGracePeriodExpirationDateTime", updateValue:this.AzureManagedObjects[i].azureManagedComplianceGracePeriodExpirationDateTime, columnType:mssql.DateTime2 })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedManagementCertificateExpirationDateTime", updateValue:this.AzureManagedObjects[i].azureManagedManagementCertificateExpirationDateTime, columnType:mssql.DateTime2 })
+      //   // boolean
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsEASActivated", updateValue:this.AzureManagedObjects[i].azureManagedIsEASActivated, columnType:mssql.Bit })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsAzureADRegistered", updateValue:this.AzureManagedObjects[i].azureManagedIsAzureADRegistered, columnType:mssql.Bit })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsSupervised", updateValue:this.AzureManagedObjects[i].azureManagedIsSupervised, columnType:mssql.Bit })
+      //   upAzureManagedDevice.UpdatePackageItems.push({idValue: DeviceAzureManagedID, updateColumn: "azureManagedIsEncrypted", updateValue:this.AzureManagedObjects[i].azureManagedIsEncrypted, columnType:mssql.Bit })
 
-      }
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      await this._db.performUpdates(upDevice, true)
-      await this._db.performUpdates(upAzureManagedDevice, true)
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
+      // }
+      // this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
+      // await this._db.performUpdates(upDevice, true)
+      // await this._db.performUpdates(upAzureManagedDevice, true)
+      // this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
 
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)

@@ -6,14 +6,10 @@ import { DBEngine } from './components/DBEngine'
 
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
-
 import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { AzureManaged } from './collectors/AzureManaged'
-
 import { Connectwise } from './collectors/Connectwise'
-
 import { Crowdstrike } from './collectors/Crowdstrike'
-import { CrowdstrikeDevice } from './models/Device'
 
 export class Collector {
 
@@ -47,7 +43,7 @@ export class Collector {
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
         this._le.logStack.push('ActiveDirectory');
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: ActiveDirectory --------------")
+        this._le.AddDelimiter("INIT")
 
         try {
             const ad = new ActiveDirectory(this._le, this._db);
@@ -65,7 +61,7 @@ export class Collector {
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this._le.logStack.push('AzureActiveDirectory');
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: AzureActiveDirectory ---------")
+        this._le.AddDelimiter("INIT")
 
         try {
             const aad = new AzureActiveDirectory(this._le, this._db);
@@ -83,7 +79,7 @@ export class Collector {
 
     public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this._le.logStack.push('AzureManaged');
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: AzureManaged -----------------")
+        this._le.AddDelimiter("INIT")
 
         try {
             const am = new AzureManaged(this._le, this._db);
@@ -101,7 +97,7 @@ export class Collector {
 
     public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
         this._le.logStack.push('Connectwise');
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, ":: INIT :: Connectwise ------------------")
+        this._le.AddDelimiter("INIT")
 
         try {
             const cw = new Connectwise(this._le, this._db);
@@ -116,20 +112,21 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
     
-    public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<CrowdstrikeDevice[]> {
+    public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<void> {
         this._le.logStack.push('Crowdstrike');
-        let output:CrowdstrikeDevice[]
+        this._le.AddDelimiter("INIT")
 
         try {
-            const cs = new Crowdstrike(this._le)
-            output = await cs.fetch(baseURL, clientId, clientSecret)
+            const cs = new Crowdstrike(this._le, this._db)
+            await cs.fetch(baseURL, clientId, clientSecret)
+            await cs.persist()
         } catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
         this._le.logStack.pop()
-        return new Promise<CrowdstrikeDevice[]>((resolve) => {resolve(output)})
+        return new Promise<void>((resolve) => {resolve()})
     }
 
 
