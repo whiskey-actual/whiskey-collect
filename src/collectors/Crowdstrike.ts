@@ -45,7 +45,6 @@ export class CrowdstrikeObject {
 export class Crowdstrike
 {
 
-  
   constructor(le:LogEngine, db:DBEngine) {
     this._le=le
     this._db=db
@@ -73,6 +72,7 @@ export class Crowdstrike
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${foundDevices.length} devices; fetching details ..`)
 
       const startDate = new Date()
+      const logUpdateInterval:number=250
 
       for(let i=0; i<foundDevices.length; i++) {
 
@@ -116,6 +116,10 @@ export class Crowdstrike
             crowdstrikeModifiedDateTime: Utilities.CleanedDate(deviceDetails.modified_timestamp)
           }
           this.CrowdstrikeObjects.push(o)
+
+          if(i>0 && i%logUpdateInterval===0) {
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, Utilities.getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
+          }
 
         } catch (err) {
           this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)

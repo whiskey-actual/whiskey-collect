@@ -98,10 +98,10 @@ export class ActiveDirectory
 
     try {
       
-      let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-      let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
-      
       for(let i=0; i<this.ActiveDirectoryObjects.length; i++) {
+     
+        let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+        let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
         
         const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
@@ -124,20 +124,16 @@ export class ActiveDirectory
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryLastLogonTimestamp))
         tuActiveDirectory.RowUpdates.push(ruActiveDirectory)
 
+        await this._db.updateTable(tuDevice, true)
+        await this._db.updateTable(tuActiveDirectory, true)
+  
       }
-
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      await this._db.updateTable(tuDevice, true)
-      await this._db.updateTable(tuActiveDirectory, true)
-      
-      //await this._db.performUpdates(upDevice, true)
-      //await this._db.performUpdates(upActiveDirectoryDevice, true)
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
 
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
     } finally {
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
       this._le.logStack.pop()
     }
 

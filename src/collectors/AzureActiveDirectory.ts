@@ -139,10 +139,10 @@ export class AzureActiveDirectory {
 
     try {
 
-      let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-      let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
-      
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
+
+        let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+        let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
         
         const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
         const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
@@ -186,17 +186,16 @@ export class AzureActiveDirectory {
         ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsRooted", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsRooted))
         tuAzureActiveDirectory.RowUpdates.push(ruAzureActiveDirectory)
 
-        //const OperatingSystemID:number = await this._db.getID('OperatingSystem', this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem)
+        await this._db.updateTable(tuDevice, true)
+        await this._db.updateTable(tuAzureActiveDirectory, true)
 
-      }
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      await this._db.updateTable(tuDevice, true)
-      await this._db.updateTable(tuAzureActiveDirectory, true)
+       }
+      
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
     } finally {
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
       this._le.logStack.pop()
     }
 
