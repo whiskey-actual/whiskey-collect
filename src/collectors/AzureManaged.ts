@@ -187,7 +187,7 @@ export class AzureManaged {
       for(let i=0; i<this.AzureManagedObjects.length; i++) {
 
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-        let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureManaged', 'DeviceAzureManagedID')
+        let tuAzureManaged:TableUpdate = new TableUpdate('DeviceAzureManaged', 'DeviceAzureManagedID')
         
         const DeviceID:number = await this._db.getID("Device", this.AzureManagedObjects[i].deviceName, "deviceName")
         const DeviceAzureManagedID:number = await this._db.getID("DeviceAzureManaged", this.AzureManagedObjects[i].azureManagedId, 'AzureManagedID')
@@ -240,24 +240,25 @@ export class AzureManaged {
         ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedNotes", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedNotes))
         ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEthernetMacAddress", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedEthernetMacAddress))
         // bigint
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedPhysicalMemoryInBytes", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedPhysicalMemoryInBytes))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedTotalStorageSpaceInBytes", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedTotalStorageSpaceInBytes))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedFreeStorageSpaceInBytes", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedFreeStorageSpaceInBytes))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedPhysicalMemoryInBytes", mssql.BigInt, this.AzureManagedObjects[i].azureManagedPhysicalMemoryInBytes))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedTotalStorageSpaceInBytes", mssql.BigInt, this.AzureManagedObjects[i].azureManagedTotalStorageSpaceInBytes))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedFreeStorageSpaceInBytes", mssql.BigInt, this.AzureManagedObjects[i].azureManagedFreeStorageSpaceInBytes))
         // datetime
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEnrolledDateTime", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedEnrolledDateTime))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedLastSyncDateTime", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedLastSyncDateTime))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEASActivationDateTime", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedEASActivationDateTime))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedExchangeLastSuccessfulSyncDateTime", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedExchangeLastSuccessfulSyncDateTime))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedComplianceGracePeriodExpirationDateTime", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedComplianceGracePeriodExpirationDateTime))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedManagementCertificateExpirationDateTime", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedManagementCertificateExpirationDateTime))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEnrolledDateTime", mssql.DateTime2, this.AzureManagedObjects[i].azureManagedEnrolledDateTime))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedLastSyncDateTime", mssql.DateTime2, this.AzureManagedObjects[i].azureManagedLastSyncDateTime))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEASActivationDateTime", mssql.DateTime2, this.AzureManagedObjects[i].azureManagedEASActivationDateTime))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedExchangeLastSuccessfulSyncDateTime", mssql.DateTime2, this.AzureManagedObjects[i].azureManagedExchangeLastSuccessfulSyncDateTime))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedComplianceGracePeriodExpirationDateTime", mssql.DateTime2, this.AzureManagedObjects[i].azureManagedComplianceGracePeriodExpirationDateTime))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedManagementCertificateExpirationDateTime", mssql.DateTime2, this.AzureManagedObjects[i].azureManagedManagementCertificateExpirationDateTime))
         // bit
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEASActivated", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedIsEASActivated))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsAzureADRegistered", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedIsAzureADRegistered))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsSupervised", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedIsSupervised))
-        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEncrypted", mssql.VarChar(255), this.AzureManagedObjects[i].azureManagedIsEncrypted))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEASActivated", mssql.Bit, this.AzureManagedObjects[i].azureManagedIsEASActivated))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsAzureADRegistered", mssql.Bit, this.AzureManagedObjects[i].azureManagedIsAzureADRegistered))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsSupervised", mssql.Bit, this.AzureManagedObjects[i].azureManagedIsSupervised))
+        ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEncrypted", mssql.Bit, this.AzureManagedObjects[i].azureManagedIsEncrypted))
+        tuAzureManaged.RowUpdates.push(ruAzureManaged)
 
         await this._db.updateTable(tuDevice, true)
-        await this._db.updateTable(tuAzureActiveDirectory, true)
+        await this._db.updateTable(tuAzureManaged, true)
 
       }
     
