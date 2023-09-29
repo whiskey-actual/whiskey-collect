@@ -52,7 +52,7 @@ export class Connectwise
   public readonly ConnectwiseObjects:ConnectwiseObject[]=[]
 
   public async fetch(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '-- INITIALIZE --')
+    this._le.logStack.push("fetch")
 
     try {
 
@@ -184,10 +184,10 @@ export class Connectwise
 
     try {
       
-      let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-      let tuConnectwise:TableUpdate = new TableUpdate('DeviceConnectwise', 'DeviceConnectwiseID')
-      
       for(let i=0; i<this.ConnectwiseObjects.length; i++) {
+
+        let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+        let tuConnectwise:TableUpdate = new TableUpdate('DeviceConnectwise', 'DeviceConnectwiseID')
         
         const DeviceID:number = await this._db.getID("Device", this.ConnectwiseObjects[i].deviceName, "deviceName")
         const DeviceConnectwiseID:number = await this._db.getID("DeviceConnectwise", this.ConnectwiseObjects[i].connectwiseID, 'ConnectwiseID')
@@ -229,17 +229,16 @@ export class Connectwise
         
         tuConnectwise.RowUpdates.push(ruConnectwise)
 
-      }
+        await this._db.updateTable(tuDevice, true)
+        await this._db.updateTable(tuConnectwise, true)
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'executing ..')
-      await this._db.updateTable(tuDevice, true)
-      await this._db.updateTable(tuConnectwise, true)
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
+      }
 
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
     } finally {
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
       this._le.logStack.pop()
     }
 

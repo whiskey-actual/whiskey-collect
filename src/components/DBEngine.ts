@@ -264,10 +264,8 @@ export class DBEngine {
     }
 
     public async updateTable(tableUpdate:TableUpdate, changeDetection:boolean=false):Promise<void> {
-        this._le.logStack.push("updateTable");
+        this._le.logStack.push(tableUpdate.tableName);
         this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, `updating ${tableUpdate.RowUpdates.length} rows on \x1b[96m${tableUpdate.tableName}\x1b[0m`)
-        const startDate:Date = new Date()
-
         try {
 
             for(let i=0; i<tableUpdate.RowUpdates.length; i++) {
