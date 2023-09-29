@@ -281,10 +281,15 @@ export class AzureManaged {
         }
       }
   
+      console.log('maslConfig:')
+      console.debug(msalConfig)
+
       const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
+      console.log('tokenRequest:')
+      console.debug(tokenRequest)
   
       const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
-  
+      console.debug(cca)
   
       const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
   
