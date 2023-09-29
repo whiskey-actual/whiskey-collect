@@ -197,6 +197,7 @@ export class AzureManaged {
         ruDevice.updateName=this.AzureManagedObjects[i].deviceName
         ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureManagedID", mssql.Int, DeviceAzureManagedID))
         tuDevice.RowUpdates.push(ruDevice)
+        await this._db.updateTable(tuDevice, true)
  
         // update the DeviceActiveDirectory table values ..
         let ruAzureManaged = new RowUpdate(DeviceAzureManagedID)
@@ -257,7 +258,6 @@ export class AzureManaged {
         ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEncrypted", mssql.Bit, this.AzureManagedObjects[i].azureManagedIsEncrypted))
         tuAzureManaged.RowUpdates.push(ruAzureManaged)
 
-        await this._db.updateTable(tuDevice, true)
         await this._db.updateTable(tuAzureManaged, true)
 
       }
