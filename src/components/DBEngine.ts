@@ -3,7 +3,6 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
 import mssql, { IProcedureResult, IResult } from 'mssql'
-import { SaslBindInProgressError } from 'ldapts';
 
 
 export class TableUpdate {

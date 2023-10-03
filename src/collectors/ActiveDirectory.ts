@@ -6,6 +6,8 @@ import { Client } from 'ldapts'
 import mssql from 'mssql'
 import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
+import { OperatingSystem, OperatingSystemObject } from '../components/OperatingSystem';
+
 export class ActiveDirectoryObject {
   // mandatory
   public readonly observedByActiveDirectory:boolean=true
@@ -94,7 +96,6 @@ export class ActiveDirectory
   }
 
   public async persist() {
-
     this._le.logStack.push('persist')
     this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
 
@@ -117,14 +118,21 @@ export class ActiveDirectory
         // update the DeviceActiveDirectory table values ..
         let ruActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
         ruActiveDirectory.updateName=this.ActiveDirectoryObjects[i].deviceName
+        // string
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.ActiveDirectoryObjects[i].activeDirectoryDNSHostName))
+        // int
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.ActiveDirectoryObjects[i].activeDirectoryLogonCount))
+        // datetimes
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryWhenCreated))
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryWhenChanged))
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryLastLogon))
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryPwdLastSet))
         ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.ActiveDirectoryObjects[i].activeDirectoryLastLogonTimestamp))
         tuActiveDirectory.RowUpdates.push(ruActiveDirectory)
+
+        // operating system
+        const os = new OperatingSystem(this._le, this._db, OperatingSystem.parseActiveDirectory(this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem, this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystemVersion))
+        await os.persist(DeviceID)
 
         await this._db.updateTable(tuDevice, true)
         await this._db.updateTable(tuActiveDirectory, true)
@@ -140,5 +148,6 @@ export class ActiveDirectory
     }
 
   }
+
 
 }

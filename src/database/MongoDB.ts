@@ -5,7 +5,6 @@ import { Utilities } from 'whiskey-util'
 import { MongoClient } from 'mongodb'
 import mongoose, { mongo } from "mongoose";
 import { DeviceSchema } from '../models/Device'
-import { OperatingSystem, OperatingSystemSchema } from '../models/OperatingSystem';
 import { getUnifiedObject } from '../components/getUnifiedObject';
 
 const _ActiveDeviceThresholdInDays:number=30
@@ -199,7 +198,7 @@ export namespace MongoDB {
 
       for(let i=0; i<osPlatformKeys.length; i++) {
         if(deviceObjectKeys.includes(osPlatformKeys[i]) && deviceObject[osPlatformKeys[i]]!==undefined && deviceObject[osPlatformKeys[i]]!=='') {
-          const os = await new OperatingSystem({osLabel: deviceObject[osPlatformKeys[i]]});
+          //const os = await new OperatingSystem({osLabel: deviceObject[osPlatformKeys[i]]});
           //os.saveOS()
 
         }
@@ -245,7 +244,7 @@ export namespace MongoDB {
           const admin = assetDB.admin()
 
           await this.verifyCollection(admin, "devices", DeviceSchema);
-          await this.verifyCollection(admin, "operatingSystems", OperatingSystemSchema);
+          //await this.verifyCollection(admin, "operatingSystems", OperatingSystemSchema);
 
           return true;
 
