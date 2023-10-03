@@ -396,8 +396,14 @@ export class DBEngine {
             const r = this._sqlPool.request()
             for(let i=0; i<MatchConditions.length; i++) {
                 if(i>0) { selectQuery += ' AND'; selectText += ' AND'}
-                selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
-                selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
+                if(MatchConditions[i].value===undefined) {
+                    selectQuery += ` ${MatchConditions[i].column} IS NULL`
+                    selectText +=` ${MatchConditions[i].column} IS NULL`
+                } else {
+                    selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
+                    selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
+                }
+             
                 r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, (MatchConditions[i].value || MatchConditions[i].value===0) ? MatchConditions[i].value : null)
                 this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}'`)
             }
