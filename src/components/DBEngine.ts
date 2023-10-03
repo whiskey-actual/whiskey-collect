@@ -381,7 +381,7 @@ export class DBEngine {
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
 
-        console.debug(selectQuery)
+        //console.debug(selectQuery)
         
         const sqp = new SqlQueryPackage(selectQuery, r)
 
@@ -399,7 +399,7 @@ export class DBEngine {
             insertStatement += `${MatchConditions[i].column}`
         }
         insertStatement += ')'
-        insertStatement += 'VALUES ('
+        insertStatement += ' VALUES ('
 
         const alphabet = this.getAlphaArray()
 
@@ -409,8 +409,9 @@ export class DBEngine {
             insertStatement += `@KeyValue${alphabet[i]}`
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
+        insertStatement += ')'
         
-        console.debug(insertStatement)
+        //console.debug(insertStatement)
 
         const sqp = new SqlQueryPackage(insertStatement, r)
 
