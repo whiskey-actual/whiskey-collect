@@ -63,12 +63,12 @@ export class OperatingSystem {
 
             if(OSVersion) {
                 console.debug(`OSVersion: ${OSVersion}`)
-                const reBuildNumber = new RegExp('/(?<=\()\d+(?=\))/')
+                const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
                 const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OSVersion)
                 console.debug(`remaBuildNumber: ${remaBuildNumber}`)
                 os.Build = remaBuildNumber ? Number(remaBuildNumber[0]) : undefined
 
-                const reVersions = new RegExp('/^\d+\.\d+(?=\s)/')
+                const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
                 const remaVersions:RegExpMatchArray|null = reVersions.exec(OSVersion)
                 console.debug(`remaVersions: ${remaVersions}`)
                 os.VersionMajor = remaVersions ? Number(remaVersions[0].split('.')[0]) : undefined
