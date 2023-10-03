@@ -43,7 +43,7 @@ export class ColumnValuePair {
     }
     public column:string
     public value:any
-    public type:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams|mssql.ISqlTypeWithLength = mssql.Int
+    public type:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams|mssql.ISqlTypeWithLength
 }
 
 export class SqlQueryPackage {
@@ -167,6 +167,9 @@ export class DBEngine {
 
             const sqpSelect:SqlQueryPackage = this.BuildSelectStatement(objectName, objectName+'ID', MatchConditions)
             this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, sqpSelect.queryText)
+
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, sqpSelect.queryText)
+
             const result:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
 
             if(result.recordset.length!==0) {
@@ -396,6 +399,7 @@ export class DBEngine {
                 selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
                 selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
                 r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}`)
             }
 
             //console.debug(selectQuery)
@@ -441,6 +445,7 @@ export class DBEngine {
                 insertStatement += `@KeyValue${alphabet[i]}`
                 insertText += `'${MatchConditions[i].value}'`
                 r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
+                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}`)
             }
             insertStatement += ')'; insertText += ')'
 
