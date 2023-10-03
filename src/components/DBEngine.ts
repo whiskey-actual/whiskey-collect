@@ -398,7 +398,7 @@ export class DBEngine {
                 if(i>0) { selectQuery += ' AND'; selectText += ' AND'}
                 selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
                 selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
-                r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
+                r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, (MatchConditions[i].value || MatchConditions[i].value===0) ? MatchConditions[i].value : null)
                 this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}'`)
             }
 
