@@ -160,30 +160,29 @@ export class DBEngine {
 
     public async getID(objectName:string, MatchConditions:ColumnValuePair[], addIfMissing:boolean=false):Promise<number> {
         this._le.logStack.push("getID");
-        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID for \x1b[96m${objectName}\x1b[0m "\x1b[96m${MatchConditions}\x1b[0m".. `)
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID: for \x1b[96m${objectName}\x1b[0m`)
         let output:number=0
 
         try {
 
             const sqpSelect:SqlQueryPackage = this.BuildSelectStatement(objectName, objectName+'ID', MatchConditions)
+            this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, sqpSelect.queryText)
             const result:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
 
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
-                this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${MatchConditions}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
             } else {
                 if(addIfMissing) {
 
-                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${objectName}: did not find ${MatchConditions}, adding .. `)
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${objectName}: did not find matching row, adding .. `)
                     const sqpInsert:SqlQueryPackage = this.BuildInsertStatement(objectName, MatchConditions)
                     await this.executeSql(sqpInsert.query, sqpInsert.request)
                     
                     let newResult:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
                     if(newResult.recordset.length===0) {
-                        throw(`ID not found for newly added row in ${objectName} for ${MatchConditions}`)
+                        throw(`ID not found for newly added row in ${objectName}!`)
                     } else {
                         output = newResult.recordset[0][objectName+'ID']
-                        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${MatchConditions}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
                     }
 
                 }
@@ -370,20 +369,23 @@ export class DBEngine {
 
     private BuildSelectStatement(TableToSelectFrom:string, ColumnToSelect:string, MatchConditions:ColumnValuePair[]):SqlQueryPackage {
 
-        let selectQuery:string = `SELECT ${ColumnToSelect} FROM ${TableToSelectFrom} WHERE`
+        let selectQuery:string = `SELECT ${ColumnToSelect} FROM ${TableToSelectFrom}(NOLOCK) WHERE`
+        let selectText:string = selectQuery
 
         const alphabet = this.getAlphaArray()
 
         const r = this._sqlPool.request()
         for(let i=0; i<MatchConditions.length; i++) {
-            if(i>0) { selectQuery += ` AND`}
+            if(i>0) { selectQuery += ' AND'; selectText += ' AND'}
             selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
+            selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
 
         //console.debug(selectQuery)
         
         const sqp = new SqlQueryPackage(selectQuery, r)
+        sqp.queryText = selectText
 
         return sqp
 
@@ -392,7 +394,6 @@ export class DBEngine {
     private BuildInsertStatement(TableToInsertTo:string, MatchConditions:ColumnValuePair[]):SqlQueryPackage {
 
         let insertStatement:string = `INSERT INTO ${TableToInsertTo}`
-
         insertStatement += '('
         for(let i=0; i<MatchConditions.length; i++) {
             if(i>0) { insertStatement += `,`}
@@ -401,15 +402,18 @@ export class DBEngine {
         insertStatement += ')'
         insertStatement += ' VALUES ('
 
+        let insertText:string = insertStatement
+
         const alphabet = this.getAlphaArray()
 
         const r = this._sqlPool.request()
         for(let i=0; i<MatchConditions.length; i++) {
-            if(i>0) { insertStatement += `,`}
+            if(i>0) { insertStatement += ','; insertStatement += ','}
             insertStatement += `@KeyValue${alphabet[i]}`
+            insertText += `'${MatchConditions[i].value}'`
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
-        insertStatement += ')'
+        insertStatement += ')'; insertText += ')'
         
         //console.debug(insertStatement)
 
