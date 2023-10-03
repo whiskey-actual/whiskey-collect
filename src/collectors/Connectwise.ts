@@ -189,8 +189,8 @@ export class Connectwise
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuConnectwise:TableUpdate = new TableUpdate('DeviceConnectwise', 'DeviceConnectwiseID')
         
-        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName)], true)
-        const DeviceConnectwiseID:number = await this._db.getID("DeviceConnectwise", [new ColumnValuePair('ConnectwiseID', this.ConnectwiseObjects[i].connectwiseID)], true)
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName, mssql.VarChar(255))], true)
+        const DeviceConnectwiseID:number = await this._db.getID("DeviceConnectwise", [new ColumnValuePair('ConnectwiseID', this.ConnectwiseObjects[i].connectwiseID, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceConnectwiseID ..
         let ruDevice = new RowUpdate(DeviceID)

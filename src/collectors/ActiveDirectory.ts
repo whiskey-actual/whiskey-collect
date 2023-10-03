@@ -106,8 +106,8 @@ export class ActiveDirectory
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
         
-        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ActiveDirectoryObjects[i].deviceName)], true)
-        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.ActiveDirectoryObjects[i].activeDirectoryDN)], true)
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ActiveDirectoryObjects[i].deviceName, mssql.VarChar(255))], true)
+        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.ActiveDirectoryObjects[i].activeDirectoryDN, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)

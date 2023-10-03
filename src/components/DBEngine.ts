@@ -36,12 +36,14 @@ export class ColumnUpdate {
 }
 
 export class ColumnValuePair {
-    constructor(c:string, v:any) {
+    constructor(c:string, v:any, type:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams|mssql.ISqlTypeWithLength) {
         this.column = c
         this.value = v
+        this.type = type
     }
     public column:string
     public value:any
+    public type:mssql.ISqlType|mssql.ISqlTypeFactoryWithNoParams|mssql.ISqlTypeWithLength = mssql.Int
 }
 
 export class SqlQueryPackage {
@@ -376,7 +378,7 @@ export class DBEngine {
         for(let i=0; i<MatchConditions.length; i++) {
             if(i>0) { selectQuery += ` AND`}
             selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
-            r.input(`KeyValue${alphabet[i]}`, mssql.VarChar(255), MatchConditions[i].value)
+            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
         
         const sqp = new SqlQueryPackage(selectQuery, r)
@@ -403,7 +405,7 @@ export class DBEngine {
         for(let i=0; i<MatchConditions.length; i++) {
             if(i>0) { insertStatement += `,`}
             insertStatement += `@KeyValue${alphabet[i]}`
-            r.input(`KeyValue${alphabet[i]}`, mssql.VarChar(255), MatchConditions[i].value)
+            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
         
         const sqp = new SqlQueryPackage(insertStatement, r)

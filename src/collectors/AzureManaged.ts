@@ -189,8 +189,8 @@ export class AzureManaged {
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuAzureManaged:TableUpdate = new TableUpdate('DeviceAzureManaged', 'DeviceAzureManagedID')
         
-        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.AzureManagedObjects[i].deviceName)], true)
-        const DeviceAzureManagedID:number = await this._db.getID("DeviceAzureManaged", [new ColumnValuePair('AzureManagedID', this.AzureManagedObjects[i].azureManagedId)], true)
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.AzureManagedObjects[i].deviceName, mssql.VarChar(255))], true)
+        const DeviceAzureManagedID:number = await this._db.getID("DeviceAzureManaged", [new ColumnValuePair('AzureManagedID', this.AzureManagedObjects[i].azureManagedId, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)

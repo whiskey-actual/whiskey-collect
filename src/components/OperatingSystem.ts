@@ -29,10 +29,10 @@ export class OperatingSystem {
             // if there is no description, don't bother storing it.
             if(this._os.Description) {
                 const OperatingSystemID:number = await this._db.getID("OperatingSystem", [
-                    new ColumnValuePair('OperatingSystemDescription', this._os.Description),
-                    new ColumnValuePair('OperatingSystemVersionMajor', this._os.Description),
-                    new ColumnValuePair('OperatingSystemVersionMinor', this._os.VersionMinor),
-                    new ColumnValuePair('OperatingSystemBuild', this._os.Build)
+                    new ColumnValuePair('OperatingSystemDescription', this._os.Description, mssql.VarChar(255)),
+                    new ColumnValuePair('OperatingSystemVersionMajor', this._os.VersionMajor, mssql.Int),
+                    new ColumnValuePair('OperatingSystemVersionMinor', this._os.VersionMinor, mssql.Int),
+                    new ColumnValuePair('OperatingSystemBuild', this._os.Build, mssql.Int)
                 ], true)
 
             }
