@@ -380,6 +380,8 @@ export class DBEngine {
             selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
+
+        console.debug(selectQuery)
         
         const sqp = new SqlQueryPackage(selectQuery, r)
 
@@ -408,6 +410,8 @@ export class DBEngine {
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
         }
         
+        console.debug(insertStatement)
+
         const sqp = new SqlQueryPackage(insertStatement, r)
 
         return sqp
