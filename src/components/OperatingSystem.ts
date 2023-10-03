@@ -58,7 +58,7 @@ export class OperatingSystem {
             os.Description = OS ? OS : ''
 
             if(OSVersion) {
-                console.debug(`OSVersion: ${OSVersion}`)
+                //console.debug(`OSVersion: ${OSVersion}`)
                 const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
                 const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OSVersion)
                 //console.debug(`remaBuildNumber: ${remaBuildNumber}`)
