@@ -41,7 +41,6 @@ export class OperatingSystem {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         } finally {
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
             this._le.logStack.pop()
         }
 
