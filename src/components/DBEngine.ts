@@ -179,9 +179,9 @@ export class DBEngine {
                     try {
                         await this.executeSql(sqpInsert.query, sqpInsert.request)
                     } catch(err) {
-                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
                         this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, sqpSelect.queryText)
                         this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, sqpInsert.queryText)
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
                         throw(err)
                     }
                     
@@ -391,7 +391,7 @@ export class DBEngine {
             if(i>0) { selectQuery += ' AND'; selectText += ' AND'}
             selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
             selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
-            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
+            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
         }
 
         //console.debug(selectQuery)
@@ -423,7 +423,7 @@ export class DBEngine {
             if(i>0) { insertStatement += ','; insertText += ','}
             insertStatement += `@KeyValue${alphabet[i]}`
             insertText += `'${MatchConditions[i].value}'`
-            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
+            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
         }
         insertStatement += ')'; insertText += ')'
         
