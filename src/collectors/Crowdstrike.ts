@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 
 import axios from 'axios'
 import mssql from 'mssql'
-import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
 export class CrowdstrikeObject {
   // mandatory
@@ -152,8 +152,8 @@ export class Crowdstrike
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuCrowdstrike:TableUpdate = new TableUpdate('DeviceCrowdstrike', 'DeviceCrowdstrikeID')
         
-        const DeviceID:number = await this._db.getID("Device", this.CrowdstrikeObjects[i].deviceName, "deviceName")
-        const DeviceCrowdstrikeID:number = await this._db.getID("DeviceCrowdstrike", this.CrowdstrikeObjects[i].crowdstrikeDeviceId, 'CrowdstrikeDeviceID')
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.CrowdstrikeObjects[i].deviceName)], true)
+        const DeviceCrowdstrikeID:number = await this._db.getID("DeviceCrowdstrike", [new ColumnValuePair('CrowdstrikeDeviceID', this.CrowdstrikeObjects[i].crowdstrikeDeviceId)], true)
 
         // update the device table to add the corresponding DeviceCrowdstrikeID ..
         let ruDevice = new RowUpdate(DeviceID)

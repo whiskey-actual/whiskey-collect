@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import axios from "axios";
 import * as msal from '@azure/msal-node'
 import mssql from 'mssql'
-import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
 export class AzureActiveDirectoryObject {
   // mandatory
@@ -144,8 +144,8 @@ export class AzureActiveDirectory {
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
         
-        const DeviceID:number = await this._db.getID("Device", this.AzureActiveDirectoryObjects[i].deviceName, "deviceName")
-        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", this.AzureActiveDirectoryObjects[i].azureId, 'AzureID')
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.AzureActiveDirectoryObjects[i].deviceName)], true)
+        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureID', this.AzureActiveDirectoryObjects[i].azureId)], true)
 
         // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)

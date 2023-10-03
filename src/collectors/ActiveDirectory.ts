@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 import { Client } from 'ldapts'
 
 import mssql from 'mssql'
-import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
 import { OperatingSystem, OperatingSystemObject } from '../components/OperatingSystem';
 
@@ -106,8 +106,8 @@ export class ActiveDirectory
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
         
-        const DeviceID:number = await this._db.getID("Device", this.ActiveDirectoryObjects[i].deviceName, "deviceName")
-        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", this.ActiveDirectoryObjects[i].activeDirectoryDN, 'ActiveDirectoryDN')
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ActiveDirectoryObjects[i].deviceName)], true)
+        const DeviceActiveDirectoryID:number = await this._db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.ActiveDirectoryObjects[i].activeDirectoryDN)], true)
 
         // update the device table to add the corresponding DeviceActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)

@@ -35,6 +35,25 @@ export class ColumnUpdate {
     public ColumnValue:any = undefined
 }
 
+export class ColumnValuePair {
+    constructor(c:string, v:any) {
+        this.column = c
+        this.value = v
+    }
+    public column:string
+    public value:any
+}
+
+export class SqlQueryPackage {
+    constructor(q:string, r:mssql.Request) {
+        this.query = q
+        this.request = r
+    }
+    public query:string
+    public request:mssql.Request
+    public queryText:string=''
+}
+
 export class UpdatePackage {
     public objectName:string=''
     public tableName:string = ''
@@ -137,34 +156,36 @@ export class DBEngine {
         }
     }
 
-    public async getID(objectName:string, keyValue:string, keyField:string=''):Promise<number> {
+    public async getID(objectName:string, MatchConditions:ColumnValuePair[], addIfMissing:boolean=false):Promise<number> {
         this._le.logStack.push("getID");
-        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID for \x1b[96m${objectName}\x1b[0m "\x1b[96m${keyValue}\x1b[0m".. `)
+        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID for \x1b[96m${objectName}\x1b[0m "\x1b[96m${MatchConditions}\x1b[0m".. `)
         let output:number=0
 
         try {
 
-            const r = this._sqlPool.request()
-            r.input('keyValue', mssql.VarChar(255), keyValue)
-            const selectQuery:string = `SELECT ${objectName}ID FROM ${objectName} WHERE ${keyField ? keyField : objectName+'Description'}=@keyValue`
+            const sqpSelect:SqlQueryPackage = this.BuildSelectStatement(objectName, objectName+'ID', MatchConditions)
+            const result:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
 
-            const result:mssql.IResult<any> = await this.executeSql(selectQuery, r)
             if(result.recordset.length!==0) {
                 output = result.recordset[0][objectName+'ID']
-                this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
+                this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${MatchConditions}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
             } else {
-                this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${keyField} ${keyValue} not found in ${objectName}, adding ..`)
-                const r = this._sqlPool.request()
-                r.input('keyValue', mssql.VarChar(255), keyValue)
-                const insertQuery:string = `INSERT INTO ${objectName}(${keyField}) VALUES (@keyValue)`
-                await this.executeSql(insertQuery, r)
-                let newResult:mssql.IResult<any> = await this.executeSql(selectQuery, r)
-                if(newResult.recordset.length===0) {
-                    throw(`ID not found for newly added row: ${objectName}.${keyField}=${keyValue}`)
-                } else {
-                    output = newResult.recordset[0][objectName+'ID']
-                    this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${keyValue}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
+                if(addIfMissing) {
+
+                    this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${objectName}: did not find ${MatchConditions}, adding .. `)
+                    const sqpInsert:SqlQueryPackage = this.BuildInsertStatement(objectName, MatchConditions)
+                    await this.executeSql(sqpInsert.query, sqpInsert.request)
+                    
+                    let newResult:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
+                    if(newResult.recordset.length===0) {
+                        throw(`ID not found for newly added row in ${objectName} for ${MatchConditions}`)
+                    } else {
+                        output = newResult.recordset[0][objectName+'ID']
+                        this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `\x1b[96m${objectName}\x1b[0m: "\x1b[96m${MatchConditions}\x1b[0m" ID:\x1b[96m${output}\x1b[0m`)
+                    }
+
                 }
+                
 
             }
         } catch(err) {
@@ -338,6 +359,60 @@ export class DBEngine {
         return new Promise<void>((resolve) => {resolve()})
 
     }
+
+    private getAlphaArray():string[] {
+        const alpha:number[] = Array.from(Array(26)).map((e, i) => i + 65);
+        const alphabet:string[] = alpha.map((x) => String.fromCharCode(x));
+        return alphabet
+    }
+
+    private BuildSelectStatement(TableToSelectFrom:string, ColumnToSelect:string, MatchConditions:ColumnValuePair[]):SqlQueryPackage {
+
+        let selectQuery:string = `SELECT ${ColumnToSelect} FROM ${TableToSelectFrom} WHERE`
+
+        const alphabet = this.getAlphaArray()
+
+        const r = this._sqlPool.request()
+        for(let i=0; i<MatchConditions.length; i++) {
+            if(i>0) { selectQuery += ` AND`}
+            selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
+            r.input(`KeyValue${alphabet[i]}`, mssql.VarChar(255), MatchConditions[i].value)
+        }
+        
+        const sqp = new SqlQueryPackage(selectQuery, r)
+
+        return sqp
+
+    }
+
+    private BuildInsertStatement(TableToInsertTo:string, MatchConditions:ColumnValuePair[]):SqlQueryPackage {
+
+        let insertStatement:string = `INSERT INTO ${TableToInsertTo}`
+
+        insertStatement += '('
+        for(let i=0; i<MatchConditions.length; i++) {
+            if(i>0) { insertStatement += `,`}
+            insertStatement += `${MatchConditions[i].column}`
+        }
+        insertStatement += ')'
+        insertStatement += 'VALUES ('
+
+        const alphabet = this.getAlphaArray()
+
+        const r = this._sqlPool.request()
+        for(let i=0; i<MatchConditions.length; i++) {
+            if(i>0) { insertStatement += `,`}
+            insertStatement += `@KeyValue${alphabet[i]}`
+            r.input(`KeyValue${alphabet[i]}`, mssql.VarChar(255), MatchConditions[i].value)
+        }
+        
+        const sqp = new SqlQueryPackage(insertStatement, r)
+
+        return sqp
+
+    }
+
+
 
 
 

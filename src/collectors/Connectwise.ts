@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import https from 'https'
 import axios from 'axios'
 import mssql from 'mssql'
-import { DBEngine, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
 export class ConnectwiseObject {
   // mandatory
@@ -189,8 +189,8 @@ export class Connectwise
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuConnectwise:TableUpdate = new TableUpdate('DeviceConnectwise', 'DeviceConnectwiseID')
         
-        const DeviceID:number = await this._db.getID("Device", this.ConnectwiseObjects[i].deviceName, "deviceName")
-        const DeviceConnectwiseID:number = await this._db.getID("DeviceConnectwise", this.ConnectwiseObjects[i].connectwiseID, 'ConnectwiseID')
+        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName)], true)
+        const DeviceConnectwiseID:number = await this._db.getID("DeviceConnectwise", [new ColumnValuePair('ConnectwiseID', this.ConnectwiseObjects[i].connectwiseID)], true)
 
         // update the device table to add the corresponding DeviceConnectwiseID ..
         let ruDevice = new RowUpdate(DeviceID)

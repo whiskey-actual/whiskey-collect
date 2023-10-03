@@ -1,6 +1,6 @@
 import { LogEngine } from "whiskey-log"
 import mssql from 'mssql'
-import { ColumnUpdate, DBEngine, RowUpdate, TableUpdate } from "./DBEngine"
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from "./DBEngine"
 
 
 export class OperatingSystemObject {
@@ -28,17 +28,13 @@ export class OperatingSystem {
 
             // if there is no description, don't bother storing it.
             if(this._os.Description) {
-                const OperatingSystemID:number = await this._db.getID("OperatingSystem", this._os.Description, 'OperatingSystemDescription')
+                const OperatingSystemID:number = await this._db.getID("OperatingSystem", [
+                    new ColumnValuePair('OperatingSystemDescription', this._os.Description),
+                    new ColumnValuePair('OperatingSystemVersionMajor', this._os.Description),
+                    new ColumnValuePair('OperatingSystemVersionMinor', this._os.VersionMinor),
+                    new ColumnValuePair('OperatingSystemBuild', this._os.Build)
+                ], true)
 
-                let tu = new TableUpdate("OperatingSystem", "OperatingSystemID")
-                let ru:RowUpdate = new RowUpdate(OperatingSystemID)
-                ru.updateName = this._os.Description
-                ru.ColumnUpdates.push(new ColumnUpdate("OperatingSystemVersionMajor", mssql.Int, this._os.VersionMajor))
-                ru.ColumnUpdates.push(new ColumnUpdate("OperatingSystemVersionMinor", mssql.Int, this._os.VersionMinor))
-                ru.ColumnUpdates.push(new ColumnUpdate("OperatingSystemBuild", mssql.Int, this._os.Build))
-                ru.ColumnUpdates.push(new ColumnUpdate("OperatingSystemRevision", mssql.Int, this._os.Revision))
-                tu.RowUpdates.push(ru)
-                this._db.updateTable(tu, true)
             }
 
         }catch(err) {
