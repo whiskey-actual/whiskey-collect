@@ -63,9 +63,9 @@ export class OperatingSystemEngine {
 
                 const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
                 const remaVersions:RegExpMatchArray|null = reVersions.exec(OSVersion)
-                console.debug(`remaVersions: ${remaVersions}`)
                 os.VersionMajor = remaVersions ? Number(remaVersions[0].split('.')[0]) : undefined
                 os.VersionMinor = remaVersions ? Number(remaVersions[0].split('.')[1]) : undefined
+                console.debug(`OSVersion: ${OSVersion} | Build: ${os.Build} | VersionMajor:${os.VersionMajor} | VersionMinor:${os.VersionMinor}`)
             }
 
         } catch(err) {
