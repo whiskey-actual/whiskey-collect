@@ -58,7 +58,7 @@ export class ActiveDirectory
       for(let i=0; i<searchEntries.length; i++) {
         try {
 
-          console.debug(searchEntries[i])
+          //console.debug(searchEntries[i])
 
           const o:ActiveDirectoryObject = {
             observedByActiveDirectory: true,
