@@ -412,7 +412,7 @@ export class DBEngine {
 
         const r = this._sqlPool.request()
         for(let i=0; i<MatchConditions.length; i++) {
-            if(i>0) { insertStatement += ','; insertStatement += ','}
+            if(i>0) { insertStatement += ','; insertText += ','}
             insertStatement += `@KeyValue${alphabet[i]}`
             insertText += `'${MatchConditions[i].value}'`
             r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value)
