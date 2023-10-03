@@ -176,7 +176,15 @@ export class DBEngine {
 
                     this._le.AddLogEntry(LogEngine.Severity.Warning, LogEngine.Action.Add, `${objectName}: did not find matching row, adding .. `)
                     const sqpInsert:SqlQueryPackage = this.BuildInsertStatement(objectName, MatchConditions)
-                    await this.executeSql(sqpInsert.query, sqpInsert.request)
+                    try {
+                        await this.executeSql(sqpInsert.query, sqpInsert.request)
+                    } catch(err) {
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, sqpSelect.queryText)
+                        this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, sqpInsert.queryText)
+                        throw(err)
+                    }
+                    
                     
                     let newResult:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
                     if(newResult.recordset.length===0) {
