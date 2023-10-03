@@ -59,21 +59,24 @@ export class OperatingSystem {
 
         try {
 
-        os.Description = OS ? OS : ''
+            os.Description = OS ? OS : ''
 
-        if(OSVersion) {
-            const reBuildNumber = new RegExp('(?<=\()\d+(?=\))')
-            const remaBuildNumber:RegExpMatchArray|null = OSVersion.match(reBuildNumber)
-            os.Build = remaBuildNumber ? Number(remaBuildNumber[0]) : undefined
+            if(OSVersion) {
+                console.debug(`OSVersion: ${OSVersion}`)
+                const reBuildNumber = new RegExp('(?<=\()\d+(?=\))')
+                const remaBuildNumber:RegExpMatchArray|null = OSVersion.match(reBuildNumber)
+                console.debug(`remaBuildNumber: ${remaBuildNumber}`)
+                os.Build = remaBuildNumber ? Number(remaBuildNumber[0]) : undefined
 
-            const reVersions = new RegExp('^\d+\.\d+(?=\s)')
-            const remaVersions:RegExpMatchArray|null = OSVersion.match(reVersions)
-            os.VersionMajor = remaVersions ? Number(remaVersions[0].split('.')[0]) : undefined
-            os.VersionMinor = remaVersions ? Number(remaVersions[0].split('.')[1]) : undefined
-        }
+                const reVersions = new RegExp('^\d+\.\d+(?=\s)')
+                const remaVersions:RegExpMatchArray|null = OSVersion.match(reVersions)
+                console.debug(`remaVersions: ${remaVersions}`)
+                os.VersionMajor = remaVersions ? Number(remaVersions[0].split('.')[0]) : undefined
+                os.VersionMinor = remaVersions ? Number(remaVersions[0].split('.')[1]) : undefined
+            }
 
         } catch(err) {
-        throw(`OperatingSystem:parseActiveDirectory:${err}`);
+            throw(`OperatingSystem:parseActiveDirectory:${err}`);
         }
 
         return os
