@@ -6,7 +6,7 @@ import { Client } from 'ldapts'
 import mssql from 'mssql'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
-import { OperatingSystem, OperatingSystemObject } from '../components/OperatingSystem';
+import { OperatingSystemEngine } from '../components/OperatingSystem';
 
 export class ActiveDirectoryObject {
   // mandatory
@@ -131,8 +131,9 @@ export class ActiveDirectory
         tuActiveDirectory.RowUpdates.push(ruActiveDirectory)
 
         // operating system
-        const os = new OperatingSystem(this._le, this._db, OperatingSystem.parseActiveDirectory(this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem, this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystemVersion))
-        await os.persist(DeviceID)
+        const ose = new OperatingSystemEngine(this._le, this._db)
+        const os = ose.parseActiveDirectory(this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystem, this.ActiveDirectoryObjects[i].activeDirectoryOperatingSystemVersion)
+        await ose.persist(DeviceID, os)
 
         await this._db.updateTable(tuDevice, true)
         await this._db.updateTable(tuActiveDirectory, true)
