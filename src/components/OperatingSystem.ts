@@ -1,6 +1,6 @@
 import { LogEngine } from "whiskey-log"
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from "./DBEngine"
+import { DBEngine, ColumnValuePair } from "./DBEngine"
 
 
 export class OperatingSystem {

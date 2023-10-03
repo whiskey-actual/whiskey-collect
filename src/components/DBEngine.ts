@@ -380,59 +380,82 @@ export class DBEngine {
     }
 
     private BuildSelectStatement(TableToSelectFrom:string, ColumnToSelect:string, MatchConditions:ColumnValuePair[]):SqlQueryPackage {
+        this._le.logStack.push("BuildSelectStatement")
+        let output:SqlQueryPackage
 
-        let selectQuery:string = `SELECT ${ColumnToSelect} FROM ${TableToSelectFrom}(NOLOCK) WHERE`
-        let selectText:string = selectQuery
+        try {
 
-        const alphabet = this.getAlphaArray()
+            let selectQuery:string = `SELECT ${ColumnToSelect} FROM ${TableToSelectFrom}(NOLOCK) WHERE`
+            let selectText:string = selectQuery
 
-        const r = this._sqlPool.request()
-        for(let i=0; i<MatchConditions.length; i++) {
-            if(i>0) { selectQuery += ' AND'; selectText += ' AND'}
-            selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
-            selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
-            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
+            const alphabet = this.getAlphaArray()
+
+            const r = this._sqlPool.request()
+            for(let i=0; i<MatchConditions.length; i++) {
+                if(i>0) { selectQuery += ' AND'; selectText += ' AND'}
+                selectQuery += ` ${MatchConditions[i].column}=@KeyValue${alphabet[i]}`
+                selectText +=` ${MatchConditions[i].column}='${MatchConditions[i].value}'`
+                r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
+            }
+
+            //console.debug(selectQuery)
+            
+            const sqp = new SqlQueryPackage(selectQuery, r)
+            sqp.queryText = selectText
+
+            output = sqp
+
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            this._le.logStack.pop()
         }
 
-        //console.debug(selectQuery)
-        
-        const sqp = new SqlQueryPackage(selectQuery, r)
-        sqp.queryText = selectText
-
-        return sqp
+        return output
 
     }
 
     private BuildInsertStatement(TableToInsertTo:string, MatchConditions:ColumnValuePair[]):SqlQueryPackage {
+        this._le.logStack.push("BuildInsertStatement")
+        let output:SqlQueryPackage
 
-        let insertStatement:string = `INSERT INTO ${TableToInsertTo}`
-        insertStatement += '('
-        for(let i=0; i<MatchConditions.length; i++) {
-            if(i>0) { insertStatement += `,`}
-            insertStatement += `${MatchConditions[i].column}`
+        try {
+
+            let insertStatement:string = `INSERT INTO ${TableToInsertTo}`
+            insertStatement += '('
+            for(let i=0; i<MatchConditions.length; i++) {
+                if(i>0) { insertStatement += `,`}
+                insertStatement += `${MatchConditions[i].column}`
+            }
+            insertStatement += ')'
+            insertStatement += ' VALUES ('
+
+            let insertText:string = insertStatement
+
+            const alphabet = this.getAlphaArray()
+
+            const r = this._sqlPool.request()
+            for(let i=0; i<MatchConditions.length; i++) {
+                if(i>0) { insertStatement += ','; insertText += ','}
+                insertStatement += `@KeyValue${alphabet[i]}`
+                insertText += `'${MatchConditions[i].value}'`
+                r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
+            }
+            insertStatement += ')'; insertText += ')'
+
+            const sqp = new SqlQueryPackage(insertStatement, r)
+            sqp.queryText= insertText
+            output = sqp
+
+        } catch(err) {
+            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err)
+        } finally {
+            this._le.logStack.pop()
         }
-        insertStatement += ')'
-        insertStatement += ' VALUES ('
 
-        let insertText:string = insertStatement
-
-        const alphabet = this.getAlphaArray()
-
-        const r = this._sqlPool.request()
-        for(let i=0; i<MatchConditions.length; i++) {
-            if(i>0) { insertStatement += ','; insertText += ','}
-            insertStatement += `@KeyValue${alphabet[i]}`
-            insertText += `'${MatchConditions[i].value}'`
-            r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, MatchConditions[i].value ? MatchConditions[i].value : null)
-        }
-        insertStatement += ')'; insertText += ')'
-        
-        //console.debug(insertStatement)
-
-        const sqp = new SqlQueryPackage(insertStatement, r)
-
-        return sqp
-
+        return output
     }
 
 
