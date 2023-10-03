@@ -55,17 +55,17 @@ export class OperatingSystemEngine {
             os.Description = OS ? OS : ''
 
             if(OSVersion) {
-                console.debug(`OSVersion: ${OSVersion}`)
+                //console.debug(`OSVersion: ${OSVersion}`)
                 const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
                 const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OSVersion)
-                console.debug(`remaBuildNumber: ${remaBuildNumber}`)
+                //console.debug(`remaBuildNumber: ${remaBuildNumber}`)
                 os.Build = remaBuildNumber ? Number(remaBuildNumber[0]) : undefined
 
                 const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
                 const remaVersions:RegExpMatchArray|null = reVersions.exec(OSVersion)
                 os.VersionMajor = remaVersions ? Number(remaVersions[0].split('.')[0]) : undefined
                 os.VersionMinor = remaVersions ? Number(remaVersions[0].split('.')[1]) : undefined
-                console.debug(`OSVersion: ${OSVersion} | Build: ${os.Build} | VersionMajor:${os.VersionMajor} | VersionMinor:${os.VersionMinor}`)
+                //console.debug(`OSVersion: ${OSVersion} | Build: ${os.Build} | VersionMajor:${os.VersionMajor} | VersionMinor:${os.VersionMinor}`)
             }
 
         } catch(err) {

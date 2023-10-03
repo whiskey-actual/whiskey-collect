@@ -158,7 +158,7 @@ export class DBEngine {
         }
     }
 
-    public async getID(objectName:string, MatchConditions:ColumnValuePair[], addIfMissing:boolean=false):Promise<number> {
+    public async getID(objectName:string, MatchConditions:ColumnValuePair[], addIfMissing:boolean=true):Promise<number> {
         this._le.logStack.push("getID");
         this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Success, `getting ID: for \x1b[96m${objectName}\x1b[0m`)
         let output:number=0
@@ -166,9 +166,7 @@ export class DBEngine {
         try {
 
             const sqpSelect:SqlQueryPackage = this.BuildSelectStatement(objectName, objectName+'ID', MatchConditions)
-            this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, sqpSelect.queryText)
-
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, sqpSelect.queryText)
+            //this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, sqpSelect.queryText)
 
             const result:mssql.IResult<any> = await this.executeSql(sqpSelect.query, sqpSelect.request)
 
@@ -313,7 +311,7 @@ export class DBEngine {
 
                 selectQuery += `FROM ${tableUpdate.tableName} WHERE ${tableUpdate.primaryKeyColumnName}=@PrimaryKeyValue`
 
-                this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, selectQuery);
+                //this._le.AddLogEntry(LogEngine.Severity.Debug, LogEngine.Action.Note, selectQuery);
 
                 const r = this._sqlPool.request()
                 r.input('PrimaryKeyValue', mssql.Int, tableUpdate.RowUpdates[i].primaryKeyValue)
@@ -405,7 +403,7 @@ export class DBEngine {
                 }
              
                 r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, (MatchConditions[i].value || MatchConditions[i].value===0) ? MatchConditions[i].value : null)
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}'`)
+                //this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}'`)
             }
 
             //console.debug(selectQuery)
@@ -451,7 +449,7 @@ export class DBEngine {
                 insertStatement += `@KeyValue${alphabet[i]}`
                 insertText += `'${MatchConditions[i].value}'`
                 r.input(`KeyValue${alphabet[i]}`, MatchConditions[i].type, (MatchConditions[i].value || MatchConditions[i].value===0) ? MatchConditions[i].value : null)
-                this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}'`)
+                //this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `${MatchConditions[i].column}='${MatchConditions[i].value}'`)
             }
             insertStatement += ')'; insertText += ')'
 
