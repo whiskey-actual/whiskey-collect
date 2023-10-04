@@ -203,7 +203,7 @@ export class ActiveDirectory
     
     try {
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building device requests ..')
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (device) ..')
       
       for(let i=0; i<this.Devices.length; i++) {
      
@@ -246,7 +246,7 @@ export class ActiveDirectory
   
       }
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building user requests ..')
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (user) ..')
       for(let i=0; i<this.Users.length; i++) {
 
         let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
@@ -286,9 +286,7 @@ export class ActiveDirectory
 
         tuEmployee.RowUpdates.push(ruEmployee)
 
-        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates ..')
         await this.db.updateTable(tuEmployee, true)
-        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done.')
 
       }
 
