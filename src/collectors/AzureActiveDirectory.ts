@@ -141,6 +141,8 @@ export class AzureActiveDirectory {
 
       for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
 
+        console.debug(this.AzureActiveDirectoryObjects[i])
+
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
         

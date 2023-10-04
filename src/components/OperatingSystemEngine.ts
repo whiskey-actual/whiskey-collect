@@ -24,19 +24,28 @@ export class OperatingSystemEngine {
         try {
 
             // if there is no description, don't bother storing it.
-            if(os.Description) {
+            if(os.Description && os.Description!=='') {
 
-                const OperatingSystemVersionID:number = await this._db.getID("OperatingSystemVersion", [
+                let OperatingSystemVersionID:number=0
+                if(os.Version && os.Version!=='') {
+                    OperatingSystemVersionID = await this._db.getID("OperatingSystemVersion", [
                     new ColumnValuePair('OperatingSystemVersionDescription', os.Version, mssql.VarChar(255))
-                ])
+                    ])
+                }
 
-                const OperatingSystemVariantID:number = await this._db.getID("OperatingSystemVariant", [
-                    new ColumnValuePair('OperatingSystemVariantDescription', os.Variant, mssql.VarChar(255)),
-                ])
+                let OperatingSystemVariantID:number=0
+                if(os.Variant && os.Variant!=='') {
+                    OperatingSystemVariantID = await this._db.getID("OperatingSystemVariant", [
+                        new ColumnValuePair('OperatingSystemVariantDescription', os.Variant, mssql.VarChar(255)),
+                    ])
+                }
 
-                const OperatingSystemID:number = await this._db.getID("OperatingSystem", [
-                    new ColumnValuePair('OperatingSystemDescription', os.Description, mssql.VarChar(255)),
-                ], true)
+                let OperatingSystemID:number = 0
+                if(os.Description && os.Description!=='') {
+                    OperatingSystemID = await this._db.getID("OperatingSystem", [
+                        new ColumnValuePair('OperatingSystemDescription', os.Description, mssql.VarChar(255)),
+                    ], true)
+                }
 
                 const OperatingSystemXRefID:number = await this._db.getID('OperatingSystemXRef', [
                     new ColumnValuePair('OperatingSystemID', OperatingSystemID, mssql.Int),
@@ -44,8 +53,8 @@ export class OperatingSystemEngine {
                     new ColumnValuePair('OperatingSystemVersionID', OperatingSystemVersionID, mssql.Int)
                 ])
             }
-
-        } catch(err) {
+        }
+        catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         } finally {

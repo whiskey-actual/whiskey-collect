@@ -14,118 +14,118 @@ import { Crowdstrike } from './collectors/Crowdstrike'
 export class Collector {
 
     constructor(logStack:string[], sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false, logStackColumnWidth:number=48) {
-        this._le = new LogEngine(logStack, showDebug, logStackColumnWidth);
-        this._db = new DBEngine(this._le, sqlConfig, logFrequency)
+        this.le = new LogEngine(logStack, showDebug, logStackColumnWidth);
+        this.db = new DBEngine(this.le, sqlConfig, logFrequency)
     }
     //private _mongoURI:string=''
-    private _le:LogEngine
-    private _db:DBEngine
+    private le:LogEngine
+    private db:DBEngine
 
     public async connectToDB() {
-        await this._db.connect()
+        await this.db.connect()
     }
 
     public async disconnectFromDB() {
-        await this._db.disconnect()
+        await this.db.disconnect()
     }
 
     // public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
-    //     const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this._le);
+    //     const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this.le);
     //     await mongoCheck.checkMongoDatabase(mongoAdminURI, this._mongoURI, dbName);
     //     return new Promise<boolean>((resolve) => {resolve(true)})
     // }
 
     // public async persistToMongoDB(deviceObjects:any):Promise<boolean> {
-    //     const mongodb:MongoDB.Persist = new MongoDB.Persist(this._le, this._mongoURI)
+    //     const mongodb:MongoDB.Persist = new MongoDB.Persist(this.le, this._mongoURI)
     //     await mongodb.persistDevices(deviceObjects)
     //     return new Promise<boolean>((resolve) => {resolve(true)})
     // }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
-        this._le.logStack.push('ActiveDirectory');
-        this._le.AddDelimiter("INIT")
+        this.le.logStack.push('ActiveDirectory');
+        this.le.AddDelimiter("INIT")
 
         try {
-            const ad = new ActiveDirectory(this._le, this._db);
-            await ad.fetch(ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit)
+            const ad = new ActiveDirectory(this.le, this.db, ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit);
+            await ad.fetch()
             await ad.persist()
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         } finally {
-            this._le.logStack.pop()
+            this.le.logStack.pop()
         }
         
         return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
-        this._le.logStack.push('AzureActiveDirectory');
-        this._le.AddDelimiter("INIT")
+        this.le.logStack.push('AzureActiveDirectory');
+        this.le.AddDelimiter("INIT")
 
         try {
-            const aad = new AzureActiveDirectory(this._le, this._db);
+            const aad = new AzureActiveDirectory(this.le, this.db);
             await aad.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
             await aad.persist()
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         } finally {
-            this._le.logStack.pop()
+            this.le.logStack.pop()
         }
         
         return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
-        this._le.logStack.push('AzureManaged');
-        this._le.AddDelimiter("INIT")
+        this.le.logStack.push('AzureManaged');
+        this.le.AddDelimiter("INIT")
 
         try {
-            const am = new AzureManaged(this._le, this._db);
+            const am = new AzureManaged(this.le, this.db);
             await am.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
             await am.persist()
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         } finally {
-            this._le.logStack.pop()
+            this.le.logStack.pop()
         }
 
         return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
-        this._le.logStack.push('Connectwise');
-        this._le.AddDelimiter("INIT")
+        this.le.logStack.push('Connectwise');
+        this.le.AddDelimiter("INIT")
 
         try {
-            const cw = new Connectwise(this._le, this._db);
+            const cw = new Connectwise(this.le, this.db);
             await cw.fetch(baseURL, clientId, userName, password);
             await cw.persist()
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
-        this._le.logStack.pop()
+        this.le.logStack.pop()
         return new Promise<void>((resolve) => {resolve()})
     }
     
     public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<void> {
-        this._le.logStack.push('Crowdstrike');
-        this._le.AddDelimiter("INIT")
+        this.le.logStack.push('Crowdstrike');
+        this.le.AddDelimiter("INIT")
 
         try {
-            const cs = new Crowdstrike(this._le, this._db)
+            const cs = new Crowdstrike(this.le, this.db)
             await cs.fetch(baseURL, clientId, clientSecret)
             await cs.persist()
         } catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
         
-        this._le.logStack.pop()
+        this.le.logStack.pop()
         return new Promise<void>((resolve) => {resolve()})
     }
 
