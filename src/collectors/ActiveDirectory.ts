@@ -10,9 +10,8 @@ import { OperatingSystemEngine } from '../components/OperatingSystemEngine';
 
 export class ActiveDirectoryDevice {
   // mandatory
-  public readonly observedByActiveDirectory:boolean=true
   public readonly deviceName:string=''
-  public readonly activeDirectoryDN:string=''
+  public readonly deviceDN:string=''
   // strings
   public readonly activeDirectoryOperatingSystem:string|undefined=undefined
   public readonly activeDirectoryOperatingSystemVersion:string|undefined=undefined
@@ -28,6 +27,31 @@ export class ActiveDirectoryDevice {
 }
 
 export class ActiveDirectoryUser {
+  public readonly userDN:string=''
+  public readonly userCN:string|undefined=undefined
+  public readonly userSN:string|undefined=undefined
+  public readonly userCountry:string|undefined=undefined
+  public readonly userCity:string|undefined=undefined
+  public readonly userState:string|undefined=undefined
+  public readonly userTitle:string|undefined=undefined
+  public readonly userPhysicalDeliveryOfficeName:string|undefined=undefined
+  public readonly userTelephoneNumber:string|undefined=undefined
+  public readonly userGivenName:string|undefined=undefined
+  public readonly userDisplayName:string|undefined=undefined
+  public readonly userDepartment:string|undefined=undefined
+  public readonly userStreetAddress:string|undefined=undefined
+  public readonly userName:string|undefined=undefined
+  public readonly userEmployeeID:string|undefined=undefined
+  public readonly userLogonCount:number|undefined=undefined
+  public readonly userSAMAccountName:string|undefined=undefined
+  public readonly userPrincipalName:string|undefined=undefined
+  public readonly userMail:string|undefined=undefined
+  // dates
+  public readonly userCreatedDate:Date=Utilities.minimumJsonDate
+  public readonly userChangedDate:Date=Utilities.minimumJsonDate
+  public readonly userBadPasswordTime:Date=Utilities.minimumJsonDate
+  public readonly userLastLogon:Date=Utilities.minimumJsonDate
+  public readonly userLastLogonTimestamp:Date=Utilities.minimumJsonDate
 
 }
 
@@ -69,7 +93,6 @@ export class ActiveDirectory
       await this.fetchDevices();
       await this.fetchUsers();
       
-
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${ex}`)
       throw ex;
@@ -95,9 +118,8 @@ export class ActiveDirectory
           for(let i=0; i<searchEntries.length; i++) {
             try {
               const add:ActiveDirectoryDevice = {
-                observedByActiveDirectory: true,
+                deviceDN: searchEntries[i].dn.toString().trim(),
                 deviceName: searchEntries[i].cn.toString().trim(),
-                activeDirectoryDN: searchEntries[i].dn.toString().trim(),
                 activeDirectoryOperatingSystem: Utilities.CleanedString(searchEntries[i].operatingSystem),
                 activeDirectoryOperatingSystemVersion: Utilities.CleanedString(searchEntries[i].operatingSystemVersion),
                 activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
@@ -134,23 +156,33 @@ export class ActiveDirectory
           this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. creating objects ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
-
-              console.debug(searchEntries[i])
-              // const add:ActiveDirectoryDevice = {
-              //   observedByActiveDirectory: true,
-              //   deviceName: searchEntries[i].cn.toString().trim(),
-              //   activeDirectoryDN: searchEntries[i].dn.toString().trim(),
-              //   activeDirectoryOperatingSystem: Utilities.CleanedString(searchEntries[i].operatingSystem),
-              //   activeDirectoryOperatingSystemVersion: Utilities.CleanedString(searchEntries[i].operatingSystemVersion),
-              //   activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
-              //   activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
-              //   activeDirectoryWhenCreated: Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
-              //   activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : Utilities.minimumJsonDate,
-              //   activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : Utilities.minimumJsonDate,
-              //   activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : Utilities.minimumJsonDate,
-              //   activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : Utilities.minimumJsonDate
-              // }
-              // this.ActiveDirectoryDevices.push(add)
+              const adu:ActiveDirectoryUser = {
+                userDN: searchEntries[i].dn.toString().trim(),
+                userCN: Utilities.CleanedString(searchEntries[i].cn),
+                userSN: Utilities.CleanedString(searchEntries[i].sn),
+                userCountry: Utilities.CleanedString(searchEntries[i].c),
+                userCity: Utilities.CleanedString(searchEntries[i].l),
+                userState: Utilities.CleanedString(searchEntries[i].st),
+                userTitle: Utilities.CleanedString(searchEntries[i].title),
+                userPhysicalDeliveryOfficeName: Utilities.CleanedString(searchEntries[i].physicalDeliveryOfficeName),
+                userTelephoneNumber: Utilities.CleanedString(searchEntries[i].telephoneNumber),
+                userGivenName: Utilities.CleanedString(searchEntries[i].givenName),
+                userDisplayName: Utilities.CleanedString(searchEntries[i].displayName),
+                userDepartment: Utilities.CleanedString(searchEntries[i].department),
+                userStreetAddress: Utilities.CleanedString(searchEntries[i].streetAddress),
+                userName: Utilities.CleanedString(searchEntries[i].name),
+                userEmployeeID: Utilities.CleanedString(searchEntries[i].employeeID),
+                userLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
+                userSAMAccountName: Utilities.CleanedString(searchEntries[i].sAMAccountName),
+                userPrincipalName: Utilities.CleanedString(searchEntries[i].userPrincipalName),
+                userMail: Utilities.CleanedString(searchEntries[i].mail),
+                userCreatedDate: searchEntries[i].whenCreated ? Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()) : Utilities.minimumJsonDate,
+                userChangedDate: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : Utilities.minimumJsonDate,
+                userBadPasswordTime: searchEntries[i].badPasswordTime ? Utilities.ldapTimestampToJS(searchEntries[i].badPasswordTime.toString()) : Utilities.minimumJsonDate,
+                userLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : Utilities.minimumJsonDate,
+                userLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : Utilities.minimumJsonDate,
+              }
+            this.Users.push(adu)
             } catch (err) {
               this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             }  
@@ -168,9 +200,10 @@ export class ActiveDirectory
   
   public async persist() {
     this.le.logStack.push('persist')
-    this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
-
+    
     try {
+
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building device requests ..')
       
       for(let i=0; i<this.Devices.length; i++) {
      
@@ -178,7 +211,7 @@ export class ActiveDirectory
         let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
         
         const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].activeDirectoryDN, mssql.VarChar(255))], true)
+        const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].deviceDN, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)
@@ -206,9 +239,57 @@ export class ActiveDirectory
         const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
         await ose.persist(DeviceID, os)
 
+        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates ..')
         await this.db.updateTable(tuDevice, true)
         await this.db.updateTable(tuActiveDirectory, true)
+        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done.')
   
+      }
+
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building user requests ..')
+      for(let i=0; i<this.Users.length; i++) {
+
+        let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
+        
+        const EmployeeID:number = await this.db.getID("Employee", [new ColumnValuePair("EmployeeActiveDirectoryDN", this.Users[i].userDN, mssql.VarChar(255))], true)
+
+        // update the Employee table values ..
+        let ruEmployee = new RowUpdate(EmployeeID)
+        ruEmployee.updateName=this.Users[i].userDN
+        
+        // string
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCN", mssql.VarChar(255), this.Users[i].userCN))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySN", mssql.VarChar(255), this.Users[i].userSN))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCountry", mssql.VarChar(255), this.Users[i].userCountry))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCity", mssql.VarChar(255), this.Users[i].userCity))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryState", mssql.VarChar(255), this.Users[i].userState))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryTitle", mssql.VarChar(255), this.Users[i].userTitle))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryOffice", mssql.VarChar(255), this.Users[i].userPhysicalDeliveryOfficeName))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryTelephoneNumber", mssql.VarChar(255), this.Users[i].userTelephoneNumber))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryGivenName", mssql.VarChar(255), this.Users[i].userGivenName))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDisplayName", mssql.VarChar(255), this.Users[i].userDisplayName))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDepartment", mssql.VarChar(255), this.Users[i].userDepartment))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryStreetAddress", mssql.VarChar(255), this.Users[i].userStreetAddress))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserName", mssql.VarChar(255), this.Users[i].userName))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeID", mssql.VarChar(255), this.Users[i].userEmployeeID))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryPrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserMail", mssql.VarChar(255), this.Users[i].userMail))
+
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLogonCount", mssql.Int, this.Users[i].userLogonCount))
+
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryBadPasswordTime", mssql.DateTime2, this.Users[i].userBadPasswordTime))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
+
+        tuEmployee.RowUpdates.push(ruEmployee)
+
+        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates ..')
+        await this.db.updateTable(tuEmployee, true)
+        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done.')
+
       }
 
     } catch(err) {
@@ -220,6 +301,5 @@ export class ActiveDirectory
     }
 
   }
-
 
 }
