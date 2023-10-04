@@ -150,7 +150,7 @@ export class ActiveDirectory
 
     try {
           this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. querying users ..')
-          const { searchEntries } = await this.ldapClient.search(this.searchDN,  {filter: '&(objectClass=user)', paged: this.isPaged, sizeLimit: this.sizeLimit},);
+          const { searchEntries } = await this.ldapClient.search(this.searchDN,  {filter: '(&(objectClass=user)(&(!(objectClass=computer))))', paged: this.isPaged, sizeLimit: this.sizeLimit},);
           this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${searchEntries.length} users .. `)
           
           this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. creating objects ..`)
