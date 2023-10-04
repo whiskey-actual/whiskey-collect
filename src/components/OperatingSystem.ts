@@ -86,7 +86,7 @@ export class OperatingSystemEngine {
 
                     os.Version = versionStack.join('.')
 
-                    //console.debug(`OSVersion: ${OSVersion} | Build: ${os.Build} | VersionMajor:${os.VersionMajor} | VersionMinor:${os.VersionMinor}`)
+                    console.debug(`OS: ${OS} | OSVersion: ${OSVersion} ==> Description: ${os.Description} | Variant: ${os.Variant} | Version:${os.Version}`)
                 }
             }
 
