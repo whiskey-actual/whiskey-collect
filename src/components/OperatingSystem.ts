@@ -5,10 +5,8 @@ import { DBEngine, ColumnValuePair } from "./DBEngine"
 
 export class OperatingSystem {
     public Description:string|undefined = undefined
-    public VersionMajor:number|undefined = undefined
-    public VersionMinor:number|undefined = undefined
-    public Build:number|undefined = undefined
-    public Revision:number|undefined = undefined
+    public Variant:string|undefined = undefined
+    public Version:string|undefined = undefined
 }
 
 export class OperatingSystemEngine {
@@ -27,13 +25,24 @@ export class OperatingSystemEngine {
 
             // if there is no description, don't bother storing it.
             if(os.Description) {
+
+                const OperatingSystemVersionID:number = await this._db.getID("OperatingSystemVersion", [
+                    new ColumnValuePair('OperatingSystemVersionDescription', os.Version, mssql.VarChar(255))
+                ])
+
+                const OperatingSystemVariantID:number = await this._db.getID("OperatingSystemVariant", [
+                    new ColumnValuePair('OperatingSystemVariantDescription', os.Variant, mssql.VarChar(255)),
+                ])
+
                 const OperatingSystemID:number = await this._db.getID("OperatingSystem", [
                     new ColumnValuePair('OperatingSystemDescription', os.Description, mssql.VarChar(255)),
-                    new ColumnValuePair('OperatingSystemVersionMajor', os.VersionMajor, mssql.Int),
-                    new ColumnValuePair('OperatingSystemVersionMinor', os.VersionMinor, mssql.Int),
-                    new ColumnValuePair('OperatingSystemBuild', os.Build, mssql.Int)
                 ], true)
 
+                const OperatingSystemXRefID:number = await this._db.getID('OperatingSystemXRef', [
+                    new ColumnValuePair('OperatingSystemID', OperatingSystemID, mssql.Int),
+                    new ColumnValuePair('OperatingSystemVariantID', OperatingSystemVariantID, mssql.Int),
+                    new ColumnValuePair('OperatingSystemVersionID', OperatingSystemVersionID, mssql.Int)
+                ])
             }
 
         } catch(err) {
@@ -52,20 +61,33 @@ export class OperatingSystemEngine {
 
         try {
 
-            os.Description = OS ? OS : ''
+            if(OS) {
 
-            if(OSVersion) {
-                //console.debug(`OSVersion: ${OSVersion}`)
-                const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
-                const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OSVersion)
-                //console.debug(`remaBuildNumber: ${remaBuildNumber}`)
-                os.Build = remaBuildNumber ? Number(remaBuildNumber[0]) : undefined
+                const reOperatingSystem = new RegExp('(^Windows\s(Server\s)?\d+(?=\s))|macOS')
+                const remaOperatingSystem:RegExpMatchArray|null = reOperatingSystem.exec(OS)
 
-                const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
-                const remaVersions:RegExpMatchArray|null = reVersions.exec(OSVersion)
-                os.VersionMajor = remaVersions ? Number(remaVersions[0].split('.')[0]) : undefined
-                os.VersionMinor = remaVersions ? Number(remaVersions[0].split('.')[1]) : undefined
-                //console.debug(`OSVersion: ${OSVersion} | Build: ${os.Build} | VersionMajor:${os.VersionMajor} | VersionMinor:${os.VersionMinor}`)
+                if(remaOperatingSystem) {
+                    os.Description = remaOperatingSystem[0]
+                    os.Variant = OS.replace(os.Description, '')
+                }
+
+                if(OSVersion) {
+
+                    let versionStack:string[] = []
+                    
+                    const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
+                    const remaVersions:RegExpMatchArray|null = reVersions.exec(OSVersion)
+                    versionStack.push(remaVersions ? remaVersions[0].split('.')[0] : '?')
+                    versionStack.push(remaVersions ? remaVersions[0].split('.')[1] : '?')
+
+                    const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
+                    const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OSVersion)
+                    versionStack.push(remaBuildNumber ? remaBuildNumber[0] : '?')
+
+                    os.Version = versionStack.join('.')
+
+                    //console.debug(`OSVersion: ${OSVersion} | Build: ${os.Build} | VersionMajor:${os.VersionMajor} | VersionMinor:${os.VersionMinor}`)
+                }
             }
 
         } catch(err) {
