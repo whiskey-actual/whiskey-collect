@@ -135,7 +135,7 @@ export class ActiveDirectory
               this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             }  
           }
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${this.Devices.length }objects created.`)
+          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${this.Devices.length } objects created.`)
     } catch(err) {
       this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
@@ -239,10 +239,8 @@ export class ActiveDirectory
         const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
         await ose.persist(DeviceID, os)
 
-        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates ..')
         await this.db.updateTable(tuDevice, true)
         await this.db.updateTable(tuActiveDirectory, true)
-        this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done.')
   
       }
 
