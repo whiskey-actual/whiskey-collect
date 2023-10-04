@@ -63,10 +63,8 @@ export class OperatingSystemEngine {
 
             if(OperatingSystemDescription) {
 
-                const reOperatingSystem = new RegExp('(^Windows\s(Server\s)?\d+(?=\s))|macOS')
+                const reOperatingSystem = new RegExp('(^Windows\\s(Server\\s)?\\d+(?=\\s))|macOS')
                 const remaOperatingSystem:RegExpMatchArray|null = reOperatingSystem.exec(OperatingSystemDescription)
-
-                console.debug(remaOperatingSystem)
 
                 if(remaOperatingSystem) {
                     os.Description = remaOperatingSystem[0]
