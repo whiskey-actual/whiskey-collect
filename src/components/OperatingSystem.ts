@@ -54,40 +54,44 @@ export class OperatingSystemEngine {
         
     }
 
-    public parseActiveDirectory(OS:string|undefined, OSVersion:string|undefined):OperatingSystem {
+    public parseActiveDirectory(OperatingSystemDescription:string|undefined, OperatingSystemVersion:string|undefined):OperatingSystem {
         this._le.logStack.push("parseActiveDirectory")
 
         let os:OperatingSystem = new OperatingSystem
 
         try {
 
-            if(OS) {
+            if(OperatingSystemDescription) {
 
                 const reOperatingSystem = new RegExp('(^Windows\s(Server\s)?\d+(?=\s))|macOS')
-                const remaOperatingSystem:RegExpMatchArray|null = reOperatingSystem.exec(OS)
+                const remaOperatingSystem:RegExpMatchArray|null = reOperatingSystem.exec(OperatingSystemDescription)
+
+                console.debug(remaOperatingSystem)
 
                 if(remaOperatingSystem) {
                     os.Description = remaOperatingSystem[0]
-                    os.Variant = OS.replace(os.Description, '')
-                }
-
-                if(OSVersion) {
-
-                    let versionStack:string[] = []
+                    os.Variant = OperatingSystemDescription.replace(os.Description, '').trim()
                     
-                    const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
-                    const remaVersions:RegExpMatchArray|null = reVersions.exec(OSVersion)
-                    versionStack.push(remaVersions ? remaVersions[0].split('.')[0] : '?')
-                    versionStack.push(remaVersions ? remaVersions[0].split('.')[1] : '?')
+                    if(OperatingSystemVersion) {
 
-                    const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
-                    const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OSVersion)
-                    versionStack.push(remaBuildNumber ? remaBuildNumber[0] : '?')
-
-                    os.Version = versionStack.join('.')
-
-                    console.debug(`OS: ${OS} | OSVersion: ${OSVersion} ==> Description: ${os.Description} | Variant: ${os.Variant} | Version:${os.Version}`)
+                        let versionStack:string[] = []
+                        
+                        const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
+                        const remaVersions:RegExpMatchArray|null = reVersions.exec(OperatingSystemVersion)
+                        versionStack.push(remaVersions ? remaVersions[0].split('.')[0] : '?')
+                        versionStack.push(remaVersions ? remaVersions[0].split('.')[1] : '?')
+    
+                        const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
+                        const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OperatingSystemVersion)
+                        versionStack.push(remaBuildNumber ? remaBuildNumber[0] : '?')
+    
+                        os.Version = versionStack.join('.')
+    
+                        console.debug(`OS: ${OperatingSystemDescription} | OSVersion: ${OperatingSystemVersion} ==> Description: ${os.Description} | Variant: ${os.Variant} | Version:${os.Version}`)
+                    }
                 }
+
+                
             }
 
         } catch(err) {
