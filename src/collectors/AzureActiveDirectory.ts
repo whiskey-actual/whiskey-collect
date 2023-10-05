@@ -195,7 +195,7 @@ export class AzureActiveDirectory {
 
       const fieldsToFetch = [
         'userPrincipalName',
-        'AzureID',
+        'azureID',
         'businessPhones',
         'displayName',
         'givenName',
@@ -237,7 +237,7 @@ export class AzureActiveDirectory {
 
       const response = await this.graphClient
         .api('/users')
-        .select('id,state,employeeType')
+        .select(fieldsToFetch.join(","))
         .get()
       const users = response.value
 
