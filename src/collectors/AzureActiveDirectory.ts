@@ -282,7 +282,7 @@ export class AzureActiveDirectory {
         //'externalUserState',
         //'hireDate',
         'id',
-        // 'jobTitle',
+        'jobTitle',
         // 'lastPasswordChangeDateTime',
         // 'licenseAssignmentStates',
         // 'mail',
