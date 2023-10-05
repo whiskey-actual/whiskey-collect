@@ -301,7 +301,9 @@ export class ActiveDirectory
         ])
 
         ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
-        
+
+        tuEmployee.RowUpdates.push(ruEmployee)
+
         await this.db.updateTable(tuEmployee, true)
 
       }

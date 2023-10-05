@@ -64,10 +64,28 @@ export class AzureActiveDirectory {
 
       const authResponse = await this.getToken(AAD_ENDPOINT, GRAPH_ENDPOINT, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
       const accessToken = authResponse.accessToken;
+
+      await this.devices(`${GRAPH_ENDPOINT}/v1.0/devices`, accessToken)
+      await this.users(`${GRAPH_ENDPOINT}/v1.0/users`, accessToken)
+
+    } catch(err) {
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      throw(err)
+    } finally {
+      this._le.logStack.pop()
+    }
     
+    return new Promise<void>((resolve) => {resolve()})
+  }
+
+  private async devices(uri:string, accessToken:string):Promise<void> {
+    this._le.logStack.push("devices")
+
+    try {
+
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
 
-      const deviceList = await this.getData(accessToken, `${GRAPH_ENDPOINT}/v1.0/devices`)
+      const deviceList = await this.getData(accessToken, uri)
 
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; creating objects ..`)
 
@@ -122,7 +140,6 @@ export class AzureActiveDirectory {
       }
 
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
-
     } catch(err) {
       this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
@@ -131,7 +148,84 @@ export class AzureActiveDirectory {
     }
     
     return new Promise<void>((resolve) => {resolve()})
+
   }
+
+  private async users(uri:string, accessToken:string):Promise<void> {
+    this._le.logStack.push("users")
+
+    try {
+
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching users ..`)
+
+      const userList = await this.getData(accessToken, uri)
+
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${userList.length} users; creating objects ..`)
+
+      for(let i=0; i<userList.length; i++) {
+
+        console.debug(userList[i])
+
+        // try {
+        //   const aado:AzureActiveDirectoryObject = {
+        //     // mandatory
+        //     observedByAzureActiveDirectory: true,
+        //     deviceName: deviceList[i].displayName.toString().trim(),
+        //     azureId: deviceList[i].id.toString().trim(),
+            
+        //     // strings
+        //     azureDeviceId: Utilities.CleanedString(deviceList[i].deviceId),
+        //     azureDeviceCategory: Utilities.CleanedString(deviceList[i].deviceCategory),
+        //     azureDeviceMetadata: Utilities.CleanedString(deviceList[i].deviceMetadata),
+        //     azureDeviceOwnership: Utilities.CleanedString(deviceList[i].deviceOwnership),
+        //     azureDeviceVersion: Utilities.CleanedString(deviceList[i].deviceVersion),
+        //     azureDomainName: Utilities.CleanedString(deviceList[i].domainName),
+        //     azureEnrollmentProfileType: Utilities.CleanedString(deviceList[i].enrollmentProfileType),
+        //     azureEnrollmentType: Utilities.CleanedString(deviceList[i].enrollmentType),
+        //     azureExternalSourceName: Utilities.CleanedString(deviceList[i].externalSourceName),
+        //     azureManagementType: Utilities.CleanedString(deviceList[i].managementType),
+        //     azureManufacturer: Utilities.CleanedString(deviceList[i].manufacturer),
+        //     azureMDMAppId: Utilities.CleanedString(deviceList[i].mdmAppId),
+        //     azureModel: Utilities.CleanedString(deviceList[i].model),
+        //     azureOperatingSystem: Utilities.CleanedString(deviceList[i].operaingSystem),
+        //     azureOperatingSystemVersion: Utilities.CleanedString(deviceList[i].operatingSystemVersion),
+        //     azureProfileType: Utilities.CleanedString(deviceList[i].profileType),
+        //     azureSourceType: Utilities.CleanedString(deviceList[i].sourceType),
+        //     azureTrustType: Utilities.CleanedString(deviceList[i].trustType),
+        //     // dates
+        //     azureDeletedDateTime: Utilities.CleanedDate(deviceList[i].deletedDateTime),
+        //     azureApproximateLastSignInDateTime: Utilities.CleanedDate(deviceList[i].approximateLastSignInDateTime),
+        //     azureComplianceExpirationDateTime: Utilities.CleanedDate(deviceList[i].complianceExpirationDateTime),
+        //     azureCreatedDateTime: Utilities.CleanedDate(deviceList[i].createdDateTime),
+        //     azureOnPremisesLastSyncDateTime: Utilities.CleanedDate(deviceList[i].onPremisesLastSyncDateTime),
+        //     azureRegistrationDateTime: Utilities.CleanedDate(deviceList[i].registrationDateTime),
+        //     // booleans
+        //     azureOnPremisesSyncEnabled: deviceList[i].onPremisesSyncEnabled ? deviceList[i].onPremisesSyncEnabled : false,
+        //     azureAccountEnabled: deviceList[i].accountEnabled ? deviceList[i].accountEnabled : false,
+        //     azureIsCompliant: deviceList[i].isCompliant ? deviceList[i].isCompliant : false,
+        //     azureIsManaged: deviceList[i].isManaged ? deviceList[i].isManaged : false,
+        //     azureIsRooted: deviceList[i].isRooted ? deviceList[i].isRooted : false,
+        //   }
+
+        //   this.AzureActiveDirectoryObjects.push(aado)
+        // } catch (err) {
+        //   this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+        //   throw(err)
+        // }
+      }
+
+      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+    } catch(err) {
+      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      throw(err)
+    } finally {
+      this._le.logStack.pop()
+    }
+    
+    return new Promise<void>((resolve) => {resolve()})
+
+  }
+
 
   public async persist() {
     this._le.logStack.push('persist')
