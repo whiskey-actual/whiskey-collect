@@ -238,7 +238,6 @@ export class AzureActiveDirectory {
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
     } catch(err) {
       this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
     } finally {
       this.le.logStack.pop()
     }
@@ -283,7 +282,7 @@ export class AzureActiveDirectory {
         //'externalUserState',
         //'hireDate',
         'id',
-        'jobTitle',
+        // 'jobTitle',
         // 'lastPasswordChangeDateTime',
         // 'licenseAssignmentStates',
         // 'mail',
@@ -292,12 +291,12 @@ export class AzureActiveDirectory {
         // 'onPremisesDomainName',
         // 'onPremisesSamAccountName',
         // 'onPremisesUserPrincipalName',
-        'passwordPolicies',
-        'preferredName',
-        'postalCode',
-        'state',
-        'streetAddress',
-        'userType',
+        // 'passwordPolicies',
+        // 'preferredName',
+        // 'postalCode',
+        // 'state',
+        // 'streetAddress',
+        // 'userType',
       ]
 
       const response = await this.graphClient
@@ -365,7 +364,6 @@ export class AzureActiveDirectory {
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
     } catch(err) {
       this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
     } finally {
       this.le.logStack.pop()
     }
@@ -447,7 +445,6 @@ export class AzureActiveDirectory {
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
     } catch(err) {
       this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
     } finally {
       this.le.logStack.pop()
     }
