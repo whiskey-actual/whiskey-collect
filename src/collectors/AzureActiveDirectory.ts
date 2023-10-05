@@ -353,18 +353,25 @@ export class AzureActiveDirectory {
   }
 
   private async getToken() {
-    this.le.logStack.push('callAPI')
+    this.le.logStack.push('getToken')
     let output:any = undefined
    
     try {
-      const endpoint = `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.2/token`
-      const response = await axios.post(endpoint, {
-        client_id: this.clientId,
-        scope: 'https://graph.microsoft.com/.default',
-        client_secret: this.clientSecret,
-        grant_type: 'client_credentials'
+      const endpoint = `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`
 
-      })
+      const formData = new FormData()
+      formData.append('client_id', this.clientId)
+      formData.append('scope', 'https://graph.microsoft.com/.default')
+      formData.append('client_secret', this.clientSecret)
+      formData.append('grant_type', 'client_credentials')
+      const response = await axios({
+        method: 'post',
+        url: endpoint,
+        data: formData,
+        headers: {
+            'Content-Type': `application/x-www-form-urlencoded`,
+        },
+    });
       console.debug(response)
       output = response.data
     } catch (err) {
