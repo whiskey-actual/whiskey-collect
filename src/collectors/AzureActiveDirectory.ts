@@ -291,11 +291,11 @@ export class AzureActiveDirectory {
         // 'onPremisesDomainName',
         // 'onPremisesSamAccountName',
         // 'onPremisesUserPrincipalName',
-        // 'passwordPolicies',
-        // 'preferredName',
-        // 'postalCode',
-        // 'state',
-        // 'streetAddress',
+        'passwordPolicies',
+        'preferredName',
+        'postalCode',
+        'state',
+        'streetAddress',
         'userType',
       ]
 
