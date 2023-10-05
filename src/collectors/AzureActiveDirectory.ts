@@ -227,7 +227,7 @@ export class AzureActiveDirectory {
         'onPremisesDistinguishedName',
         'onPremisesDomainName',
         'onPremisesSamAccountName',
-        'onPremisesUserPrincipalNAme',
+        'onPremisesUserPrincipalName',
         'preferredName',
         // 'signInActivity',
         // 'state',
