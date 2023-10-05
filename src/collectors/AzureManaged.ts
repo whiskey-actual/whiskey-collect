@@ -3,7 +3,7 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
 import axios from "axios";
-import * as msal from '@azure/msal-node'
+//import * as msal from '@azure/msal-node'
 import mssql from 'mssql'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
@@ -83,8 +83,9 @@ export class AzureManaged {
 
     try {
 
-      const authResponse = await this.getToken(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
-      const accessToken = authResponse.accessToken;
+      //const authResponse = await this.getToken(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+      //const accessToken = authResponse.accessToken;
+      const accessToken=''
 
       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'fetching devices ..')
       
@@ -272,43 +273,43 @@ export class AzureManaged {
   }
 
 
-  private async getToken(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<msal.AuthenticationResult> {
-    this._le.logStack.push("getToken")
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'getting access token.. ')
+  // private async getToken(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<msal.AuthenticationResult> {
+  //   this._le.logStack.push("getToken")
+  //   this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'getting access token.. ')
 
-    let output:msal.AuthenticationResult
+  //   let output:msal.AuthenticationResult
 
-    try {
+  //   try {
 
-      const msalConfig:msal.Configuration = {
-        auth: {
-          clientId: CLIENT_ID,
-          authority: `${AAD_ENDPOINT}/${TENANT_ID}`,
-          clientSecret: CLIENT_SECRET
-        }
-      }
-      const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
-      const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
-      const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
+  //     const msalConfig:msal.Configuration = {
+  //       auth: {
+  //         clientId: CLIENT_ID,
+  //         authority: `${AAD_ENDPOINT}/${TENANT_ID}`,
+  //         clientSecret: CLIENT_SECRET
+  //       }
+  //     }
+  //     const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
+  //     const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
+  //     const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
   
-      if(result!=null) {
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. access token acquired.')
-        output = result
-      }
-      else {
-        throw('error getting token')
-      }
+  //     if(result!=null) {
+  //       this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. access token acquired.')
+  //       output = result
+  //     }
+  //     else {
+  //       throw('error getting token')
+  //     }
 
-    } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
-    } finally {
-      this._le.logStack.pop()
-    }
+  //   } catch(err) {
+  //     this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+  //     throw(err)
+  //   } finally {
+  //     this._le.logStack.pop()
+  //   }
 
-    return new Promise<msal.AuthenticationResult>((resolve) => {resolve(output)})
+  //   return new Promise<msal.AuthenticationResult>((resolve) => {resolve(output)})
 
-  }
+  // }
 
   private async callAPI(accessToken:string, endpoint:string):Promise<any> {
     this._le.logStack.push('callAPI')

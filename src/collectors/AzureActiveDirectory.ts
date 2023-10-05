@@ -3,13 +3,12 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
 import axios from "axios";
-import * as msal from '@azure/msal-node'
+import { Client } from '@microsoft/microsoft-graph-client';
 import mssql from 'mssql'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
-export class AzureActiveDirectoryObject {
+export class AzureActiveDirectoryDevice {
   // mandatory
-  public readonly observedByAzureActiveDirectory:boolean=true;
   public readonly deviceName:string=''
   public readonly azureId:string=''
   
@@ -47,54 +46,110 @@ export class AzureActiveDirectoryObject {
   public readonly azureIsRooted:boolean=false;
 }
 
+export class AzureActiveDirectoryUser {
+
+  public readonly userPrincipalName:string=''
+  public readonly AzureID:string=''
+
+  public readonly businessPhones:string[]|undefined=undefined
+  public readonly displayName:string|undefined=undefined
+  public readonly givenName:string|undefined=undefined
+  public readonly jobTitle:string|undefined=undefined
+  public readonly mail:string|undefined=undefined
+  public readonly mobilePhone:string|undefined=undefined
+  public readonly officeLocation:string|undefined=undefined
+  public readonly surname:string|undefined=undefined
+
+  public readonly accountEnabled:string|undefined=undefined
+  public readonly assignedLicenses:string|undefined=undefined
+  public readonly assignedPlans:string|undefined=undefined
+  public readonly city:string|undefined=undefined
+  public readonly country:string|undefined=undefined
+  public readonly createdDateTime:string|undefined=undefined
+  public readonly creationType:string|undefined=undefined
+  public readonly deletedDateTime:string|undefined=undefined
+  public readonly department:string|undefined=undefined
+  public readonly employeeHireDate:string|undefined=undefined
+  public readonly employeeLeaveDateTime:string|undefined=undefined
+  public readonly employeeId:string|undefined=undefined
+  public readonly employeeOrgData:string|undefined=undefined
+  public readonly employeeType:string|undefined=undefined
+  public readonly externalUserState:string|undefined=undefined
+  public readonly hireDateid:string|undefined=undefined
+  public readonly lastPasswordChangeDateTime:string|undefined=undefined
+  public readonly licenseAssignmentStates:string|undefined=undefined
+  public readonly mailNickname:string|undefined=undefined
+  public readonly onPremisesDistinguishedName:string|undefined=undefined
+  public readonly onPremisesDomainName:string|undefined=undefined
+  public readonly onPremisesSamAccountName:string|undefined=undefined
+  public readonly onPremisesUserPrincipalNAme:string|undefined=undefined
+  public readonly preferredName:string|undefined=undefined
+  public readonly signInActivity:string|undefined=undefined
+  public readonly state:string|undefined=undefined
+  public readonly streetAddress:string|undefined=undefined
+  public readonly userType:string|undefined=undefined
+
+}
+
 export class AzureActiveDirectory {
 
-  constructor(le:LogEngine, db:DBEngine) {
-    this._le=le
-    this._db=db
+  constructor(le:LogEngine, db:DBEngine, TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string) {
+    this.le=le
+    this.db=db
+    this.tenantId=TENANT_ID
+    this.aadEndpoint=AAD_ENDPOINT
+    this.graphEndpoint=GRAPH_ENDPOINT
+    this.clientId=CLIENT_ID
+    this.clientSecret=CLIENT_SECRET
   }
-  private _le:LogEngine
-  private _db:DBEngine
-  public readonly AzureActiveDirectoryObjects:AzureActiveDirectoryObject[]=[]
+  private le:LogEngine
+  private db:DBEngine
+  private tenantId:string
+  private aadEndpoint:string
+  private graphEndpoint:string
+  private clientId:string
+  private clientSecret:string
+  public readonly AzureActiveDirectoryDevices:AzureActiveDirectoryDevice[]=[]
 
-  public async fetch(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
-    this._le.logStack.push('fetch')
+  public async fetch():Promise<void> {
+    this.le.logStack.push('fetch')
 
     try {
 
-      const authResponse = await this.getToken(AAD_ENDPOINT, GRAPH_ENDPOINT, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
-      const accessToken = authResponse.accessToken;
+      await this.getToken()
 
-      await this.devices(`${GRAPH_ENDPOINT}/v1.0/devices`, accessToken)
-      await this.users(`${GRAPH_ENDPOINT}/v1.0/users`, accessToken)
+      //const authResponse = await this.getToken(this.aadEndpoint, this.graphEndpoint, this.tenantId, this.clientId, this.clientSecret);
+      //const accessToken = authResponse.accessToken;
+
+      //await this.devices(`${GRAPH_ENDPOINT}/v1.0/devices`, accessToken)
+      //await this.users(`${GRAPH_ENDPOINT}/v1.0/users`, accessToken)
 
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
-      this._le.logStack.pop()
+      this.le.logStack.pop()
     }
     
     return new Promise<void>((resolve) => {resolve()})
   }
 
   private async devices(uri:string, accessToken:string):Promise<void> {
-    this._le.logStack.push("devices")
+    this.le.logStack.push("devices")
 
     try {
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
 
       const deviceList = await this.getData(accessToken, uri)
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; creating objects ..`)
 
       for(let i=0; i<deviceList.length; i++) {
 
         try {
-          const aado:AzureActiveDirectoryObject = {
+          const aado:AzureActiveDirectoryDevice = {
             // mandatory
-            observedByAzureActiveDirectory: true,
             deviceName: deviceList[i].displayName.toString().trim(),
             azureId: deviceList[i].id.toString().trim(),
             
@@ -132,19 +187,19 @@ export class AzureActiveDirectory {
             azureIsRooted: deviceList[i].isRooted ? deviceList[i].isRooted : false,
           }
 
-          this.AzureActiveDirectoryObjects.push(aado)
+          this.AzureActiveDirectoryDevices.push(aado)
         } catch (err) {
-          this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
           throw(err)
         }
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
-      this._le.logStack.pop()
+      this.le.logStack.pop()
     }
     
     return new Promise<void>((resolve) => {resolve()})
@@ -152,15 +207,15 @@ export class AzureActiveDirectory {
   }
 
   private async users(uri:string, accessToken:string):Promise<void> {
-    this._le.logStack.push("users")
+    this.le.logStack.push("users")
 
     try {
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching users ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching users ..`)
 
       const userList = await this.getData(accessToken, uri)
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${userList.length} users; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${userList.length} users; creating objects ..`)
 
       for(let i=0; i<userList.length; i++) {
 
@@ -207,19 +262,19 @@ export class AzureActiveDirectory {
         //     azureIsRooted: deviceList[i].isRooted ? deviceList[i].isRooted : false,
         //   }
 
-        //   this.AzureActiveDirectoryObjects.push(aado)
+        //   this.AzureActiveDirectoryDevices.push(aado)
         // } catch (err) {
-        //   this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+        //   this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
         //   throw(err)
         // }
       }
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
-      this._le.logStack.pop()
+      this.le.logStack.pop()
     }
     
     return new Promise<void>((resolve) => {resolve()})
@@ -228,120 +283,146 @@ export class AzureActiveDirectory {
 
 
   public async persist() {
-    this._le.logStack.push('persist')
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
+    this.le.logStack.push('persist')
+    this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
 
     try {
 
-      for(let i=0; i<this.AzureActiveDirectoryObjects.length; i++) {
+      for(let i=0; i<this.AzureActiveDirectoryDevices.length; i++) {
 
-        //console.debug(this.AzureActiveDirectoryObjects[i])
+        //console.debug(this.AzureActiveDirectoryDevices[i])
 
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
         
-        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.AzureActiveDirectoryObjects[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceAzureActiveDirectoryID:number = await this._db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureID', this.AzureActiveDirectoryObjects[i].azureId, mssql.VarChar(255))], true)
+        const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.AzureActiveDirectoryDevices[i].deviceName, mssql.VarChar(255))], true)
+        const DeviceAzureActiveDirectoryID:number = await this.db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureID', this.AzureActiveDirectoryDevices[i].azureId, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)
-        ruDevice.updateName=this.AzureActiveDirectoryObjects[i].deviceName
+        ruDevice.updateName=this.AzureActiveDirectoryDevices[i].deviceName
         ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryID", mssql.Int, DeviceAzureActiveDirectoryID))
         tuDevice.RowUpdates.push(ruDevice)
 
         // update the DeviceActiveDirectory table values ..
         let ruAzureActiveDirectory = new RowUpdate(DeviceAzureActiveDirectoryID)
-        ruAzureActiveDirectory.updateName=this.AzureActiveDirectoryObjects[i].deviceName
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceCategory", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceCategory))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceMetadata", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceMetadata))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceOwnership", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceOwnership))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceVersion", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDeviceVersion))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDomainName", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureDomainName))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureEnrollmentProfileType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureEnrollmentProfileType))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureEnrollmentType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureEnrollmentType))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureExternalSourceName", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureExternalSourceName))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureManagementType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureManagementType))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureManufacturer", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureManufacturer))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureMDMAppId", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureMDMAppId))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureModel", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureModel))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystem", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureOperatingSystem))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemVersion", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureOperatingSystemVersion))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureProfileType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureProfileType))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureSourceType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureSourceType))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureTrustType", mssql.VarChar(255), this.AzureActiveDirectoryObjects[i].azureTrustType))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureDeletedDateTime))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureApproximateLastSignInDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureApproximateLastSignInDateTime))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureComplianceExpirationDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureComplianceExpirationDateTime))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureCreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureCreatedDateTime))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesLastSyncDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureOnPremisesLastSyncDateTime))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureRegistrationDateTime", mssql.DateTime2, this.AzureActiveDirectoryObjects[i].azureRegistrationDateTime))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesSyncEnabled", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureOnPremisesSyncEnabled))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureAccountEnabled", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureAccountEnabled))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsCompliant", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsCompliant))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsManaged", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsManaged))
-        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsRooted", mssql.Bit, this.AzureActiveDirectoryObjects[i].azureIsRooted))
+        ruAzureActiveDirectory.updateName=this.AzureActiveDirectoryDevices[i].deviceName
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceCategory", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureDeviceCategory))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceMetadata", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureDeviceMetadata))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceOwnership", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureDeviceOwnership))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeviceVersion", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureDeviceVersion))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDomainName", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureDomainName))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureEnrollmentProfileType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureEnrollmentProfileType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureEnrollmentType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureEnrollmentType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureExternalSourceName", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureExternalSourceName))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureManagementType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureManagementType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureManufacturer", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureManufacturer))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureMDMAppId", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureMDMAppId))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureModel", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureModel))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystem", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureOperatingSystem))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemVersion", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureProfileType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureProfileType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureSourceType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureSourceType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureTrustType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureTrustType))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureDeletedDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureApproximateLastSignInDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureApproximateLastSignInDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureComplianceExpirationDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureComplianceExpirationDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureCreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureCreatedDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesLastSyncDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureOnPremisesLastSyncDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureRegistrationDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureRegistrationDateTime))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesSyncEnabled", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureOnPremisesSyncEnabled))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureAccountEnabled", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureAccountEnabled))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsCompliant", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsCompliant))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsManaged", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsManaged))
+        ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsRooted", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsRooted))
         tuAzureActiveDirectory.RowUpdates.push(ruAzureActiveDirectory)
 
-        await this._db.updateTable(tuDevice, true)
-        await this._db.updateTable(tuAzureActiveDirectory, true)
+        await this.db.updateTable(tuDevice, true)
+        await this.db.updateTable(tuAzureActiveDirectory, true)
 
        }
       
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
     } finally {
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
-      this._le.logStack.pop()
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
+      this.le.logStack.pop()
     }
 
   }
 
-
-  private async getToken(AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<msal.AuthenticationResult> {
-    this._le.logStack.push("getToken")
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'getting access token.. ')
-
-    let output:msal.AuthenticationResult
-
+  private async getToken() {
+    this.le.logStack.push('callAPI')
+    let output:any = undefined
+   
     try {
+      const endpoint = `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.2/token`
+      const response = await axios.post(endpoint, {
+        client_id: this.clientId,
+        scope: 'https://graph.microsoft.com/.default',
+        client_secret: this.clientSecret,
+        grant_type: 'client_credentials'
 
-      const msalConfig:msal.Configuration = {
-        auth: {
-          clientId: CLIENT_ID,
-          authority: `${AAD_ENDPOINT}/${TENANT_ID}`,
-          clientSecret: CLIENT_SECRET
-        }
-      }
-  
-      const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
-  
-      const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
-  
-  
-      const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
-  
-      if(result!=null) {
-        this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. access token acquired.')
-        output = result
-      }
-      else {
-        throw('error getting token')
-      }
-
-    } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      })
+      console.debug(response)
+      output = response.data
+    } catch (err) {
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
-      this._le.logStack.pop()
+      this.le.logStack.pop();
     }
 
-    return new Promise<msal.AuthenticationResult>((resolve) => {resolve(output)})
+    return new Promise<any>((resolve) => {resolve(output)})
 
   }
 
+
+  // private async getToken(AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<msal.AuthenticationResult> {
+  //   this.le.logStack.push("getToken")
+  //   this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'getting access token.. ')
+
+  //   let output:msal.AuthenticationResult
+
+  //   try {
+
+  //     const msalConfig:msal.Configuration = {
+  //       auth: {
+  //         clientId: CLIENT_ID,
+  //         authority: `${AAD_ENDPOINT}/${TENANT_ID}`,
+  //         clientSecret: CLIENT_SECRET
+  //       }
+  //     }
+  
+  //     const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
+  
+  //     const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
+  
+  
+  //     const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
+  
+  //     if(result!=null) {
+  //       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. access token acquired.')
+  //       output = result
+  //     }
+  //     else {
+  //       throw('error getting token')
+  //     }
+
+  //   } catch(err) {
+  //     this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+  //     throw(err)
+  //   } finally {
+  //     this.le.logStack.pop()
+  //   }
+
+  //   return new Promise<msal.AuthenticationResult>((resolve) => {resolve(output)})
+
+  // }
+
   private async callAPI(accessToken:string, endpoint:string):Promise<any> {
-    this._le.logStack.push('callAPI')
+    this.le.logStack.push('callAPI')
     let output:any = undefined
    
     try {
@@ -349,10 +430,10 @@ export class AzureActiveDirectory {
       const response = await axios.get(endpoint, options)
       output = response.data
     } catch (err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
-      this._le.logStack.pop();
+      this.le.logStack.pop();
     }
 
     return new Promise<any>((resolve) => {resolve(output)})
@@ -360,7 +441,7 @@ export class AzureActiveDirectory {
   }
 
   private async getData(accesstoken:string, uri:string):Promise<any> {
-    this._le.logStack.push('getData')
+    this.le.logStack.push('getData')
     var output:any = []
    
     try {
@@ -380,10 +461,10 @@ export class AzureActiveDirectory {
         }
        }
     } catch (err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
     } finally {
-      this._le.logStack.pop()
+      this.le.logStack.pop()
     }
    
     return new Promise<any>((resolve) => {resolve(output)})

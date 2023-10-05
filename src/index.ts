@@ -64,8 +64,8 @@ export class Collector {
         this.le.AddDelimiter("INIT")
 
         try {
-            const aad = new AzureActiveDirectory(this.le, this.db);
-            await aad.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+            const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET);
+            await aad.fetch()
             await aad.persist()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
