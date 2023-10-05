@@ -118,10 +118,9 @@ export class AzureActiveDirectory {
 
       await this.getToken()
 
-      //const authResponse = await this.getToken(this.aadEndpoint, this.graphEndpoint, this.tenantId, this.clientId, this.clientSecret);
-      //const accessToken = authResponse.accessToken;
+      const accessToken = await this.getToken()
 
-      //await this.devices(`${GRAPH_ENDPOINT}/v1.0/devices`, accessToken)
+      await this.devices(accessToken)
       //await this.users(`${GRAPH_ENDPOINT}/v1.0/users`, accessToken)
 
     } catch(err) {
@@ -134,14 +133,14 @@ export class AzureActiveDirectory {
     return new Promise<void>((resolve) => {resolve()})
   }
 
-  private async devices(uri:string, accessToken:string):Promise<void> {
+  private async devices(accessToken:string):Promise<void> {
     this.le.logStack.push("devices")
 
     try {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
 
-      const deviceList = await this.getData(accessToken, uri)
+      const deviceList = await this.getData(accessToken, 'devices')
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; creating objects ..`)
 
@@ -352,7 +351,7 @@ export class AzureActiveDirectory {
 
   }
 
-  private async getToken() {
+  private async getToken():Promise<string> {
     this.le.logStack.push('getToken')
     let output:any = undefined
    
@@ -372,8 +371,7 @@ export class AzureActiveDirectory {
             'Content-Type': `application/x-www-form-urlencoded`,
         },
     });
-      console.debug(response)
-      output = response.data
+      output = response.data.access_token
     } catch (err) {
       this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err)
@@ -384,49 +382,6 @@ export class AzureActiveDirectory {
     return new Promise<any>((resolve) => {resolve(output)})
 
   }
-
-
-  // private async getToken(AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<msal.AuthenticationResult> {
-  //   this.le.logStack.push("getToken")
-  //   this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'getting access token.. ')
-
-  //   let output:msal.AuthenticationResult
-
-  //   try {
-
-  //     const msalConfig:msal.Configuration = {
-  //       auth: {
-  //         clientId: CLIENT_ID,
-  //         authority: `${AAD_ENDPOINT}/${TENANT_ID}`,
-  //         clientSecret: CLIENT_SECRET
-  //       }
-  //     }
-  
-  //     const tokenRequest:msal.ClientCredentialRequest = { scopes: [`${GRAPH_ENDPOINT}/.default`]}
-  
-  //     const cca:msal.ConfidentialClientApplication = new msal.ConfidentialClientApplication(msalConfig);
-  
-  
-  //     const result:msal.AuthenticationResult|null =  await cca.acquireTokenByClientCredential(tokenRequest)
-  
-  //     if(result!=null) {
-  //       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. access token acquired.')
-  //       output = result
-  //     }
-  //     else {
-  //       throw('error getting token')
-  //     }
-
-  //   } catch(err) {
-  //     this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-  //     throw(err)
-  //   } finally {
-  //     this.le.logStack.pop()
-  //   }
-
-  //   return new Promise<msal.AuthenticationResult>((resolve) => {resolve(output)})
-
-  // }
 
   private async callAPI(accessToken:string, endpoint:string):Promise<any> {
     this.le.logStack.push('callAPI')
@@ -447,13 +402,13 @@ export class AzureActiveDirectory {
 
   }
 
-  private async getData(accesstoken:string, uri:string):Promise<any> {
+  private async getData(accesstoken:string, api_endpoint:string):Promise<any> {
     this.le.logStack.push('getData')
     var output:any = []
    
     try {
 
-       const response = await this.callAPI(accesstoken, uri);
+       const response = await this.callAPI(accesstoken, `${this.graphEndpoint}/v1.0/${api_endpoint}`);
        for(const value of response.value) {
         output.push(value)
        }
