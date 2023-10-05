@@ -208,7 +208,7 @@ export class ActiveDirectory
       for(let i=0; i<this.Devices.length; i++) {
      
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-        let tuActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
+        let tuDeviceActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
         
         const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
         const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].deviceDN, mssql.VarChar(255))], true)
@@ -220,19 +220,30 @@ export class ActiveDirectory
         tuDevice.RowUpdates.push(ruDevice)
 
         // update the DeviceActiveDirectory table values ..
-        let ruActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
-        ruActiveDirectory.updateName=this.Devices[i].deviceName
+        let ruDeviceActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
+        ruDeviceActiveDirectory.updateName=this.Devices[i].deviceName
         // string
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
         // int
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
         // datetimes
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
-        ruActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
-        tuActiveDirectory.RowUpdates.push(ruActiveDirectory)
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
+        tuDeviceActiveDirectory.RowUpdates.push(ruDeviceActiveDirectory)
+
+        // last seen
+        const deviceLastSeen = Utilities.getMaxDateFromObject(this.Devices[i], [
+          'activeDirectoryWhenCreated',
+          'activeDirectoryWhenChanged',
+          'activeDirectoryLastLogon',
+          'activeDirectoryPwdLastSet',
+          'activeDirectoryLastLogonTimestamp'
+        ])
+
+        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
 
         // operating system
         const ose = new OperatingSystemEngine(this.le, this.db)
@@ -240,7 +251,7 @@ export class ActiveDirectory
         await ose.persist(DeviceID, os)
 
         await this.db.updateTable(tuDevice, true)
-        await this.db.updateTable(tuActiveDirectory, true)
+        await this.db.updateTable(tuDeviceActiveDirectory, true)
   
       }
 
@@ -282,8 +293,15 @@ export class ActiveDirectory
         ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
         ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
 
-        tuEmployee.RowUpdates.push(ruEmployee)
+        const employeeActiveDirectoryLastSeen = Utilities.getMaxDateFromObject(this.Users[i], [
+          'EmployeeActiveDirectoryCreatedDate',
+          'EmployeeActiveDirectoryChangedDate',
+          'EmployeeActiveDirectoryLastLogon',
+          'EmployeeActiveDirectoryLastLogonTimestamp'
+        ])
 
+        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
+        
         await this.db.updateTable(tuEmployee, true)
 
       }
