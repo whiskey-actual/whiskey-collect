@@ -283,9 +283,9 @@ export class AzureActiveDirectory {
         //'hireDate',
         'id',
         'jobTitle',
-        // 'lastPasswordChangeDateTime',
+        'lastPasswordChangeDateTime',
         // 'licenseAssignmentStates',
-        // 'mail',
+        'mail',
         // 'mailNickname',
         // 'onPremisesDistinguishedName',
         // 'onPremisesDomainName',
@@ -296,7 +296,7 @@ export class AzureActiveDirectory {
         // 'postalCode',
         // 'state',
         // 'streetAddress',
-        // 'userType',
+        'userType',
       ]
 
       const response = await this.graphClient
