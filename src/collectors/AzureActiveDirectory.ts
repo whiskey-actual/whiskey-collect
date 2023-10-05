@@ -4,6 +4,9 @@ import { Utilities } from 'whiskey-util'
 
 import axios from "axios";
 import { Client } from '@microsoft/microsoft-graph-client';
+import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials'
+
+import { ClientSecretCredential } from '@azure/identity'
 import mssql from 'mssql'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
 
@@ -101,9 +104,16 @@ export class AzureActiveDirectory {
     this.graphEndpoint=GRAPH_ENDPOINT
     this.clientId=CLIENT_ID
     this.clientSecret=CLIENT_SECRET
+
+    // set up the graph client
+    const credential = new ClientSecretCredential(this.tenantId, this.clientId, this.clientSecret);
+    const authProvider = new TokenCredentialAuthenticationProvider(credential, {scopes: ['https://graph.microsoft.com/.default']})
+    this.graphClient = Client.initWithMiddleware({authProvider: authProvider})
+
   }
   private le:LogEngine
   private db:DBEngine
+  private graphClient:Client
   private tenantId:string
   private aadEndpoint:string
   private graphEndpoint:string
@@ -111,8 +121,8 @@ export class AzureActiveDirectory {
   private clientSecret:string
   public readonly AzureActiveDirectoryDevices:AzureActiveDirectoryDevice[]=[]
 
-  public async fetch():Promise<void> {
-    this.le.logStack.push('fetch')
+  public async fetchDevices():Promise<void> {
+    this.le.logStack.push('fetchDevices')
 
     try {
 
@@ -120,7 +130,11 @@ export class AzureActiveDirectory {
 
       const accessToken = await this.getToken()
 
-      await this.devices(accessToken)
+      const response = await this.graphClient.api('/devices').get()
+      const devices = response.value
+      for(let i=0; i<devices.length; i++) {
+        console.debug(devices[i])
+      }
       //await this.users(`${GRAPH_ENDPOINT}/v1.0/users`, accessToken)
 
     } catch(err) {
@@ -205,14 +219,14 @@ export class AzureActiveDirectory {
 
   }
 
-  private async users(uri:string, accessToken:string):Promise<void> {
+  private async users(accessToken:string):Promise<void> {
     this.le.logStack.push("users")
 
     try {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching users ..`)
 
-      const userList = await this.getData(accessToken, uri)
+      const userList = await this.getData(accessToken, 'users')
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${userList.length} users; creating objects ..`)
 
@@ -348,6 +362,12 @@ export class AzureActiveDirectory {
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
       this.le.logStack.pop()
     }
+
+  }
+
+  private auth() {
+ 
+
 
   }
 
