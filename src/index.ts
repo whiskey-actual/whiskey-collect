@@ -7,7 +7,6 @@ import { DBEngine } from './components/DBEngine'
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
 import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
-import { AzureManaged } from './collectors/AzureManaged'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
 
@@ -67,6 +66,7 @@ export class Collector {
             const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET);
             await aad.getDevices()
             await aad.getUsers()
+            await aad.getManagedDevices()
             await aad.persist()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
@@ -78,23 +78,23 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
-        this.le.logStack.push('AzureManaged');
-        this.le.AddDelimiter("INIT")
+    // public async fetchAzureManaged(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
+    //     this.le.logStack.push('AzureManaged');
+    //     this.le.AddDelimiter("INIT")
 
-        try {
-            const am = new AzureManaged(this.le, this.db);
-            await am.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
-            await am.persist()
-        } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-            throw(err);
-        } finally {
-            this.le.logStack.pop()
-        }
+    //     try {
+    //         const am = new AzureManaged(this.le, this.db);
+    //         await am.fetch(TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET)
+    //         await am.persist()
+    //     } catch(err) {
+    //         this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+    //         throw(err);
+    //     } finally {
+    //         this.le.logStack.pop()
+    //     }
 
-        return new Promise<void>((resolve) => {resolve()})
-    }
+    //     return new Promise<void>((resolve) => {resolve()})
+    // }
 
     public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
         this.le.logStack.push('Connectwise');

@@ -94,6 +94,67 @@ export class AzureActiveDirectoryUser {
 
 }
 
+export class AzureManagedDevice {
+  public readonly observedByAzureMDM:boolean = true
+  public readonly deviceName: string=''
+  public readonly azureManagedId: string=''
+  // strings
+  public readonly azureManagedDeviceName:string|undefined=undefined
+  public readonly azureManagedUserId:string|undefined=undefined
+  public readonly azureManagedDeviceOwnerType:string|undefined=undefined
+  public readonly azureManagedOperatingSystem:string|undefined=undefined
+  public readonly azureManagedComplianceState:string|undefined=undefined
+  public readonly azureManagedJailBroken:string|undefined=undefined
+  public readonly azureManagedManagementAgent:string|undefined=undefined
+  public readonly azureManagedOperatingSystemVersion:string|undefined=undefined
+  public readonly azureManagedEASDeviceID:string|undefined=undefined
+  public readonly azureManagedDeviceEnrollmentType:string|undefined=undefined
+  public readonly azureManagedActivationLockBypassCode:string|undefined=undefined
+  public readonly azureManagedEmailAddress:string|undefined=undefined
+  public readonly azureManagedAzureADDeviceID:string|undefined=undefined
+  public readonly azureManagedDeviceRegistrationState:string|undefined=undefined
+  public readonly azureManagedDeviceCategoryDisplayName:string|undefined=undefined
+  public readonly azureManagedExchangeAccessState:string|undefined=undefined
+  public readonly azureManagedExchangeAccessStateReason:string|undefined=undefined
+  public readonly azureManagedRemoteAssistanceSessionUrl:string|undefined=undefined
+  public readonly azureManagedRemoteAssistanceErrorDetails:string|undefined=undefined
+  public readonly azureManagedUserPrincipalName:string|undefined=undefined
+  public readonly azureManagedModel:string|undefined=undefined
+  public readonly azureManagedManufacturer:string|undefined=undefined
+  public readonly azureManagedIMEI:string|undefined=undefined
+  public readonly azureManagedSerialNumber:string|undefined=undefined
+  public readonly azureManagedPhoneNumber:string|undefined=undefined
+  public readonly azureManagedAndroidSecurityPatchLevel:string|undefined=undefined
+  public readonly azureManagedUserDisplayName:string|undefined=undefined
+  public readonly azureManagedConfigurationManagerClientEnabledFeatures:string|undefined=undefined
+  public readonly azureManagedWiFiMACAddress:string|undefined=undefined
+  public readonly azureManagedDeviceHealthAttestationState:string|undefined=undefined
+  public readonly azureManagedSubscriberCarrier:string|undefined=undefined
+  public readonly azureManagedMEID:string|undefined=undefined
+  public readonly azureManagedPartnerReportedThreatState:string|undefined=undefined
+  public readonly azureManagedRequireUserEnrollmentApproval:string|undefined=undefined
+  public readonly azureManagedICCID:string|undefined=undefined
+  public readonly azureManagedUDID:string|undefined=undefined
+  public readonly azureManagedNotes:string|undefined=undefined
+  public readonly azureManagedEthernetMacAddress:string|undefined=undefined
+  // numbers
+  public readonly azureManagedPhysicalMemoryInBytes:number|undefined=0
+  public readonly azureManagedTotalStorageSpaceInBytes:number|undefined=undefined
+  public readonly azureManagedFreeStorageSpaceInBytes:number|undefined=undefined
+  // dates
+  public readonly azureManagedEnrolledDateTime:Date|undefined=undefined;
+  public readonly azureManagedLastSyncDateTime:Date|undefined=undefined;
+  public readonly azureManagedEASActivationDateTime:Date|undefined=undefined;
+  public readonly azureManagedExchangeLastSuccessfulSyncDateTime:Date|undefined=undefined;
+  public readonly azureManagedComplianceGracePeriodExpirationDateTime:Date|undefined=undefined;
+  public readonly azureManagedManagementCertificateExpirationDateTime:Date|undefined=undefined;
+  // boolean
+  public readonly azureManagedIsEASActivated:boolean=false
+  public readonly azureManagedIsAzureADRegistered:boolean=false
+  public readonly azureManagedIsSupervised:boolean=false
+  public readonly azureManagedIsEncrypted:boolean=false
+}
+
 export class AzureActiveDirectory {
 
   constructor(le:LogEngine, db:DBEngine, TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string) {
@@ -110,7 +171,8 @@ export class AzureActiveDirectory {
   private db:DBEngine
   private graphClient:Client
   public readonly AzureActiveDirectoryDevices:AzureActiveDirectoryDevice[]=[]
-  public readonly AzureActiveDirectoryUSers:AzureActiveDirectoryUser[]=[]
+  public readonly AzureActiveDirectoryUsers:AzureActiveDirectoryUser[]=[]
+  public readonly AzureManagedDevices:AzureManagedDevice[]=[]
 
 
   public async getDevices():Promise<void> {
@@ -311,6 +373,89 @@ export class AzureActiveDirectory {
     return new Promise<void>((resolve) => {resolve()})
 
   }
+
+  public async getManagedDevices():Promise<void> {
+    this.le.logStack.push("managedDevices")
+
+    try {
+
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching managed devices ..`)
+
+      
+
+      const response = await this.graphClient
+        .api('/deviceManagement/managedDevices')
+        .get()
+
+        console.debug(response)
+
+      const managedDevices = response.value
+
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${managedDevices.length} devices; creating objects ..`)
+
+      for(let i=0; i<1; i++) {
+
+        try {
+
+          console.debug(managedDevices[i])
+          // const aadu:AzureActiveDirectoryUser = {
+          //   mandatory
+          //   deviceName: devices[i].displayName.toString().trim(),
+          //   azureId: devices[i].id.toString().trim(),
+            
+          //   strings
+          //   azureDeviceId: Utilities.CleanedString(devices[i].deviceId),
+          //   azureDeviceCategory: Utilities.CleanedString(devices[i].deviceCategory),
+          //   azureDeviceMetadata: Utilities.CleanedString(devices[i].deviceMetadata),
+          //   azureDeviceOwnership: Utilities.CleanedString(devices[i].deviceOwnership),
+          //   azureDeviceVersion: Utilities.CleanedString(devices[i].deviceVersion),
+          //   azureDomainName: Utilities.CleanedString(devices[i].domainName),
+          //   azureEnrollmentProfileType: Utilities.CleanedString(devices[i].enrollmentProfileType),
+          //   azureEnrollmentType: Utilities.CleanedString(devices[i].enrollmentType),
+          //   azureExternalSourceName: Utilities.CleanedString(devices[i].externalSourceName),
+          //   azureManagementType: Utilities.CleanedString(devices[i].managementType),
+          //   azureManufacturer: Utilities.CleanedString(devices[i].manufacturer),
+          //   azureMDMAppId: Utilities.CleanedString(devices[i].mdmAppId),
+          //   azureModel: Utilities.CleanedString(devices[i].model),
+          //   azureOperatingSystem: Utilities.CleanedString(devices[i].operaingSystem),
+          //   azureOperatingSystemVersion: Utilities.CleanedString(devices[i].operatingSystemVersion),
+          //   azureProfileType: Utilities.CleanedString(devices[i].profileType),
+          //   azureSourceType: Utilities.CleanedString(devices[i].sourceType),
+          //   azureTrustType: Utilities.CleanedString(devices[i].trustType),
+          //   dates
+          //   azureDeletedDateTime: Utilities.CleanedDate(devices[i].deletedDateTime),
+          //   azureApproximateLastSignInDateTime: Utilities.CleanedDate(devices[i].approximateLastSignInDateTime),
+          //   azureComplianceExpirationDateTime: Utilities.CleanedDate(devices[i].complianceExpirationDateTime),
+          //   azureCreatedDateTime: Utilities.CleanedDate(devices[i].createdDateTime),
+          //   azureOnPremisesLastSyncDateTime: Utilities.CleanedDate(devices[i].onPremisesLastSyncDateTime),
+          //   azureRegistrationDateTime: Utilities.CleanedDate(devices[i].registrationDateTime),
+          //   booleans
+          //   azureOnPremisesSyncEnabled: devices[i].onPremisesSyncEnabled ? devices[i].onPremisesSyncEnabled : false,
+          //   azureAccountEnabled: devices[i].accountEnabled ? devices[i].accountEnabled : false,
+          //   azureIsCompliant: devices[i].isCompliant ? devices[i].isCompliant : false,
+          //   azureIsManaged: devices[i].isManaged ? devices[i].isManaged : false,
+          //   azureIsRooted: devices[i].isRooted ? devices[i].isRooted : false,
+          // }
+
+          // this.AzureActiveDirectoryDevices.push(aado)
+        } catch (err) {
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          throw(err)
+        }
+      }
+
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+    } catch(err) {
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      throw(err)
+    } finally {
+      this.le.logStack.pop()
+    }
+    
+    return new Promise<void>((resolve) => {resolve()})
+
+  }
+  
 
 
   public async persist() {
