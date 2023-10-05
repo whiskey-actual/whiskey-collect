@@ -301,14 +301,8 @@ export class AzureActiveDirectory {
         'userType',
       ]
 
-      const response = await this.graphClient
-        .api('/users')
-        .select(fieldsToFetch.join(","))
-        .get()
 
-        console.debug(response)
-
-      const users = response.value
+      const users = await this.getData('/users', fieldsToFetch)
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${users.length} devices; creating objects ..`)
 
@@ -381,15 +375,8 @@ export class AzureActiveDirectory {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching managed devices ..`)
 
-      
 
-      const response = await this.graphClient
-        .api('/deviceManagement/managedDevices')
-        .get()
-
-        console.debug(response)
-
-      const managedDevices = response.value
+      const managedDevices = await this.getData('/deviceManagement/managedDevices')
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${managedDevices.length} devices; creating objects ..`)
 
@@ -540,7 +527,7 @@ export class AzureActiveDirectory {
       }
 
       const callback:PageIteratorCallback = (item:any) => {
-        console.debug(item)
+        //console.debug(item)
         output.push(item)
         return true;
       }
