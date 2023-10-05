@@ -214,21 +214,21 @@ export class AzureActiveDirectory {
         'deletedDateTime',
         'department',
         'employeeHireDate',
-        'employeeLeaveDateTime',
+        //'employeeLeaveDateTime',
         'employeeId',
         'employeeOrgData',
         'employeeType',
-        'externalUserState',
-        'hireDate',
+        //'externalUserState',
+        //'hireDate',
         'id',
-        // 'lastPasswordChangeDateTime',
-        // 'licenseAssignmentStates',
-        // 'mailNickname',
-        // 'onPremisesDistinguishedName',
-        // 'onPremisesDomainName',
-        // 'onPremisesSamAccountName',
-        // 'onPremisesUserPrincipalNAme',
-        // 'preferredName',
+        'lastPasswordChangeDateTime',
+        'licenseAssignmentStates',
+        'mailNickname',
+        'onPremisesDistinguishedName',
+        'onPremisesDomainName',
+        'onPremisesSamAccountName',
+        'onPremisesUserPrincipalNAme',
+        'preferredName',
         // 'signInActivity',
         // 'state',
         // 'streetAddress',
@@ -246,7 +246,7 @@ export class AzureActiveDirectory {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${users.length} devices; creating objects ..`)
 
-      for(let i=0; i<users.length; i++) {
+      for(let i=0; i<1; i++) {
 
         try {
 
