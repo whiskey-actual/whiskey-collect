@@ -201,12 +201,12 @@ export class AzureActiveDirectory {
         'givenName',
         'jobTitle',
         'mail',
-        // 'mobilePhone',
-        // 'officeLocation',
-        // 'surname',
-        // 'accountEnabled',
-        // 'assignedLicenses',
-        // 'assignedPlans',
+        'mobilePhone',
+        'officeLocation',
+        'surname',
+        'accountEnabled',
+        'assignedLicenses',
+        'assignedPlans',
         // 'city',
         // 'country',
         // 'createdDateTime',
@@ -239,6 +239,9 @@ export class AzureActiveDirectory {
         .api('/users')
         .select(fieldsToFetch.join(","))
         .get()
+
+        console.debug(response)
+
       const users = response.value
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${users.length} devices; creating objects ..`)
