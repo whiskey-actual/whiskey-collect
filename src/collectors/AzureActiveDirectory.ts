@@ -3,7 +3,7 @@ import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
 
 import axios from "axios";
-import { Client } from '@microsoft/microsoft-graph-client';
+import { Client, GraphRequestOptions, PageCollection, PageIterator, PageIteratorCallback } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials'
 
 import { ClientSecretCredential } from '@azure/identity'
@@ -182,8 +182,10 @@ export class AzureActiveDirectory {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
 
-      const response = await this.graphClient.api('/devices').get()
-      const devices = response.value
+      const devices = await this.getData('/devices')
+
+      //const response = await this.graphClient.api('/devices').get()
+      //const devices = response.value
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${devices.length} devices; creating objects ..`)
 
@@ -291,7 +293,7 @@ export class AzureActiveDirectory {
         'onPremisesDomainName',
         'onPremisesSamAccountName',
         'onPremisesUserPrincipalName',
-        //'passwordPolicies',
+        'passwordPolicies',
         //'preferredName',
         'postalCode',
         'state',
@@ -524,4 +526,40 @@ export class AzureActiveDirectory {
     }
 
   }
+
+  
+  private async getData(apiEndpoint:string, selectFields:string[]=[]):Promise<any> {
+    this.le.logStack.push('getData')
+    var output:any = []
+   
+    try {
+
+      const gc = this.graphClient.api(apiEndpoint)
+      if(selectFields.length>0) {
+        gc.select(selectFields.join(","))
+      }
+
+      const callback:PageIteratorCallback = (item:any) => {
+        console.debug(item)
+        output.push(item)
+        return true;
+      }
+
+      const response:PageCollection = await gc.get()
+
+      const pageIterator = new PageIterator(this.graphClient, response, callback)
+
+      await pageIterator.iterate();
+      
+    } catch (err) {
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      throw(err)
+    } finally {
+      this.le.logStack.pop()
+    }
+   
+    return new Promise<any>((resolve) => {resolve(output)})
+
+  }
+
 }
