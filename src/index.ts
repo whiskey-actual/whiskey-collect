@@ -65,7 +65,8 @@ export class Collector {
 
         try {
             const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET);
-            await aad.fetchDevices()
+            await aad.getDevices()
+            await aad.getUsers()
             await aad.persist()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)

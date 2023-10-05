@@ -13,10 +13,9 @@ import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 
 export class AzureActiveDirectoryDevice {
   // mandatory
   public readonly deviceName:string=''
-  public readonly azureId:string=''
+  public readonly azureDeviceId:string=''
   
   // strings
-  public readonly azureDeviceId:string|undefined=undefined
   public readonly azureDeviceCategory:string|undefined=undefined
   public readonly azureDeviceMetadata:string|undefined=undefined
   public readonly azureDeviceOwnership:string|undefined=undefined
@@ -78,7 +77,8 @@ export class AzureActiveDirectoryUser {
   public readonly employeeOrgData:string|undefined=undefined
   public readonly employeeType:string|undefined=undefined
   public readonly externalUserState:string|undefined=undefined
-  public readonly hireDateid:string|undefined=undefined
+  public readonly hireDate:string|undefined=undefined
+  public readonly id:string|undefined=undefined
   public readonly lastPasswordChangeDateTime:string|undefined=undefined
   public readonly licenseAssignmentStates:string|undefined=undefined
   public readonly mailNickname:string|undefined=undefined
@@ -99,14 +99,9 @@ export class AzureActiveDirectory {
   constructor(le:LogEngine, db:DBEngine, TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string) {
     this.le=le
     this.db=db
-    this.tenantId=TENANT_ID
-    this.aadEndpoint=AAD_ENDPOINT
-    this.graphEndpoint=GRAPH_ENDPOINT
-    this.clientId=CLIENT_ID
-    this.clientSecret=CLIENT_SECRET
 
     // set up the graph client
-    const credential = new ClientSecretCredential(this.tenantId, this.clientId, this.clientSecret);
+    const credential = new ClientSecretCredential(TENANT_ID, CLIENT_ID, CLIENT_SECRET);
     const authProvider = new TokenCredentialAuthenticationProvider(credential, {scopes: ['https://graph.microsoft.com/.default']})
     this.graphClient = Client.initWithMiddleware({authProvider: authProvider})
 
@@ -114,90 +109,61 @@ export class AzureActiveDirectory {
   private le:LogEngine
   private db:DBEngine
   private graphClient:Client
-  private tenantId:string
-  private aadEndpoint:string
-  private graphEndpoint:string
-  private clientId:string
-  private clientSecret:string
   public readonly AzureActiveDirectoryDevices:AzureActiveDirectoryDevice[]=[]
+  public readonly AzureActiveDirectoryUSers:AzureActiveDirectoryUser[]=[]
 
-  public async fetchDevices():Promise<void> {
-    this.le.logStack.push('fetchDevices')
 
-    try {
-
-      await this.getToken()
-
-      const accessToken = await this.getToken()
-
-      const response = await this.graphClient.api('/devices').get()
-      const devices = response.value
-      for(let i=0; i<devices.length; i++) {
-        console.debug(devices[i])
-      }
-      //await this.users(`${GRAPH_ENDPOINT}/v1.0/users`, accessToken)
-
-    } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
-    } finally {
-      this.le.logStack.pop()
-    }
-    
-    return new Promise<void>((resolve) => {resolve()})
-  }
-
-  private async devices(accessToken:string):Promise<void> {
+  public async getDevices():Promise<void> {
     this.le.logStack.push("devices")
 
     try {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
 
-      const deviceList = await this.getData(accessToken, 'devices')
+      const response = await this.graphClient.api('/devices').get()
+      const devices = response.value
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${deviceList.length} devices; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${devices.length} devices; creating objects ..`)
 
-      for(let i=0; i<deviceList.length; i++) {
+      for(let i=0; i<devices.length; i++) {
 
         try {
           const aado:AzureActiveDirectoryDevice = {
             // mandatory
-            deviceName: deviceList[i].displayName.toString().trim(),
-            azureId: deviceList[i].id.toString().trim(),
+            deviceName: devices[i].displayName.toString().trim(),
+            azureDeviceId: devices[i].deviceId.toString().trim(),
             
             // strings
-            azureDeviceId: Utilities.CleanedString(deviceList[i].deviceId),
-            azureDeviceCategory: Utilities.CleanedString(deviceList[i].deviceCategory),
-            azureDeviceMetadata: Utilities.CleanedString(deviceList[i].deviceMetadata),
-            azureDeviceOwnership: Utilities.CleanedString(deviceList[i].deviceOwnership),
-            azureDeviceVersion: Utilities.CleanedString(deviceList[i].deviceVersion),
-            azureDomainName: Utilities.CleanedString(deviceList[i].domainName),
-            azureEnrollmentProfileType: Utilities.CleanedString(deviceList[i].enrollmentProfileType),
-            azureEnrollmentType: Utilities.CleanedString(deviceList[i].enrollmentType),
-            azureExternalSourceName: Utilities.CleanedString(deviceList[i].externalSourceName),
-            azureManagementType: Utilities.CleanedString(deviceList[i].managementType),
-            azureManufacturer: Utilities.CleanedString(deviceList[i].manufacturer),
-            azureMDMAppId: Utilities.CleanedString(deviceList[i].mdmAppId),
-            azureModel: Utilities.CleanedString(deviceList[i].model),
-            azureOperatingSystem: Utilities.CleanedString(deviceList[i].operaingSystem),
-            azureOperatingSystemVersion: Utilities.CleanedString(deviceList[i].operatingSystemVersion),
-            azureProfileType: Utilities.CleanedString(deviceList[i].profileType),
-            azureSourceType: Utilities.CleanedString(deviceList[i].sourceType),
-            azureTrustType: Utilities.CleanedString(deviceList[i].trustType),
+            azureDeviceCategory: Utilities.CleanedString(devices[i].deviceCategory),
+            azureDeviceMetadata: Utilities.CleanedString(devices[i].deviceMetadata),
+            azureDeviceOwnership: Utilities.CleanedString(devices[i].deviceOwnership),
+            azureDeviceVersion: Utilities.CleanedString(devices[i].deviceVersion),
+            azureDomainName: Utilities.CleanedString(devices[i].domainName),
+            azureEnrollmentProfileType: Utilities.CleanedString(devices[i].enrollmentProfileType),
+            azureEnrollmentType: Utilities.CleanedString(devices[i].enrollmentType),
+            azureExternalSourceName: Utilities.CleanedString(devices[i].externalSourceName),
+            azureManagementType: Utilities.CleanedString(devices[i].managementType),
+            azureManufacturer: Utilities.CleanedString(devices[i].manufacturer),
+            azureMDMAppId: Utilities.CleanedString(devices[i].mdmAppId),
+            azureModel: Utilities.CleanedString(devices[i].model),
+            azureOperatingSystem: Utilities.CleanedString(devices[i].operaingSystem),
+            azureOperatingSystemVersion: Utilities.CleanedString(devices[i].operatingSystemVersion),
+            azureProfileType: Utilities.CleanedString(devices[i].profileType),
+            azureSourceType: Utilities.CleanedString(devices[i].sourceType),
+            azureTrustType: Utilities.CleanedString(devices[i].trustType),
             // dates
-            azureDeletedDateTime: Utilities.CleanedDate(deviceList[i].deletedDateTime),
-            azureApproximateLastSignInDateTime: Utilities.CleanedDate(deviceList[i].approximateLastSignInDateTime),
-            azureComplianceExpirationDateTime: Utilities.CleanedDate(deviceList[i].complianceExpirationDateTime),
-            azureCreatedDateTime: Utilities.CleanedDate(deviceList[i].createdDateTime),
-            azureOnPremisesLastSyncDateTime: Utilities.CleanedDate(deviceList[i].onPremisesLastSyncDateTime),
-            azureRegistrationDateTime: Utilities.CleanedDate(deviceList[i].registrationDateTime),
+            azureDeletedDateTime: Utilities.CleanedDate(devices[i].deletedDateTime),
+            azureApproximateLastSignInDateTime: Utilities.CleanedDate(devices[i].approximateLastSignInDateTime),
+            azureComplianceExpirationDateTime: Utilities.CleanedDate(devices[i].complianceExpirationDateTime),
+            azureCreatedDateTime: Utilities.CleanedDate(devices[i].createdDateTime),
+            azureOnPremisesLastSyncDateTime: Utilities.CleanedDate(devices[i].onPremisesLastSyncDateTime),
+            azureRegistrationDateTime: Utilities.CleanedDate(devices[i].registrationDateTime),
             // booleans
-            azureOnPremisesSyncEnabled: deviceList[i].onPremisesSyncEnabled ? deviceList[i].onPremisesSyncEnabled : false,
-            azureAccountEnabled: deviceList[i].accountEnabled ? deviceList[i].accountEnabled : false,
-            azureIsCompliant: deviceList[i].isCompliant ? deviceList[i].isCompliant : false,
-            azureIsManaged: deviceList[i].isManaged ? deviceList[i].isManaged : false,
-            azureIsRooted: deviceList[i].isRooted ? deviceList[i].isRooted : false,
+            azureOnPremisesSyncEnabled: devices[i].onPremisesSyncEnabled ? devices[i].onPremisesSyncEnabled : false,
+            azureAccountEnabled: devices[i].accountEnabled ? devices[i].accountEnabled : false,
+            azureIsCompliant: devices[i].isCompliant ? devices[i].isCompliant : false,
+            azureIsManaged: devices[i].isManaged ? devices[i].isManaged : false,
+            azureIsRooted: devices[i].isRooted ? devices[i].isRooted : false,
           }
 
           this.AzureActiveDirectoryDevices.push(aado)
@@ -219,67 +185,111 @@ export class AzureActiveDirectory {
 
   }
 
-  private async users(accessToken:string):Promise<void> {
+  
+  public async getUsers():Promise<void> {
     this.le.logStack.push("users")
 
     try {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching users ..`)
 
-      const userList = await this.getData(accessToken, 'users')
+      const response = await this.graphClient
+        .api('/users')
+        .select([
+          'userPrincipalName',
+          'AzureID',
+          'businessPhones',
+          'displayName',
+          'givenName',
+          'jobTitle',
+          'mail',
+          'mobilePhone',
+          'officeLocation',
+          'surname',
+          'accountEnabled',
+          'assignedLicenses',
+          'assignedPlans',
+          'city',
+          'country',
+          'createdDateTime',
+          'creationType',
+          'deletedDateTime',
+          'department',
+          'employeeHireDate',
+          'employeeLeaveDateTime',
+          'employeeId',
+          'employeeOrgData',
+          'employeeType',
+          'externalUserState',
+          'hireDate',
+          'id',
+          'lastPasswordChangeDateTime',
+          'licenseAssignmentStates',
+          'mailNickname',
+          'onPremisesDistinguishedName',
+          'onPremisesDomainName',
+          'onPremisesSamAccountName',
+          'onPremisesUserPrincipalNAme',
+          'preferredName',
+          'signInActivity',
+          'state',
+          'streetAddress',
+          'serType',
+        ])
+        .get()
+      const users = response.value
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${userList.length} users; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${users.length} devices; creating objects ..`)
 
-      for(let i=0; i<userList.length; i++) {
+      for(let i=0; i<users.length; i++) {
 
-        console.debug(userList[i])
+        try {
 
-        // try {
-        //   const aado:AzureActiveDirectoryObject = {
-        //     // mandatory
-        //     observedByAzureActiveDirectory: true,
-        //     deviceName: deviceList[i].displayName.toString().trim(),
-        //     azureId: deviceList[i].id.toString().trim(),
+          console.debug(users[i])
+          // const aadu:AzureActiveDirectoryUser = {
+          //   mandatory
+          //   deviceName: devices[i].displayName.toString().trim(),
+          //   azureId: devices[i].id.toString().trim(),
             
-        //     // strings
-        //     azureDeviceId: Utilities.CleanedString(deviceList[i].deviceId),
-        //     azureDeviceCategory: Utilities.CleanedString(deviceList[i].deviceCategory),
-        //     azureDeviceMetadata: Utilities.CleanedString(deviceList[i].deviceMetadata),
-        //     azureDeviceOwnership: Utilities.CleanedString(deviceList[i].deviceOwnership),
-        //     azureDeviceVersion: Utilities.CleanedString(deviceList[i].deviceVersion),
-        //     azureDomainName: Utilities.CleanedString(deviceList[i].domainName),
-        //     azureEnrollmentProfileType: Utilities.CleanedString(deviceList[i].enrollmentProfileType),
-        //     azureEnrollmentType: Utilities.CleanedString(deviceList[i].enrollmentType),
-        //     azureExternalSourceName: Utilities.CleanedString(deviceList[i].externalSourceName),
-        //     azureManagementType: Utilities.CleanedString(deviceList[i].managementType),
-        //     azureManufacturer: Utilities.CleanedString(deviceList[i].manufacturer),
-        //     azureMDMAppId: Utilities.CleanedString(deviceList[i].mdmAppId),
-        //     azureModel: Utilities.CleanedString(deviceList[i].model),
-        //     azureOperatingSystem: Utilities.CleanedString(deviceList[i].operaingSystem),
-        //     azureOperatingSystemVersion: Utilities.CleanedString(deviceList[i].operatingSystemVersion),
-        //     azureProfileType: Utilities.CleanedString(deviceList[i].profileType),
-        //     azureSourceType: Utilities.CleanedString(deviceList[i].sourceType),
-        //     azureTrustType: Utilities.CleanedString(deviceList[i].trustType),
-        //     // dates
-        //     azureDeletedDateTime: Utilities.CleanedDate(deviceList[i].deletedDateTime),
-        //     azureApproximateLastSignInDateTime: Utilities.CleanedDate(deviceList[i].approximateLastSignInDateTime),
-        //     azureComplianceExpirationDateTime: Utilities.CleanedDate(deviceList[i].complianceExpirationDateTime),
-        //     azureCreatedDateTime: Utilities.CleanedDate(deviceList[i].createdDateTime),
-        //     azureOnPremisesLastSyncDateTime: Utilities.CleanedDate(deviceList[i].onPremisesLastSyncDateTime),
-        //     azureRegistrationDateTime: Utilities.CleanedDate(deviceList[i].registrationDateTime),
-        //     // booleans
-        //     azureOnPremisesSyncEnabled: deviceList[i].onPremisesSyncEnabled ? deviceList[i].onPremisesSyncEnabled : false,
-        //     azureAccountEnabled: deviceList[i].accountEnabled ? deviceList[i].accountEnabled : false,
-        //     azureIsCompliant: deviceList[i].isCompliant ? deviceList[i].isCompliant : false,
-        //     azureIsManaged: deviceList[i].isManaged ? deviceList[i].isManaged : false,
-        //     azureIsRooted: deviceList[i].isRooted ? deviceList[i].isRooted : false,
-        //   }
+          //   strings
+          //   azureDeviceId: Utilities.CleanedString(devices[i].deviceId),
+          //   azureDeviceCategory: Utilities.CleanedString(devices[i].deviceCategory),
+          //   azureDeviceMetadata: Utilities.CleanedString(devices[i].deviceMetadata),
+          //   azureDeviceOwnership: Utilities.CleanedString(devices[i].deviceOwnership),
+          //   azureDeviceVersion: Utilities.CleanedString(devices[i].deviceVersion),
+          //   azureDomainName: Utilities.CleanedString(devices[i].domainName),
+          //   azureEnrollmentProfileType: Utilities.CleanedString(devices[i].enrollmentProfileType),
+          //   azureEnrollmentType: Utilities.CleanedString(devices[i].enrollmentType),
+          //   azureExternalSourceName: Utilities.CleanedString(devices[i].externalSourceName),
+          //   azureManagementType: Utilities.CleanedString(devices[i].managementType),
+          //   azureManufacturer: Utilities.CleanedString(devices[i].manufacturer),
+          //   azureMDMAppId: Utilities.CleanedString(devices[i].mdmAppId),
+          //   azureModel: Utilities.CleanedString(devices[i].model),
+          //   azureOperatingSystem: Utilities.CleanedString(devices[i].operaingSystem),
+          //   azureOperatingSystemVersion: Utilities.CleanedString(devices[i].operatingSystemVersion),
+          //   azureProfileType: Utilities.CleanedString(devices[i].profileType),
+          //   azureSourceType: Utilities.CleanedString(devices[i].sourceType),
+          //   azureTrustType: Utilities.CleanedString(devices[i].trustType),
+          //   dates
+          //   azureDeletedDateTime: Utilities.CleanedDate(devices[i].deletedDateTime),
+          //   azureApproximateLastSignInDateTime: Utilities.CleanedDate(devices[i].approximateLastSignInDateTime),
+          //   azureComplianceExpirationDateTime: Utilities.CleanedDate(devices[i].complianceExpirationDateTime),
+          //   azureCreatedDateTime: Utilities.CleanedDate(devices[i].createdDateTime),
+          //   azureOnPremisesLastSyncDateTime: Utilities.CleanedDate(devices[i].onPremisesLastSyncDateTime),
+          //   azureRegistrationDateTime: Utilities.CleanedDate(devices[i].registrationDateTime),
+          //   booleans
+          //   azureOnPremisesSyncEnabled: devices[i].onPremisesSyncEnabled ? devices[i].onPremisesSyncEnabled : false,
+          //   azureAccountEnabled: devices[i].accountEnabled ? devices[i].accountEnabled : false,
+          //   azureIsCompliant: devices[i].isCompliant ? devices[i].isCompliant : false,
+          //   azureIsManaged: devices[i].isManaged ? devices[i].isManaged : false,
+          //   azureIsRooted: devices[i].isRooted ? devices[i].isRooted : false,
+          // }
 
-        //   this.AzureActiveDirectoryDevices.push(aado)
-        // } catch (err) {
-        //   this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-        //   throw(err)
-        // }
+          // this.AzureActiveDirectoryDevices.push(aado)
+        } catch (err) {
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          throw(err)
+        }
       }
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
@@ -309,7 +319,7 @@ export class AzureActiveDirectory {
         let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
         
         const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.AzureActiveDirectoryDevices[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceAzureActiveDirectoryID:number = await this.db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureID', this.AzureActiveDirectoryDevices[i].azureId, mssql.VarChar(255))], true)
+        const DeviceAzureActiveDirectoryID:number = await this.db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureID', this.AzureActiveDirectoryDevices[i].azureDeviceId, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
         let ruDevice = new RowUpdate(DeviceID)
@@ -362,94 +372,6 @@ export class AzureActiveDirectory {
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
       this.le.logStack.pop()
     }
-
-  }
-
-  private auth() {
- 
-
-
-  }
-
-  private async getToken():Promise<string> {
-    this.le.logStack.push('getToken')
-    let output:any = undefined
-   
-    try {
-      const endpoint = `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`
-
-      const formData = new FormData()
-      formData.append('client_id', this.clientId)
-      formData.append('scope', 'https://graph.microsoft.com/.default')
-      formData.append('client_secret', this.clientSecret)
-      formData.append('grant_type', 'client_credentials')
-      const response = await axios({
-        method: 'post',
-        url: endpoint,
-        data: formData,
-        headers: {
-            'Content-Type': `application/x-www-form-urlencoded`,
-        },
-    });
-      output = response.data.access_token
-    } catch (err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
-    } finally {
-      this.le.logStack.pop();
-    }
-
-    return new Promise<any>((resolve) => {resolve(output)})
-
-  }
-
-  private async callAPI(accessToken:string, endpoint:string):Promise<any> {
-    this.le.logStack.push('callAPI')
-    let output:any = undefined
-   
-    try {
-      const options = { headers: { Authorization: `Bearer ${accessToken}`}}
-      const response = await axios.get(endpoint, options)
-      output = response.data
-    } catch (err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
-    } finally {
-      this.le.logStack.pop();
-    }
-
-    return new Promise<any>((resolve) => {resolve(output)})
-
-  }
-
-  private async getData(accesstoken:string, api_endpoint:string):Promise<any> {
-    this.le.logStack.push('getData')
-    var output:any = []
-   
-    try {
-
-       const response = await this.callAPI(accesstoken, `${this.graphEndpoint}/v1.0/${api_endpoint}`);
-       for(const value of response.value) {
-        output.push(value)
-       }
-
-       var nextLink = response['@odata.nextLink']
-       while(nextLink) {
-        const nextPage = await this.callAPI(accesstoken, nextLink)
-        nextLink = nextPage['@odata.nextLink']
-
-        for(const value of nextPage.value) {
-          output.push(value)
-        }
-       }
-    } catch (err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-      throw(err)
-    } finally {
-      this.le.logStack.pop()
-    }
-   
-    return new Promise<any>((resolve) => {resolve(output)})
 
   }
 }
