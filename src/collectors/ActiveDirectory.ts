@@ -306,10 +306,11 @@ export class ActiveDirectory
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_EmployeeID", mssql.VarChar(255), this.Users[i].userEmployeeID))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_PrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
-          
-
+          // int
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Users[i].userLogonCount))
-
+          // bit
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Observed", mssql.Bit, true))
+          // datetime
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_ChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_BadPasswordTime", mssql.DateTime2, this.Users[i].userBadPasswordTime))

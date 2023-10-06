@@ -582,10 +582,20 @@ export class AzureActiveDirectory {
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_UserType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].userType))
           // bit
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_AccountEnabled", mssql.Bit, this.AzureActiveDirectoryUsers[i].accountEnabled))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Observed", mssql.Bit, true))
           // datetime
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_CreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].createdDateTime))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_DeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].deletedDateTime))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastPasswordChangeDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].lastPasswordChangeDateTime))
+
+          const aadLastSeen = Utilities.getMaxDateFromObject(this.AzureActiveDirectoryUsers[i], [
+            'createdDateTime',
+            'deletedDateTime',
+            'lastPasswordChangeDateTime',
+          ])
+
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSeen", mssql.DateTime2, aadLastSeen))
+
 
           tuEmployee.RowUpdates.push(ruEmployee)
 
