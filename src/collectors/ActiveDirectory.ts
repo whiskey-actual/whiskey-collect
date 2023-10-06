@@ -204,107 +204,120 @@ export class ActiveDirectory
     try {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (device) ..')
-      
       for(let i=0; i<this.Devices.length; i++) {
+        try {
      
-        let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-        let tuDeviceActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
-        
-        const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].deviceDN, mssql.VarChar(255))], true)
+          let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+          let tuDeviceActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
+          
+          const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
+          const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].deviceDN, mssql.VarChar(255))], true)
 
-        // update the device table to add the corresponding DeviceActiveDirectoryID ..
-        let ruDevice = new RowUpdate(DeviceID)
-        ruDevice.updateName=this.Devices[i].deviceName
-        ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryID", mssql.Int, DeviceActiveDirectoryID))
-        tuDevice.RowUpdates.push(ruDevice)
+          // update the device table to add the corresponding DeviceActiveDirectoryID ..
+          let ruDevice = new RowUpdate(DeviceID)
+          ruDevice.updateName=this.Devices[i].deviceName
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryID", mssql.Int, DeviceActiveDirectoryID))
+          tuDevice.RowUpdates.push(ruDevice)
 
-        // update the DeviceActiveDirectory table values ..
-        let ruDeviceActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
-        ruDeviceActiveDirectory.updateName=this.Devices[i].deviceName
-        // string
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
-        // int
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
-        // datetimes
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
-        tuDeviceActiveDirectory.RowUpdates.push(ruDeviceActiveDirectory)
+          // update the DeviceActiveDirectory table values ..
+          let ruDeviceActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
+          ruDeviceActiveDirectory.updateName=this.Devices[i].deviceName
+          // string
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
+          // int
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
+          // datetimes
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
+          tuDeviceActiveDirectory.RowUpdates.push(ruDeviceActiveDirectory)
 
-        // last seen
-        const deviceLastSeen = Utilities.getMaxDateFromObject(this.Devices[i], [
-          'activeDirectoryWhenCreated',
-          'activeDirectoryWhenChanged',
-          'activeDirectoryLastLogon',
-          'activeDirectoryPwdLastSet',
-          'activeDirectoryLastLogonTimestamp'
-        ])
+          // last seen
+          const deviceLastSeen = Utilities.getMaxDateFromObject(this.Devices[i], [
+            'activeDirectoryWhenCreated',
+            'activeDirectoryWhenChanged',
+            'activeDirectoryLastLogon',
+            'activeDirectoryPwdLastSet',
+            'activeDirectoryLastLogonTimestamp'
+          ])
 
-        ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
 
-        // operating system
-        const ose = new OperatingSystemEngine(this.le, this.db)
-        const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
-        await ose.persist(DeviceID, os)
+          // operating system
+          const ose = new OperatingSystemEngine(this.le, this.db)
+          const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
+          await ose.persist(DeviceID, os)
 
-        await this.db.updateTable(tuDevice, true)
-        await this.db.updateTable(tuDeviceActiveDirectory, true)
+          await this.db.updateTable(tuDevice, true)
+          await this.db.updateTable(tuDeviceActiveDirectory, true)
+
+        } catch(err) {
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.Devices[i]}`)
+          throw(err);
+        }
   
       }
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (user) ..')
       for(let i=0; i<this.Users.length; i++) {
+        try {
 
-        let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
-        
-        const EmployeeID:number = await this.db.getID("Employee", [new ColumnValuePair("EmployeeActiveDirectoryDN", this.Users[i].userDN, mssql.VarChar(255))], true)
+          let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
+          
+          const EmployeeID:number = await this.db.getID("Employee", [new ColumnValuePair("ad_UserMail", this.Users[i].userMail, mssql.VarChar(255))], true)
 
-        // update the Employee table values ..
-        let ruEmployee = new RowUpdate(EmployeeID)
-        ruEmployee.updateName=this.Users[i].userDN
-        
-        // string
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCN", mssql.VarChar(255), this.Users[i].userCN))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySN", mssql.VarChar(255), this.Users[i].userSN))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCountry", mssql.VarChar(255), this.Users[i].userCountry))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCity", mssql.VarChar(255), this.Users[i].userCity))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryState", mssql.VarChar(255), this.Users[i].userState))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryTitle", mssql.VarChar(255), this.Users[i].userTitle))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryOffice", mssql.VarChar(255), this.Users[i].userPhysicalDeliveryOfficeName))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryTelephoneNumber", mssql.VarChar(255), this.Users[i].userTelephoneNumber))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryGivenName", mssql.VarChar(255), this.Users[i].userGivenName))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDisplayName", mssql.VarChar(255), this.Users[i].userDisplayName))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDepartment", mssql.VarChar(255), this.Users[i].userDepartment))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryStreetAddress", mssql.VarChar(255), this.Users[i].userStreetAddress))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserName", mssql.VarChar(255), this.Users[i].userName))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeID", mssql.VarChar(255), this.Users[i].userEmployeeID))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryPrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserMail", mssql.VarChar(255), this.Users[i].userMail))
+          // update the Employee table values ..
+          let ruEmployee = new RowUpdate(EmployeeID)
+          ruEmployee.updateName=this.Users[i].userDN
+          
+          // string
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_DN", mssql.VarChar(255), this.Users[i].userDN))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CN", mssql.VarChar(255), this.Users[i].userCN))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SN", mssql.VarChar(255), this.Users[i].userSN))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Country", mssql.VarChar(255), this.Users[i].userCountry))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_City", mssql.VarChar(255), this.Users[i].userCity))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_State", mssql.VarChar(255), this.Users[i].userState))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Title", mssql.VarChar(255), this.Users[i].userTitle))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Office", mssql.VarChar(255), this.Users[i].userPhysicalDeliveryOfficeName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_TelephoneNumber", mssql.VarChar(255), this.Users[i].userTelephoneNumber))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_GivenName", mssql.VarChar(255), this.Users[i].userGivenName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_DisplayName", mssql.VarChar(255), this.Users[i].userDisplayName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Department", mssql.VarChar(255), this.Users[i].userDepartment))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_StreetAddress", mssql.VarChar(255), this.Users[i].userStreetAddress))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_UserName", mssql.VarChar(255), this.Users[i].userName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_EmployeeID", mssql.VarChar(255), this.Users[i].userEmployeeID))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_PrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
+          
 
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLogonCount", mssql.Int, this.Users[i].userLogonCount))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Users[i].userLogonCount))
 
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryBadPasswordTime", mssql.DateTime2, this.Users[i].userBadPasswordTime))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_ChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_BadPasswordTime", mssql.DateTime2, this.Users[i].userBadPasswordTime))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
 
-        const employeeActiveDirectoryLastSeen = Utilities.getMaxDateFromObject(this.Users[i], [
-          'EmployeeActiveDirectoryCreatedDate',
-          'EmployeeActiveDirectoryChangedDate',
-          'EmployeeActiveDirectoryLastLogon',
-          'EmployeeActiveDirectoryLastLogonTimestamp'
-        ])
+          const employeeActiveDirectoryLastSeen = Utilities.getMaxDateFromObject(this.Users[i], [
+            'EmployeeActiveDirectoryCreatedDate',
+            'EmployeeActiveDirectoryChangedDate',
+            'EmployeeActiveDirectoryLastLogon',
+            'EmployeeActiveDirectoryLastLogonTimestamp'
+          ])
 
-        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
 
-        tuEmployee.RowUpdates.push(ruEmployee)
+          tuEmployee.RowUpdates.push(ruEmployee)
 
-        await this.db.updateTable(tuEmployee, true)
+          await this.db.updateTable(tuEmployee, true)
+        } catch(err) {
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.Users[i]}`)
+          throw(err);
+        }
 
       }
 
