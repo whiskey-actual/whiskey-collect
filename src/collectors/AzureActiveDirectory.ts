@@ -522,7 +522,7 @@ export class AzureActiveDirectory {
           
         } catch(err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.AzureActiveDirectoryDevices[i]}`)
+          console.debug(this.AzureActiveDirectoryDevices[i])
           throw(err);
         }
       }
@@ -577,7 +577,7 @@ export class AzureActiveDirectory {
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.AzureActiveDirectoryUsers[i]}`)
+          console.debug(this.AzureActiveDirectoryUsers[i])
           throw(err);
         }
 
@@ -664,7 +664,7 @@ export class AzureActiveDirectory {
         
         }  catch(err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.AzureManagedDevices[i]}`)
+          console.debug(this.AzureManagedDevices[i])
           throw(err);
         }
 

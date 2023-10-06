@@ -255,7 +255,7 @@ export class ActiveDirectory
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.Devices[i]}`)
+          console.debug(this.Devices[i])
           throw(err);
         }
   
@@ -315,7 +315,7 @@ export class ActiveDirectory
           await this.db.updateTable(tuEmployee, true)
         } catch(err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${this.Users[i]}`)
+          console.debug(this.Users[i])
           throw(err);
         }
 
