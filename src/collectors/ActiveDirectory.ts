@@ -274,6 +274,8 @@ export class ActiveDirectory
           ruEmployee.updateName=this.Users[i].userDN
           
           // string
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), this.Users[i].userMail))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_userMail", mssql.VarChar(255), this.Users[i].userMail))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_DN", mssql.VarChar(255), this.Users[i].userDN))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CN", mssql.VarChar(255), this.Users[i].userCN))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SN", mssql.VarChar(255), this.Users[i].userSN))
