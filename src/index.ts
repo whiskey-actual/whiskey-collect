@@ -58,12 +58,12 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchAzureActiveDirectory(TENANT_ID:string, AAD_ENDPOINT:string, GRAPH_ENDPOINT:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
+    public async fetchAzureActiveDirectory(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
         this.le.logStack.push('AzureActiveDirectory');
         this.le.AddDelimiter("INIT")
 
         try {
-            const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, AAD_ENDPOINT, GRAPH_ENDPOINT, CLIENT_ID, CLIENT_SECRET);
+            const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
             await aad.getDevices()
             await aad.getUsers()
             await aad.getManagedDevices()
