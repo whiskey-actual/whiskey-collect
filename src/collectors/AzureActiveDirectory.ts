@@ -309,7 +309,7 @@ export class AzureActiveDirectory {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${users.length} devices; creating objects ..`)
 
-      for(let i=0; i<1; i++) {
+      for(let i=0; i<users.length; i++) {
 
         try {
           const aadu:AzureActiveDirectoryUser = {
@@ -378,7 +378,7 @@ export class AzureActiveDirectory {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${managedDevices.length} devices; creating objects ..`)
 
-      for(let i=0; i<1; i++) {
+      for(let i=0; i<managedDevices.length; i++) {
 
         try {
 
