@@ -267,7 +267,7 @@ export class ActiveDirectory
 
           let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
           
-          const EmployeeID:number = await this.db.getID("Employee", [new ColumnValuePair("ad_UserMail", this.Users[i].userMail, mssql.VarChar(255))], true)
+          const EmployeeID:number = await this.db.getID("Employee", [new ColumnValuePair("EmployeeEmailAddress", this.Users[i].userMail, mssql.VarChar(255))], true)
 
           // update the Employee table values ..
           let ruEmployee = new RowUpdate(EmployeeID)
