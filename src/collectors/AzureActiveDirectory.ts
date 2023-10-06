@@ -61,7 +61,6 @@ export class AzureActiveDirectoryUser {
   public readonly mobilePhone:string|undefined=undefined
   public readonly officeLocation:string|undefined=undefined
   public readonly surname:string|undefined=undefined
-  public readonly accountEnabled:string|undefined=undefined
   //public readonly assignedLicenses:string|undefined=undefined
   public readonly assignedPlans:string|undefined=undefined
   public readonly city:string|undefined=undefined
@@ -91,6 +90,9 @@ export class AzureActiveDirectoryUser {
   public readonly state:string|undefined=undefined
   public readonly streetAddress:string|undefined=undefined
   public readonly userType:string|undefined=undefined
+
+  // bit
+  public readonly accountEnabled:boolean=false
 
   // datetime
   public readonly createdDateTime:Date|undefined=undefined
@@ -321,7 +323,6 @@ export class AzureActiveDirectory {
             mobilePhone: Utilities.CleanedString(users[i].mobilePhone),
             officeLocation: Utilities.CleanedString(users[i].officeLocation),
             surname: Utilities.CleanedString(users[i].surname),
-            accountEnabled: Utilities.CleanedString(users[i].accountEnabled), // should bit boolean
             //assignedPlans: Utilities.CleanedString(users[i].assignedPlans),
             assignedPlans: undefined,
             city: Utilities.CleanedString(users[i].city),
@@ -341,6 +342,7 @@ export class AzureActiveDirectory {
             state: Utilities.CleanedString(users[i].state),
             streetAddress: Utilities.CleanedString(users[i].streetAddress),
             userType: Utilities.CleanedString(users[i].userType),
+            accountEnabled: users[i].accountEnabled, // should bit boolean
             createdDateTime: Utilities.CleanedDate(users[i].createdDateTime),
             deletedDateTime: Utilities.CleanedDate(users[i].deletedDateTime),
             lastPasswordChangeDateTime: Utilities.CleanedDate(users[i].lastPasswordChangeDateTime),
@@ -546,7 +548,6 @@ export class AzureActiveDirectory {
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_MobilePhone", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].mobilePhone))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_OfficeLocation", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].officeLocation))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Surname", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].surname))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_AccountEnabled:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].accountEnabled))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_AssignedPlans:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].assignedPlans))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_City:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].city))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Country:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].country))
@@ -565,6 +566,9 @@ export class AzureActiveDirectory {
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_State:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].state))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_StreetAddress:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].streetAddress))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_UserType:", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].userType))
+          // bit
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_AccountEnabled:", mssql.Bit, this.AzureActiveDirectoryUsers[i].accountEnabled))
+          // datetime
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_CreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].createdDateTime))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_DeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].deletedDateTime))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastPasswordChangeDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].lastPasswordChangeDateTime))
