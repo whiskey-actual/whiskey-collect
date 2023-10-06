@@ -19,7 +19,7 @@ export class ActiveDirectoryDevice {
   // numbers
   public readonly activeDirectoryLogonCount:number=0
   // dates
-  public readonly activeDirectoryWhenCreated:Date=Utilities.minimumJsonDate
+  public readonly activeDirectoryWhenCreated:Date|undefined=undefined
   public readonly activeDirectoryWhenChanged:Date|undefined=undefined
   public readonly activeDirectoryLastLogon:Date|undefined=undefined
   public readonly activeDirectoryPwdLastSet:Date|undefined=undefined
@@ -47,11 +47,11 @@ export class ActiveDirectoryUser {
   public readonly userPrincipalName:string|undefined=undefined
   public readonly userMail:string|undefined=undefined
   // dates
-  public readonly userCreatedDate:Date=Utilities.minimumJsonDate
-  public readonly userChangedDate:Date=Utilities.minimumJsonDate
-  public readonly userBadPasswordTime:Date=Utilities.minimumJsonDate
-  public readonly userLastLogon:Date=Utilities.minimumJsonDate
-  public readonly userLastLogonTimestamp:Date=Utilities.minimumJsonDate
+  public readonly userCreatedDate:Date|undefined=undefined
+  public readonly userChangedDate:Date|undefined=undefined
+  public readonly userBadPasswordTime:Date|undefined=undefined
+  public readonly userLastLogon:Date|undefined=undefined
+  public readonly userLastLogonTimestamp:Date|undefined=undefined
 
 }
 
@@ -125,10 +125,10 @@ export class ActiveDirectory
                 activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
                 activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
                 activeDirectoryWhenCreated: Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
-                activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : Utilities.minimumJsonDate,
-                activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : Utilities.minimumJsonDate,
-                activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : Utilities.minimumJsonDate,
-                activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : Utilities.minimumJsonDate
+                activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
+                activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
+                activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
+                activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
               }
               this.Devices.push(add)
             } catch (err) {
@@ -176,11 +176,11 @@ export class ActiveDirectory
                 userSAMAccountName: Utilities.CleanedString(searchEntries[i].sAMAccountName),
                 userPrincipalName: Utilities.CleanedString(searchEntries[i].userPrincipalName),
                 userMail: Utilities.CleanedString(searchEntries[i].mail),
-                userCreatedDate: searchEntries[i].whenCreated ? Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()) : Utilities.minimumJsonDate,
-                userChangedDate: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : Utilities.minimumJsonDate,
-                userBadPasswordTime: searchEntries[i].badPasswordTime ? Utilities.ldapTimestampToJS(searchEntries[i].badPasswordTime.toString()) : Utilities.minimumJsonDate,
-                userLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : Utilities.minimumJsonDate,
-                userLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : Utilities.minimumJsonDate,
+                userCreatedDate: searchEntries[i].whenCreated ? Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()) : undefined,
+                userChangedDate: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
+                userBadPasswordTime: searchEntries[i].badPasswordTime ? Utilities.ldapTimestampToJS(searchEntries[i].badPasswordTime.toString()) : undefined,
+                userLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
+                userLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined,
               }
             this.Users.push(adu)
             } catch (err) {

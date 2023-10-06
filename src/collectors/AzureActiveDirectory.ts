@@ -235,6 +235,7 @@ export class AzureActiveDirectory {
           this.AzureActiveDirectoryDevices.push(aado)
         } catch (err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          console.debug(devices[i])
           throw(err)
         }
       }
@@ -249,7 +250,6 @@ export class AzureActiveDirectory {
     return new Promise<void>((resolve) => {resolve()})
 
   }
-
   
   public async getUsers():Promise<void> {
     this.le.logStack.push("users")
@@ -310,8 +310,6 @@ export class AzureActiveDirectory {
       for(let i=0; i<1; i++) {
 
         try {
-
-          console.debug(users[i])
           const aadu:AzureActiveDirectoryUser = {
             mail: users[i].mail.toString().trim(),
             userPrincipalName: users[i].userPrincipalName.toString().trim(),
@@ -324,7 +322,8 @@ export class AzureActiveDirectory {
             officeLocation: Utilities.CleanedString(users[i].officeLocation),
             surname: Utilities.CleanedString(users[i].surname),
             accountEnabled: Utilities.CleanedString(users[i].accountEnabled), // should bit boolean
-            assignedPlans: Utilities.CleanedString(users[i].assignedPlans),
+            //assignedPlans: Utilities.CleanedString(users[i].assignedPlans),
+            assignedPlans: undefined,
             city: Utilities.CleanedString(users[i].city),
             country: Utilities.CleanedString(users[i].country),
             creationType: Utilities.CleanedString(users[i].creationType),
@@ -350,6 +349,7 @@ export class AzureActiveDirectory {
           this.AzureActiveDirectoryUsers.push(aadu)
         } catch (err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          console.debug(users[i])
           throw(err)
         }
       }
@@ -371,7 +371,6 @@ export class AzureActiveDirectory {
     try {
 
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching managed devices ..`)
-
 
       const managedDevices = await this.getData('/deviceManagement/managedDevices')
 
@@ -445,6 +444,7 @@ export class AzureActiveDirectory {
           this.AzureManagedDevices.push(amd)
         } catch (err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          console.debug(managedDevices[i])
           throw(err)
         }
       }
@@ -459,8 +459,6 @@ export class AzureActiveDirectory {
     return new Promise<void>((resolve) => {resolve()})
 
   }
-  
-
 
   public async persist() {
     this.le.logStack.push('persist')
