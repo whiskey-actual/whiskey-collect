@@ -552,6 +552,7 @@ export class AzureActiveDirectory {
           // update the employee table
           let ruEmployee = new RowUpdate(EmployeeID)
           ruEmployee.updateName = UpdateName ? UpdateName : 'unknown user'
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].emailAddress))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_UserPrincipalName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].userPrincipalName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Id", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].id))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_BusinessPhone", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].businessPhone))
