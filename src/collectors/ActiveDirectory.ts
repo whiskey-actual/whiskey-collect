@@ -4,7 +4,7 @@ import { Utilities } from 'whiskey-util'
 import { Client } from 'ldapts'
 
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate, UpdatePackage } from '../components/DBEngine';
 
 import { OperatingSystemEngine } from '../components/OperatingSystemEngine';
 
@@ -26,8 +26,10 @@ export class ActiveDirectoryDevice {
   public readonly activeDirectoryLastLogonTimestamp:Date|undefined=undefined
 }
 
+
 export class ActiveDirectoryUser {
   public readonly userDN:string=''
+  public readonly emailAddress:string|undefined=undefined
   public readonly userCN:string|undefined=undefined
   public readonly userSN:string|undefined=undefined
   public readonly userCountry:string|undefined=undefined
@@ -157,6 +159,7 @@ export class ActiveDirectory
           for(let i=0; i<searchEntries.length; i++) {
             try {
               const adu:ActiveDirectoryUser = {
+                emailAddress: searchEntries[i].mail ? searchEntries[i].mail.toString().trim() : searchEntries[i].userPrincipalName ? searchEntries[i].userPrincipalName.toString().trim() : undefined,
                 userDN: searchEntries[i].dn.toString().trim(),
                 userCN: Utilities.CleanedString(searchEntries[i].cn),
                 userSN: Utilities.CleanedString(searchEntries[i].sn),
@@ -203,6 +206,7 @@ export class ActiveDirectory
     
     try {
 
+      // devices
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (device) ..')
       for(let i=0; i<this.Devices.length; i++) {
         try {
@@ -261,20 +265,29 @@ export class ActiveDirectory
   
       }
 
+      // users
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (user) ..')
       for(let i=0; i<this.Users.length; i++) {
         try {
 
           let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
-          
-          const EmployeeID:number = await this.db.getID("Employee", [new ColumnValuePair("ad_DN", this.Users[i].userDN, mssql.VarChar(255))], true)
+
+          let EmployeeID:number = 0
+          let updateName:string|undefined=undefined
+          // if we have an email address, try to find the id that way first (don't create the row, since we'll try a second match ..)
+          if(this.Users[i].emailAddress) {
+            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("EmployeeEmailAddress", this.Users[i].emailAddress, mssql.VarChar(255))], false)
+            updateName = this.Users[i].emailAddress
+          }  // otherwise, use the DN; if this doesnt exist, insert it.
+          if(EmployeeID===0) {
+            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("ad_DN", this.Users[i].userDN, mssql.VarChar(255))], true)
+            updateName = this.Users[i].userDN
+          }
 
           // update the Employee table values ..
           let ruEmployee = new RowUpdate(EmployeeID)
-          ruEmployee.updateName=this.Users[i].userDN
-          
-          // string
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), this.Users[i].userMail))
+          ruEmployee.updateName=updateName ? updateName : 'unknown user'
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), this.Users[i].emailAddress))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_userMail", mssql.VarChar(255), this.Users[i].userMail))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_DN", mssql.VarChar(255), this.Users[i].userDN))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CN", mssql.VarChar(255), this.Users[i].userCN))

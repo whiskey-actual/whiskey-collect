@@ -52,6 +52,7 @@ export class AzureActiveDirectoryUser {
 
   public readonly id:string=''
 
+  public readonly emailAddress:string|undefined=undefined
   public readonly mail:string|undefined=undefined
   public readonly userPrincipalName:string|undefined=undefined
   public readonly businessPhone:string|undefined=undefined // this is an array, but just take the first entry (for now) for simplicity
@@ -313,6 +314,7 @@ export class AzureActiveDirectory {
 
         try {
           const aadu:AzureActiveDirectoryUser = {
+            emailAddress: users[i].mail ? users[i].mail.toString().trim() : users[i].userPrincipalName ? users[i].userPrincipalName.toString().trim() : users[i].onPremisesUserPrincipalName ? users[i].onPremisesUserPrincipalName.toString().trim() : undefined,
             mail: Utilities.CleanedString(users[i].mail),
             userPrincipalName: Utilities.CleanedString(users[i].userPrincipalName),
             id: users[i].id.toString().trim(),
@@ -537,13 +539,12 @@ export class AzureActiveDirectory {
 
           let EmployeeID:number = 0
           let UpdateName:string|undefined = undefined
-          if(this.AzureActiveDirectoryUsers[i].mail) {
-            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("employeeEmailAddress", this.AzureActiveDirectoryUsers[i].mail, mssql.VarChar(255))], true)
-            UpdateName = this.AzureActiveDirectoryUsers[i].mail
-          } else if (this.AzureActiveDirectoryUsers[i].userPrincipalName) {
-            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("aad_UserPrincipalName", this.AzureActiveDirectoryUsers[i].userPrincipalName, mssql.VarChar(255))], true)
-            UpdateName = this.AzureActiveDirectoryUsers[i].userPrincipalName
-          } else if (this.AzureActiveDirectoryUsers[i].id) {
+          // if we have an email address, try to find the id that way first (don't create the row, since we'll try a second match ..)
+          if(this.AzureActiveDirectoryUsers[i].emailAddress) {
+            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("EmployeeEmailAddress", this.AzureActiveDirectoryUsers[i].emailAddress, mssql.VarChar(255))], false)
+            UpdateName = this.AzureActiveDirectoryUsers[i].emailAddress
+          }  // otherwise, use the Id; if this doesnt exist, insert it.
+          if(EmployeeID===0) {
             EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("aad_Id", this.AzureActiveDirectoryUsers[i].id, mssql.VarChar(255))], true)
             UpdateName = this.AzureActiveDirectoryUsers[i].id
           }
