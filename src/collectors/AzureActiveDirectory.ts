@@ -316,7 +316,7 @@ export class AzureActiveDirectory {
             mail: users[i].mail.toString().trim(),
             userPrincipalName: users[i].userPrincipalName.toString().trim(),
             id: users[i].id.toString().trim(),
-            businessPhone: users[i].businessPhones.length ? users[i].businessPhones[0].toString.trim() : undefined, // need to parse this
+            businessPhone: users[i].businessPhones.length ? users[i].businessPhones[0].toString().trim() : undefined, // need to parse this
             displayName: Utilities.CleanedString(users[i].displayName),
             givenName: Utilities.CleanedString(users[i].givenName),
             jobTitle: Utilities.CleanedString(users[i].jobTitle),
