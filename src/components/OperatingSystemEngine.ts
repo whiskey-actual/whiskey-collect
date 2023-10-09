@@ -174,6 +174,9 @@ export class OperatingSystemEngine {
                     }
                 }
             }
+            console.debug(OperatingSystemDescription)
+            console.debug(OperatingSystemVersion)
+            console.debug(os)
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
