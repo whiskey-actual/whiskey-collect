@@ -107,6 +107,8 @@ export class Connectwise
             connectwiseAssetDate: undefined
           }
           this.ConnectwiseObjects.push(o)
+
+          console.debug(o)
         } catch (err) {
           this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
           console.debug(computers[i])
@@ -154,6 +156,8 @@ export class Connectwise
               connectwiseLastObserved:Utilities.CleanedDate(networkDevices[i].LastContact)
             }
             this.ConnectwiseObjects.push(o)
+
+            console.debug(o)
 
           }  catch(err) {
             this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${err}`)
