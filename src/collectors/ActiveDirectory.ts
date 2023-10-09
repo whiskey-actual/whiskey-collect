@@ -218,6 +218,11 @@ export class ActiveDirectory
           const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
           const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].deviceDN, mssql.VarChar(255))], true)
 
+            // operating system
+            const ose = new OperatingSystemEngine(this.le, this.db)
+            const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
+            const operatingSystemId:number = await ose.getId(os)
+
           // update the device table to add the corresponding DeviceActiveDirectoryID ..
           let ruDevice = new RowUpdate(DeviceID)
           ruDevice.updateName=this.Devices[i].deviceName
@@ -231,6 +236,7 @@ export class ActiveDirectory
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
           // int
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryOperatingSystem", mssql.Int, operatingSystemId))
           // datetimes
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
@@ -250,10 +256,7 @@ export class ActiveDirectory
 
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
 
-          // operating system
-          const ose = new OperatingSystemEngine(this.le, this.db)
-          const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
-          await ose.persist(DeviceID, os)
+
 
           await this.db.updateTable(tuDevice, true)
           await this.db.updateTable(tuDeviceActiveDirectory, true)

@@ -18,8 +18,9 @@ export class OperatingSystemEngine {
       private _le:LogEngine
       private _db:DBEngine
 
-    public async persist(deviceId:number, os:OperatingSystem):Promise<void> {
+    public async getId(os:OperatingSystem):Promise<number> {
         this._le.logStack.push("persist")
+        let output:number = 0
 
         try {
 
@@ -37,6 +38,7 @@ export class OperatingSystemEngine {
                 if(os.Variant && os.Variant!=='') {
                     OperatingSystemVariantID = await this._db.getID("OperatingSystemVariant", [
                         new ColumnValuePair('OperatingSystemVariantDescription', os.Variant, mssql.VarChar(255)),
+                        new ColumnValuePair('OperatingSystemVersionID', OperatingSystemVersionID, mssql.Int)
                     ])
                 }
 
@@ -44,14 +46,11 @@ export class OperatingSystemEngine {
                 if(os.Description && os.Description!=='') {
                     OperatingSystemID = await this._db.getID("OperatingSystem", [
                         new ColumnValuePair('OperatingSystemDescription', os.Description, mssql.VarChar(255)),
+                        new ColumnValuePair('OperatingSystemVariantID', OperatingSystemVariantID, mssql.Int)
                     ], true)
+                    output = OperatingSystemID
                 }
 
-                const OperatingSystemXRefID:number = await this._db.getID('OperatingSystemXRef', [
-                    new ColumnValuePair('OperatingSystemID', OperatingSystemID, mssql.Int),
-                    new ColumnValuePair('OperatingSystemVariantID', OperatingSystemVariantID, mssql.Int),
-                    new ColumnValuePair('OperatingSystemVersionID', OperatingSystemVersionID, mssql.Int)
-                ])
             }
         }
         catch(err) {
@@ -60,6 +59,8 @@ export class OperatingSystemEngine {
         } finally {
             this._le.logStack.pop()
         }
+
+        return new Promise<number>((resolve) => {resolve(output)})
         
     }
 
