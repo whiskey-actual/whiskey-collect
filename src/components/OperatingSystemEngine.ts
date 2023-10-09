@@ -27,10 +27,11 @@ export class OperatingSystemEngine {
             // if there is no description, don't bother storing it.
             if(os.Description && os.Description!=='') {
 
-                let OperatingSystemVersionID:number=0
-                if(os.Version && os.Version!=='') {
-                    OperatingSystemVersionID = await this._db.getID("OperatingSystemVersion", [
-                    new ColumnValuePair('OperatingSystemVersionDescription', os.Version, mssql.VarChar(255))
+                let OperatingSystemID:number = 0
+                if(os.Description && os.Description!=='') {
+                    OperatingSystemID = await this._db.getID("OperatingSystem", [
+                        new ColumnValuePair('OperatingSystemDescription', os.Description, mssql.VarChar(255)),
+                        
                     ], true)
                 }
 
@@ -38,17 +39,17 @@ export class OperatingSystemEngine {
                 if(os.Variant && os.Variant!=='') {
                     OperatingSystemVariantID = await this._db.getID("OperatingSystemVariant", [
                         new ColumnValuePair('OperatingSystemVariantDescription', os.Variant, mssql.VarChar(255)),
-                        new ColumnValuePair('OperatingSystemVersionID', OperatingSystemVersionID, mssql.Int)
+                        new ColumnValuePair('OperatingSystemID', OperatingSystemID, mssql.Int)
                     ], true)
                 }
 
-                let OperatingSystemID:number = 0
-                if(os.Description && os.Description!=='') {
-                    OperatingSystemID = await this._db.getID("OperatingSystem", [
-                        new ColumnValuePair('OperatingSystemDescription', os.Description, mssql.VarChar(255)),
-                        new ColumnValuePair('OperatingSystemVariantID', OperatingSystemVariantID, mssql.Int)
+                let OperatingSystemVersionID:number=0
+                if(os.Version && os.Version!=='') {
+                    OperatingSystemVersionID = await this._db.getID("OperatingSystemVersion", [
+                    new ColumnValuePair('OperatingSystemVersionDescription', os.Version, mssql.VarChar(255)),
+                    new ColumnValuePair('OperatingSystemVariantID', OperatingSystemVariantID, mssql.Int)
                     ], true)
-                    output = OperatingSystemID
+                    output = OperatingSystemVersionID
                 }
 
             }
