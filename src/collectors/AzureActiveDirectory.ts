@@ -217,7 +217,7 @@ export class AzureActiveDirectory {
             azureManufacturer: Utilities.CleanedString(devices[i].manufacturer),
             azureMDMAppId: Utilities.CleanedString(devices[i].mdmAppId),
             azureModel: Utilities.CleanedString(devices[i].model),
-            azureOperatingSystem: Utilities.CleanedString(devices[i].operaingSystem),
+            azureOperatingSystem: Utilities.CleanedString(devices[i].operatingSystem),
             azureOperatingSystemVersion: Utilities.CleanedString(devices[i].operatingSystemVersion),
             azureProfileType: Utilities.CleanedString(devices[i].profileType),
             azureSourceType: Utilities.CleanedString(devices[i].sourceType),
