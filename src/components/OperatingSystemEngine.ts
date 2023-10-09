@@ -29,12 +29,12 @@ export class OperatingSystemEngine {
             if(os.Description && os.Description!=='') {
                 let OperatingSystemVersionID:number = await this.getOperatingSystemVersionID(os.Version, insertIfMissing)
                 let OperatingSystemID:number = await this.getOperatingSystemID(os.Description, insertIfMissing)
-                output = await this.getOperatingSystemXRefId(OperatingSystemID, OperatingSystemVersionID, OperatingSystemVersionID, insertIfMissing)
+                output = await this.getOperatingSystemXRefId(OperatingSystemID, OperatingSystemVersionID, OperatingSystemVariantID, insertIfMissing)
             } else if (os.Version && os.Version!=='') {
                 // we dont know the description, so find it from the Version in the XRef table.
                 let OperatingSystemVersionID:number = await this.getOperatingSystemVersionID(os.Version, insertIfMissing)
                 let OperatingSystemID:number = await this.db.getSingleValue('OperatingSystemXRef', 'operatingSystemVersionID', OperatingSystemVersionID, 'OperatingSystemID')
-                output = await this.getOperatingSystemXRefId(OperatingSystemID, OperatingSystemVersionID, OperatingSystemVersionID, insertIfMissing)
+                output = await this.getOperatingSystemXRefId(OperatingSystemID, OperatingSystemVersionID, OperatingSystemVariantID, insertIfMissing)
             }
 
             this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `got OsXRefId: ${output} (desc: ${os.Description} | var: ${os.Variant} | ver: ${os.Version})`)
