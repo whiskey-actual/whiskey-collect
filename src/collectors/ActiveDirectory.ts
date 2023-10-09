@@ -221,7 +221,7 @@ export class ActiveDirectory
           // operating system
           const ose = new OperatingSystemEngine(this.le, this.db)
           const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
-          const operatingSystemVersionId:number = await ose.getId(os)
+          const operatingSystemXRefId:number = await ose.getId(os)
 
           // update the device table to add the corresponding DeviceActiveDirectoryID ..
           let ruDevice = new RowUpdate(DeviceID)
@@ -236,7 +236,7 @@ export class ActiveDirectory
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
           // int
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryOperatingSystemVersionID", mssql.Int, operatingSystemVersionId))
+          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryOperatingSystemXRefID", mssql.Int, operatingSystemXRefId))
           // datetimes
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
