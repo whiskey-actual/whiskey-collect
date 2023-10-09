@@ -36,6 +36,8 @@ export class OperatingSystemEngine {
                 let OperatingSystemID:number = await this.db.getSingleValue('OperatingSystemXRef', 'operatingSystemVersionID', OperatingSystemVersionID, 'OperatingSystemID')
                 output = await this.getOperatingSystemXRefId(OperatingSystemID, OperatingSystemVersionID, OperatingSystemVersionID, insertIfMissing)
             }
+
+            this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `got OsXRefId: ${output} (desc: ${os.Description} | var: ${os.Variant} | ver: ${os.Version})`)
         }
         catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
