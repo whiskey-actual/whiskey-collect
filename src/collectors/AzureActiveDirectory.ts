@@ -523,7 +523,7 @@ export class AzureActiveDirectory {
           const os = ose.parseAzureActiveDirectory(this.AzureActiveDirectoryDevices[i].azureOperatingSystem, this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion)
           const operatingSystemXRefId:number = await ose.getId(os, true)
           
-          ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
+          ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemXRefId", mssql.Int, operatingSystemXRefId))
           
           tuAzureActiveDirectory.RowUpdates.push(ruAzureActiveDirectory)
 
@@ -697,7 +697,7 @@ export class AzureActiveDirectory {
           const os = ose.parseAzureActiveDirectory(this.AzureManagedDevices[i].azureManagedOperatingSystem, this.AzureManagedDevices[i].azureManagedOperatingSystemVersion)
           const operatingSystemXRefId:number = await ose.getId(os, true)
           
-          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
+          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystemXRefId", mssql.Int, operatingSystemXRefId))
 
 
           tuAzureManaged.RowUpdates.push(ruAzureManaged)
