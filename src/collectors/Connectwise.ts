@@ -5,7 +5,7 @@ import { Utilities } from 'whiskey-util'
 import https from 'https'
 import axios from 'axios'
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
 export class ConnectwiseObject {
   // mandatory

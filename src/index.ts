@@ -2,7 +2,7 @@
 import { LogEngine } from 'whiskey-log'
 
 // components
-import { DBEngine } from './components/DBEngine'
+import { DBEngine } from 'whiskey-sql'
 
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'

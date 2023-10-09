@@ -1,11 +1,12 @@
 // imports
 import { LogEngine } from 'whiskey-log';
 import { Utilities } from 'whiskey-util'
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
+
 import { Client } from 'ldapts'
-
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate, UpdatePackage } from '../components/DBEngine';
 
+// local imports
 import { OperatingSystemEngine } from '../components/OperatingSystemEngine';
 
 export class ActiveDirectoryDevice {

@@ -27,6 +27,7 @@
     "mongoose": "^7.5.2",
     "mssql": "^10.0.1",
     "whiskey-log": "^1.0.4",
+    "whiskey-sql": "^1.0.0",
     "whiskey-util": "^1.0.4"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@ import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-grap
 
 import { ClientSecretCredential } from '@azure/identity'
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from '../components/DBEngine';
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
 export class AzureActiveDirectoryDevice {
   // mandatory
