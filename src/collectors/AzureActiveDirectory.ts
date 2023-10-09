@@ -196,6 +196,8 @@ export class AzureActiveDirectory {
 
       for(let i=0; i<devices.length; i++) {
 
+        console.debug(devices[i])
+        
         try {
           const aado:AzureActiveDirectoryDevice = {
             // mandatory
