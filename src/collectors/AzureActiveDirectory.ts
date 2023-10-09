@@ -520,8 +520,8 @@ export class AzureActiveDirectory {
 
           // operating system
           const ose = new OperatingSystemEngine(this.le, this.db)
-          const os = ose.parseActiveDirectory(this.AzureActiveDirectoryDevices[i].azureOperatingSystem, this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion)
-          const operatingSystemXRefId:number = await ose.getId(os)
+          const os = ose.parseAzureActiveDirectory(this.AzureActiveDirectoryDevices[i].azureOperatingSystem, this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion)
+          const operatingSystemXRefId:number = await ose.getId(os, true)
           
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
           
@@ -641,11 +641,10 @@ export class AzureActiveDirectory {
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedDeviceName", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedDeviceName))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedUserId", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedUserId))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedDeviceOwnerType", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedDeviceOwnerType))
-          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystem", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedOperatingSystem))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedComplianceState", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedComplianceState))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedJailBroken", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedJailBroken))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedManagementAgent", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedManagementAgent))
-          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystemVersion", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedOperatingSystemVersion))
+          
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEASDeviceID", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedEASDeviceID))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedDeviceEnrollmentType", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedDeviceEnrollmentType))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedActivationLockBypassCode", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedActivationLockBypassCode))
@@ -692,6 +691,15 @@ export class AzureActiveDirectory {
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsAzureADRegistered", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsAzureADRegistered))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsSupervised", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsSupervised))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEncrypted", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsEncrypted))
+
+          // operating system
+          const ose = new OperatingSystemEngine(this.le, this.db)
+          const os = ose.parseAzureActiveDirectory(this.AzureManagedDevices[i].azureManagedOperatingSystem, this.AzureManagedDevices[i].azureManagedOperatingSystemVersion)
+          const operatingSystemXRefId:number = await ose.getId(os, true)
+          
+          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
+
+
           tuAzureManaged.RowUpdates.push(ruAzureManaged)
 
           await this.db.updateTable(tuAzureManaged, true)
