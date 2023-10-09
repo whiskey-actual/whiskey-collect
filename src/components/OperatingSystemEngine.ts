@@ -31,7 +31,7 @@ export class OperatingSystemEngine {
                 if(os.Version && os.Version!=='') {
                     OperatingSystemVersionID = await this._db.getID("OperatingSystemVersion", [
                     new ColumnValuePair('OperatingSystemVersionDescription', os.Version, mssql.VarChar(255))
-                    ])
+                    ], true)
                 }
 
                 let OperatingSystemVariantID:number=0
@@ -39,7 +39,7 @@ export class OperatingSystemEngine {
                     OperatingSystemVariantID = await this._db.getID("OperatingSystemVariant", [
                         new ColumnValuePair('OperatingSystemVariantDescription', os.Variant, mssql.VarChar(255)),
                         new ColumnValuePair('OperatingSystemVersionID', OperatingSystemVersionID, mssql.Int)
-                    ])
+                    ], true)
                 }
 
                 let OperatingSystemID:number = 0
