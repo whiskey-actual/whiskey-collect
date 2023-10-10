@@ -61,8 +61,10 @@ export class PostProcessor {
         
         let output:Date[] = []
         const matchCondition:ColumnValuePair = new ColumnValuePair(tableIdField, tableIdValue, mssql.Int)
-        const dates = await this.db.selectColumns(tableName, fieldsToSelect, [matchCondition])
+        const result = await this.db.selectColumns(tableName, fieldsToSelect, [matchCondition])
+        const dates = result[0]
 
+        
         for(let j=0; j<fieldsToSelect.length; j++) {
             if(dates[fieldsToSelect[j]]) {
                 output.push(new Date(dates[fieldsToSelect[j]]))
