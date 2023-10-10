@@ -242,7 +242,7 @@ export class AzureActiveDirectory {
           this.AzureActiveDirectoryDevices.push(aado)
         } catch (err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          console.debug(devices[i])
+          //console.debug(devices[i])
           throw(err)
         }
       }
