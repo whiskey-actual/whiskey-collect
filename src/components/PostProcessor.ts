@@ -29,14 +29,20 @@ export class PostProcessor {
             let observedDates:Date[] = []
             for(let i=0; i<devices.length; i++) {
     
-                const adObservedDateFields:string[] = ["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"]    
-                observedDates = observedDates.concat(await this.getDateFields("DeviceActiveDirectory", "DeviceActiveDirectoryID", devices[i].DeviceActiveDirectoryID, adObservedDateFields))
+                if(devices[i].DeviceActiveDirectoryID > 0) {
+                    const adObservedDateFields:string[] = ["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"]    
+                    observedDates = observedDates.concat(await this.getDateFields("DeviceActiveDirectory", "DeviceActiveDirectoryID", devices[i].DeviceActiveDirectoryID, adObservedDateFields))
+                }
 
-                const aadObservedDateFields:string[] = ["azureDeletedDateTime","azureApproximateLastSignInDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"]
-                observedDates = observedDates.concat(await this.getDateFields("DeviceAzureActiveDirectory", "DeviceAzureActiveDirectoryID", devices[i].DeviceAzureActiveDirectoryID, aadObservedDateFields))
+                if(devices[i].DeviceAzureActiveDirectoryID>0) {
+                    const aadObservedDateFields:string[] = ["azureDeletedDateTime","azureApproximateLastSignInDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"]
+                    observedDates = observedDates.concat(await this.getDateFields("DeviceAzureActiveDirectory", "DeviceAzureActiveDirectoryID", devices[i].DeviceAzureActiveDirectoryID, aadObservedDateFields))
+                }
 
-                const mdmObservedDateFields:string[] = ["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime","azureManagedEASActivationDateTime","azureManagedExchangeLastSuccessfulSyncDateTime","azureManagedComplianceGracePeriodExpirationDateTime","azureManagedManagementCertificateExpirationDateTime"]
-                observedDates = observedDates.concat(await this.getDateFields("DeviceAzureManaged", "DeviceAzureManagedID", devices[i].DeviceAzureManagedID, mdmObservedDateFields))
+                if(devices[i].DeviceAzureManagedID>0) {
+                    const mdmObservedDateFields:string[] = ["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime","azureManagedEASActivationDateTime","azureManagedExchangeLastSuccessfulSyncDateTime","azureManagedComplianceGracePeriodExpirationDateTime","azureManagedManagementCertificateExpirationDateTime"]
+                    observedDates = observedDates.concat(await this.getDateFields("DeviceAzureManaged", "DeviceAzureManagedID", devices[i].DeviceAzureManagedID, mdmObservedDateFields))
+                }
 
                 const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
                 console.debug(observedDates)
