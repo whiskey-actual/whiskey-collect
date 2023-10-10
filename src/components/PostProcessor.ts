@@ -1,6 +1,7 @@
 import { LogEngine } from "whiskey-log"
 import mssql from 'mssql'
 import { DBEngine, ColumnValuePair } from "whiskey-sql"
+import { Utilities } from "whiskey-util"
 
 export class PostProcessor {
     constructor(le:LogEngine, db:DBEngine) {
@@ -24,24 +25,46 @@ export class PostProcessor {
                 "DeviceCrowdstrikeID"
             ], [])
     
+            // dates
+            let observedDates:Date[] = []
             for(let i=0; i<devices.length; i++) {
     
-                const matchCondition:ColumnValuePair = new ColumnValuePair("DeviceActiveDirectoryID", devices[i].DeviceActiveDirectoryID, mssql.Int)
-    
-                const datetimes = await this.db.selectColumns("DeviceActiveDirectory", [
-                    "activeDirectoryWhenCreated",
-                    "activeDirectoryWhenChanged",
-                    "activeDirectoryLastLogon",
-                    "activeDirectoryPwdLastSet",
-                    "activeDirectoryLastLogonTimestamp"
-                ], [matchCondition])
-    
-                console.debug(datetimes)
-    
+                const adObservedDateFields:string[] = ["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"]    
+                observedDates = observedDates.concat(await this.getDateFields("DeviceActiveDirectory", "DeviceActiveDirectoryID", devices[i].DeviceActiveDirectoryID, adObservedDateFields))
+
+                const aadObservedDateFields:string[] = ["azureDeletedDateTime","azureApproximateLastSignInDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"]
+                observedDates = observedDates.concat(await this.getDateFields("DeviceAzureActiveDirectory", "DeviceAzureActiveDirectoryID", devices[i].DeviceAzureActiveDirectoryID, aadObservedDateFields))
+
+                const mdmObservedDateFields:string[] = ["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime","azureManagedEASActivationDateTime","azureManagedExchangeLastSuccessfulSyncDateTime","azureManagedComplianceGracePeriodExpirationDateTime","azureManagedManagementCertificateExpirationDateTime"]
+                observedDates = observedDates.concat(await this.getDateFields("DeviceAzureManaged", "DeviceAzureManagedID", devices[i].DeviceAzureManagedID, mdmObservedDateFields))
+
+                const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
+                console.debug(observedDates)
+                console.debug(`max: ${maxDate.toDateString}`)
+               
+          
+
             }
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
         }
       }
+
+      private async getDateFields(tableName:string, tableIdField:string, tableIdValue:number, fieldsToSelect:string[]):Promise<Date[]> {
+        
+        let output:Date[] = []
+        const matchCondition:ColumnValuePair = new ColumnValuePair(tableIdField, tableIdValue, mssql.Int)
+        const dates = await this.db.selectColumns(tableName, fieldsToSelect, [matchCondition])
+
+        for(let j=0; j<fieldsToSelect.length; j++) {
+            if(dates[fieldsToSelect[j]]) {
+                output.push(new Date(dates[fieldsToSelect[j]]))
+            }
+        }
+
+        return output
+
+      }
+
 }

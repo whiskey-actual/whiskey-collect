@@ -198,8 +198,6 @@ export class AzureActiveDirectory {
 
       for(let i=0; i<devices.length; i++) {
 
-        console.debug(devices[i])
-
         try {
           const aado:AzureActiveDirectoryDevice = {
             // mandatory
@@ -242,7 +240,7 @@ export class AzureActiveDirectory {
           this.AzureActiveDirectoryDevices.push(aado)
         } catch (err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-          //console.debug(devices[i])
+          console.debug(devices[i])
           throw(err)
         }
       }
