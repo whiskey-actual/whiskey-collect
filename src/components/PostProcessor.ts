@@ -26,8 +26,10 @@ export class PostProcessor {
             ], [])
     
             // dates
-            let observedDates:Date[] = []
+            
             for(let i=0; i<devices.length; i++) {
+
+                let observedDates:Date[] = []
     
                 if(devices[i].DeviceActiveDirectoryID > 0) {
                     const adObservedDateFields:string[] = ["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"]    
@@ -46,7 +48,7 @@ export class PostProcessor {
 
                 const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
                 console.debug(observedDates)
-                console.debug(`max: ${maxDate.toDateString}`)
+                console.debug(`max: ${maxDate.toDateString()}`)
                
           
 
