@@ -61,7 +61,7 @@ export class PostProcessor {
                 const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
 
                 let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-                let ruDevice = new RowUpdate(devices[i])
+                let ruDevice = new RowUpdate(Number(devices[i].DeviceID))
                 ruDevice.updateName=devices[i].DeviceName
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceLastObserved", mssql.DateTime2, maxDate))
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, (maxDate>activeThreshold)))
