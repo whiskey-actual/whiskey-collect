@@ -1,6 +1,6 @@
 import { LogEngine } from "whiskey-log"
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair } from "whiskey-sql"
+import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from "whiskey-sql"
 import { Utilities } from "whiskey-util"
 
 export class PostProcessor {
@@ -18,6 +18,7 @@ export class PostProcessor {
 
             const devices:mssql.IRecordSet<any> = await this.db.selectColumns("Device", [
                 "DeviceID",
+                "DeviceName",
                 "DeviceActiveDirectoryID",
                 "DeviceAzureActiveDirectoryID",
                 "DeviceAzureManagedID",
@@ -46,12 +47,27 @@ export class PostProcessor {
                     observedDates = observedDates.concat(await this.getDateFields("DeviceAzureManaged", "DeviceAzureManagedID", devices[i].DeviceAzureManagedID, mdmObservedDateFields))
                 }
 
-                const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
-                console.debug(observedDates)
-                console.debug(`max: ${maxDate.toDateString()}`)
-               
-          
+                if(devices[i].DeviceConnectwiseID>0) {
+                    const cwObservedDateFields:string[] = ["connectwiseFirstSeen","connectwiseLastObserved","connectwiseWindowsUpdateDate","connectwiseAntivirusDefinitionDate","connectwiseAssetDate"]
+                    observedDates = observedDates.concat(await this.getDateFields("DeviceConnectwise", "DeviceConnectwiseID", devices[i].DeviceConnectwiseID, cwObservedDateFields))
+                }
 
+                if(devices[i].DeviceCrowdstrikeID>0) {
+                    const csObservedDateFields:string[] = ["crowdstrikeFirstSeenDateTime","crowdstrikeLastSeenDateTime","crowdstrikeModifiedDateTime"]
+                    observedDates = observedDates.concat(await this.getDateFields("DeviceCrowdstrike", "DeviceCrowdstrikeID", devices[i].DeviceCrowdstrikeID, csObservedDateFields))
+                }
+
+                const activeThreshold:Date = new Date(new Date().setDate(new Date().getDate() - 30))
+                const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
+
+                let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+                let ruDevice = new RowUpdate(devices[i])
+                ruDevice.updateName=devices[i].DeviceName
+                ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceLastObserved", mssql.DateTime2, maxDate))
+                ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, (maxDate>activeThreshold)))
+                tuDevice.RowUpdates.push(ruDevice)
+
+                await this.db.updateTable(tuDevice, true)
             }
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
