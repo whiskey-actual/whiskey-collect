@@ -256,8 +256,6 @@ export class ActiveDirectory
 
           ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
 
-
-
           await this.db.updateTable(tuDevice, true)
           await this.db.updateTable(tuDeviceActiveDirectory, true)
 

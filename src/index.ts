@@ -1,7 +1,5 @@
 // external imports
 import { LogEngine } from 'whiskey-log'
-
-// components
 import { DBEngine } from 'whiskey-sql'
 
 // collectors
@@ -9,6 +7,7 @@ import { ActiveDirectory } from './collectors/ActiveDirectory'
 import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
+import { PostProcessor } from './components/PostProcessor'
 
 export class Collector {
 
@@ -28,21 +27,9 @@ export class Collector {
         await this.db.disconnect()
     }
 
-    // public async verifyMongoDB(mongoAdminURI:string, dbName:string):Promise<boolean> {
-    //     const mongoCheck:MongoDB.CheckDB = new MongoDB.CheckDB(this.le);
-    //     await mongoCheck.checkMongoDatabase(mongoAdminURI, this._mongoURI, dbName);
-    //     return new Promise<boolean>((resolve) => {resolve(true)})
-    // }
-
-    // public async persistToMongoDB(deviceObjects:any):Promise<boolean> {
-    //     const mongodb:MongoDB.Persist = new MongoDB.Persist(this.le, this._mongoURI)
-    //     await mongodb.persistDevices(deviceObjects)
-    //     return new Promise<boolean>((resolve) => {resolve(true)})
-    // }
-
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
+        this.le.AddDelimiter("ActiveDirectory")
         this.le.logStack.push('ActiveDirectory');
-        this.le.AddDelimiter("INIT")
 
         try {
             const ad = new ActiveDirectory(this.le, this.db, ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit);
@@ -59,9 +46,9 @@ export class Collector {
     }
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
+        this.le.AddDelimiter("AzureActiveDirectory")
         this.le.logStack.push('AzureActiveDirectory');
-        this.le.AddDelimiter("INIT")
-
+        
         try {
             const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
             await aad.getDevices()
@@ -79,9 +66,9 @@ export class Collector {
     }
 
     public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
+        this.le.AddDelimiter("Connectwise")
         this.le.logStack.push('Connectwise');
-        this.le.AddDelimiter("INIT")
-
+        
         try {
             const cw = new Connectwise(this.le, this.db);
             await cw.fetch(baseURL, clientId, userName, password);
@@ -96,13 +83,29 @@ export class Collector {
     }
     
     public async fetchCrowdstrike(baseURL:string, clientId:string, clientSecret:string):Promise<void> {
+        this.le.AddDelimiter("Crowdstrike")
         this.le.logStack.push('Crowdstrike');
-        this.le.AddDelimiter("INIT")
 
         try {
             const cs = new Crowdstrike(this.le, this.db)
             await cs.fetch(baseURL, clientId, clientSecret)
             await cs.persist()
+        } catch(err) {
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err);
+        }
+        
+        this.le.logStack.pop()
+        return new Promise<void>((resolve) => {resolve()})
+    }
+
+    public async postProcessor() {
+        this.le.AddDelimiter("postProcessor")
+        this.le.logStack.push('postProcessor');
+
+        try {
+            const pp = new PostProcessor(this.le, this.db)
+            await pp.updateDeviceDetails()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);
