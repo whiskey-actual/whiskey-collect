@@ -122,48 +122,13 @@ export class OperatingSystemEngine {
         return new Promise<number>((resolve) => {resolve(output)})    
     }
 
-    public parseActiveDirectory(OperatingSystemDescription:string|undefined, OperatingSystemVersion:string|undefined):OperatingSystem {
+    public parse(OperatingSystemDescription:string|undefined, OperatingSystemVersion:string|undefined):OperatingSystem {
         this.le.logStack.push("parseActiveDirectory")
         let os:OperatingSystem = new OperatingSystem
         try {
-            if(OperatingSystemDescription) {
-                const reOperatingSystem = new RegExp('(^Windows\\s(Server\\s)?\\d+(?=\\s))|macOS')
-                const remaOperatingSystem:RegExpMatchArray|null = reOperatingSystem.exec(OperatingSystemDescription)
-                if(remaOperatingSystem) {
-                    os.Description = remaOperatingSystem[0]
-                    os.Variant = OperatingSystemDescription.replace(os.Description, '').trim()
-                    if(OperatingSystemVersion) {
-                        let versionStack:string[] = []
-                        const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
-                        const remaVersions:RegExpMatchArray|null = reVersions.exec(OperatingSystemVersion)
-                        versionStack.push(remaVersions ? remaVersions[0].split('.')[0] : '?')
-                        versionStack.push(remaVersions ? remaVersions[0].split('.')[1] : '?')
-                        const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
-                        const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OperatingSystemVersion)
-                        versionStack.push(remaBuildNumber ? remaBuildNumber[0] : '?')
-                        os.Version = versionStack.join('.')
-                        // now that we know the version, we can look up the OS.
-                    }
-                }
-            }
-        } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
-            throw(err);
-        } finally {
-            this.le.logStack.pop()
-        }
-        return os
-    }
-
-    // Azure AD device objects have operatingSystem details in a description a version field;
-    // note that the description field is highly abstracted (eg, 'Windows'), so use the version instead.
-    public parseAzureActiveDirectory(OperatingSystemDescription:string|undefined, OperatingSystemVersion:string|undefined):OperatingSystem {
-        this.le.logStack.push("parseAzureActiveDirectory")
-        let os:OperatingSystem = new OperatingSystem
-        try {
-            if(OperatingSystemDescription) {
-                os.Description=OperatingSystemDescription
+            if(OperatingSystemDescription) {          
                 if(OperatingSystemDescription==='Windows') {
+                    os.Description=OperatingSystemDescription
                     if(OperatingSystemVersion) {
                         let versionStack:string[] = []
                         const reVersions = new RegExp('^\\d+\\.\\d+\\.\\d+(\\.\\d+)?')
@@ -172,6 +137,26 @@ export class OperatingSystemEngine {
                         versionStack.push(remaVersions ? remaVersions[0].split('.')[1] : '?')
                         versionStack.push(remaVersions ? remaVersions[0].split('.')[2] : '?')
                         os.Version = versionStack.join('.')
+                    }
+                } else {
+                    const reOperatingSystem = new RegExp('(^Windows\\s(Server\\s)?\\d+(?=\\s))|macOS')
+                    const remaOperatingSystem:RegExpMatchArray|null = reOperatingSystem.exec(OperatingSystemDescription)
+                    if(remaOperatingSystem) {
+                        os.Description = remaOperatingSystem[0]
+                        const reBit = new RegExp('\\s(x86|x64)$') // remove x86|x64 from the end
+                        os.Variant = OperatingSystemDescription.replace(os.Description, '').replace(reBit, '').trim()
+                        if(OperatingSystemVersion) {
+                            let versionStack:string[] = []
+                            const reVersions = new RegExp('^\\d+\\.\\d+(?=\\s)')
+                            const remaVersions:RegExpMatchArray|null = reVersions.exec(OperatingSystemVersion)
+                            versionStack.push(remaVersions ? remaVersions[0].split('.')[0] : '?')
+                            versionStack.push(remaVersions ? remaVersions[0].split('.')[1] : '?')
+                            const reBuildNumber = new RegExp('(?<=\\()\\d+(?=\\))')
+                            const remaBuildNumber:RegExpMatchArray|null = reBuildNumber.exec(OperatingSystemVersion)
+                            versionStack.push(remaBuildNumber ? remaBuildNumber[0] : '?')
+                            os.Version = versionStack.join('.')
+                            // now that we know the version, we can look up the OS.
+                        }
                     }
                 }
             }

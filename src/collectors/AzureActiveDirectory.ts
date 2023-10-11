@@ -507,12 +507,14 @@ export class AzureActiveDirectory {
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureProfileType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureProfileType))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureSourceType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureSourceType))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureTrustType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureTrustType))
+
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureDeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureDeletedDateTime))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureApproximateLastSignInDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureApproximateLastSignInDateTime))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureComplianceExpirationDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureComplianceExpirationDateTime))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureCreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureCreatedDateTime))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesLastSyncDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureOnPremisesLastSyncDateTime))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureRegistrationDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureRegistrationDateTime))
+          
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOnPremisesSyncEnabled", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureOnPremisesSyncEnabled))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureAccountEnabled", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureAccountEnabled))
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureIsCompliant", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsCompliant))
@@ -521,7 +523,7 @@ export class AzureActiveDirectory {
 
           // operating system
           const ose = new OperatingSystemEngine(this.le, this.db)
-          const os = ose.parseActiveDirectory(this.AzureActiveDirectoryDevices[i].azureOperatingSystem, this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion)
+          const os = ose.parse(this.AzureActiveDirectoryDevices[i].azureOperatingSystem, this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion)
           const operatingSystemXRefId:number = await ose.getId(os)
           
           ruAzureActiveDirectory.ColumnUpdates.push(new ColumnUpdate("azureOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
@@ -635,6 +637,11 @@ export class AzureActiveDirectory {
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureManagedID", mssql.Int, DeviceAzureManagedID))
           tuDevice.RowUpdates.push(ruDevice)
           await this.db.updateTable(tuDevice, true)
+
+          // operating system
+          const ose = new OperatingSystemEngine(this.le, this.db)
+          const os = ose.parse(this.AzureManagedDevices[i].azureManagedOperatingSystem, this.AzureManagedDevices[i].azureManagedOperatingSystemVersion)
+          const operatingSystemXRefId:number = await ose.getId(os)
   
           // update the DeviceActiveDirectory table values ..
           let ruAzureManaged = new RowUpdate(DeviceAzureManagedID)
@@ -642,11 +649,10 @@ export class AzureActiveDirectory {
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedDeviceName", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedDeviceName))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedUserId", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedUserId))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedDeviceOwnerType", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedDeviceOwnerType))
-          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystem", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedOperatingSystem))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedComplianceState", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedComplianceState))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedJailBroken", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedJailBroken))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedManagementAgent", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedManagementAgent))
-          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystemVersion", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedOperatingSystemVersion))
+          ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedOperatingSystemXRefID", mssql.Int, operatingSystemXRefId))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedEASDeviceID", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedEASDeviceID))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedDeviceEnrollmentType", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedDeviceEnrollmentType))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedActivationLockBypassCode", mssql.VarChar(255), this.AzureManagedDevices[i].azureManagedActivationLockBypassCode))
@@ -693,6 +699,7 @@ export class AzureActiveDirectory {
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsAzureADRegistered", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsAzureADRegistered))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsSupervised", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsSupervised))
           ruAzureManaged.ColumnUpdates.push(new ColumnUpdate("azureManagedIsEncrypted", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsEncrypted))
+          
           tuAzureManaged.RowUpdates.push(ruAzureManaged)
 
           await this.db.updateTable(tuAzureManaged, true)

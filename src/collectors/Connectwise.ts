@@ -7,6 +7,8 @@ import axios from 'axios'
 import mssql from 'mssql'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
+import { OperatingSystemEngine } from '../components/OperatingSystemEngine';
+
 export class ConnectwiseObject {
   // mandatory
   public readonly observedByConnectwise:boolean=true
@@ -44,33 +46,33 @@ export class Connectwise
 {
 
   constructor(le:LogEngine, db:DBEngine) {
-    this._le=le
-    this._db=db
+    this.le=le
+    this.db=db
   }
-  private _le:LogEngine
-  private _db:DBEngine
+  private le:LogEngine
+  private db:DBEngine
   public readonly ConnectwiseObjects:ConnectwiseObject[]=[]
 
   public async fetch(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
-    this._le.logStack.push("fetch")
+    this.le.logStack.push("fetch")
 
     try {
 
       // get the access token ..
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token ..')
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token ..')
       const httpsAgent = new https.Agent({ rejectUnauthorized: false})
       axios.defaults.httpsAgent=httpsAgent;
       const instance = axios.create({baseURL: baseURL, headers: {clientId: clientId}});
       const response = await instance.post('/apitoken', { UserName: userName, Password: password});
       const accessToken = response.data.AccessToken;
       instance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received accessToken ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received accessToken ..`)
 
       // get computers ..
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. querying computers ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. querying computers ..`)
       const queryComputers = await instance.get('/Computers?pagesize=10000&orderby=ComputerName asc')
       const computers = queryComputers.data
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${computers.length} devices received; processing ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${computers.length} devices received; processing ..`)
       for(let i=0; i<computers.length; i++) {
         try {
 
@@ -107,21 +109,19 @@ export class Connectwise
             connectwiseAssetDate: undefined
           }
           this.ConnectwiseObjects.push(o)
-
-          console.debug(o)
         } catch (err) {
-          this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
           console.debug(computers[i])
           throw(err)
         } 
       }
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. computer objects created.`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. computer objects created.`)
 
       // get network devices
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. querying network devices ..`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. querying network devices ..`)
       const queryNetworkDevices = await instance.get('/NetworkDevices?pagesize=10000&orderby=Name asc')
       const networkDevices = queryNetworkDevices.data
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${networkDevices.length} devices received.`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${networkDevices.length} devices received.`)
       for(let i=0; i<networkDevices.length; i++) {
           try {
             const o:ConnectwiseObject = {
@@ -157,24 +157,22 @@ export class Connectwise
             }
             this.ConnectwiseObjects.push(o)
 
-            console.debug(o)
-
           }  catch(err) {
-            this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${err}`)
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `error: ${err}`)
             console.debug(networkDevices[i])
             throw(err)
           }
           
       }
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. network objects created.`)
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. network objects created.`)
 
 
     } catch (ex) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${ex}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${ex}`)
       throw ex;
     } finally {
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
-      this._le.logStack.pop()
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
+      this.le.logStack.pop()
     }
     
     return new Promise<void>((resolve) => {resolve()})
@@ -183,8 +181,8 @@ export class Connectwise
 
   public async persist() {
 
-    this._le.logStack.push('persist')
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
+    this.le.logStack.push('persist')
+    this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
 
     try {
       
@@ -193,8 +191,8 @@ export class Connectwise
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         let tuConnectwise:TableUpdate = new TableUpdate('DeviceConnectwise', 'DeviceConnectwiseID')
         
-        const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceConnectwiseID:number = await this._db.getID("DeviceConnectwise", [new ColumnValuePair('ConnectwiseID', this.ConnectwiseObjects[i].connectwiseID, mssql.VarChar(255))], true)
+        const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName, mssql.VarChar(255))], true)
+        const DeviceConnectwiseID:number = await this.db.getID("DeviceConnectwise", [new ColumnValuePair('ConnectwiseID', this.ConnectwiseObjects[i].connectwiseID, mssql.VarChar(255))], true)
 
         // update the device table to add the corresponding DeviceConnectwiseID ..
         let ruDevice = new RowUpdate(DeviceID)
@@ -230,20 +228,27 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseWindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseAntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseFirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
+
+        // operating system
+        const ose = new OperatingSystemEngine(this.le, this.db)
+        const os = ose.parse(this.ConnectwiseObjects[i].connectwiseOperatingSystem, this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion)
+        const operatingSystemXRefId:number = await ose.getId(os)
+        
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
         
         tuConnectwise.RowUpdates.push(ruConnectwise)
 
-        await this._db.updateTable(tuDevice, true)
-        await this._db.updateTable(tuConnectwise, true)
+        await this.db.updateTable(tuDevice, true)
+        await this.db.updateTable(tuConnectwise, true)
 
       }
 
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
       throw(err);
     } finally {
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
-      this._le.logStack.pop()
+      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
+      this.le.logStack.pop()
     }
 
   }

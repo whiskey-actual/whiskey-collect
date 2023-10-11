@@ -220,7 +220,7 @@ export class ActiveDirectory
 
           // operating system
           const ose = new OperatingSystemEngine(this.le, this.db)
-          const os = ose.parseActiveDirectory(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
+          const os = ose.parse(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
           const operatingSystemXRefId:number = await ose.getId(os, true)
 
           // update the device table to add the corresponding DeviceActiveDirectoryID ..
