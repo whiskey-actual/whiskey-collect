@@ -200,6 +200,11 @@ export class Connectwise
         ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceConnectwiseID", mssql.Int, DeviceConnectwiseID))
         tuDevice.RowUpdates.push(ruDevice)
 
+        // operating system
+        const ose = new OperatingSystemEngine(this.le, this.db)
+        const os = ose.parse(this.ConnectwiseObjects[i].connectwiseOperatingSystem, this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion)
+        const operatingSystemXRefId:number = await ose.getId(os)
+
         // update the DeviceConnectwise table values ..
         let ruConnectwise = new RowUpdate(DeviceConnectwiseID)
         ruConnectwise.updateName=this.ConnectwiseObjects[i].deviceName
@@ -207,8 +212,6 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseDeviceType", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDeviceType))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseLocation", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseLocation))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseClient", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseClient))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystem", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystem))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystemVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseDomainName", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDomainName))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseAgentVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseAgentVersion))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseComment", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseComment))
@@ -228,14 +231,7 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseWindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseAntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseFirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
-
-        // operating system
-        const ose = new OperatingSystemEngine(this.le, this.db)
-        const os = ose.parse(this.ConnectwiseObjects[i].connectwiseOperatingSystem, this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion)
-        const operatingSystemXRefId:number = await ose.getId(os)
-        
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))
-        
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))        
         tuConnectwise.RowUpdates.push(ruConnectwise)
 
         await this.db.updateTable(tuDevice, true)
