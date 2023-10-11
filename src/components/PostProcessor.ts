@@ -10,6 +10,7 @@ export class PostProcessor {
       }
       private le:LogEngine
       private db:DBEngine
+      public readonly activeThreshold:Date = new Date(new Date().setDate(new Date().getDate() - 30))
 
       public async updateDeviceDetails() {
         this.le.logStack.push("updateDeviceDetails")
@@ -57,14 +58,14 @@ export class PostProcessor {
                     observedDates = observedDates.concat(await this.getDateFields("DeviceCrowdstrike", "DeviceCrowdstrikeID", devices[i].DeviceCrowdstrikeID, csObservedDateFields))
                 }
 
-                const activeThreshold:Date = new Date(new Date().setDate(new Date().getDate() - 30))
+                
                 const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
 
                 let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
                 let ruDevice = new RowUpdate(Number(devices[i].DeviceID))
                 ruDevice.updateName=devices[i].DeviceName
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceLastObserved", mssql.DateTime2, maxDate))
-                ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, (maxDate>activeThreshold)))
+                ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, (maxDate>this.activeThreshold)))
                 tuDevice.RowUpdates.push(ruDevice)
 
                 await this.db.updateTable(tuDevice, true)
@@ -74,6 +75,44 @@ export class PostProcessor {
             throw(err);
         }
       }
+
+      public async updateUserDetails() {
+        this.le.logStack.push("updateUserDetails")
+        try {
+            const users:mssql.IRecordSet<any> = await this.db.selectColumns("Employee", [
+                "EmployeeID",
+                "EmployeeEmailAddress",
+                "ad_LastSeen",
+                "aad_LastSeen"   
+            ], [])
+
+              // dates
+            
+              for(let i=0; i<users.length; i++) {
+
+                let observedDates:Date[] = []
+    
+                if(users[i].EmployeeID > 0) {
+                    const observedDateFields:string[] = ["ad_LastSeen","aad_LastSeen"]    
+                    observedDates = observedDates.concat(await this.getDateFields("Employee", "EmployeeID", users[i].EmployeeID, observedDateFields))
+                }
+
+                const maxDate = new Date(Math.max(...observedDates.map(d=> d ? d.getTime() : Utilities.minimumJsonDate.getTime())));
+
+                let tuUser:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
+                let ruUser = new RowUpdate(Number(users[i].EmployeeID))
+                ruUser.updateName=users[i].EmployeeEmailAddress
+                ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
+                ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, (maxDate>this.activeThreshold)))
+                tuUser.RowUpdates.push(ruUser)
+
+                await this.db.updateTable(tuUser, true)
+            }
+        } catch(err) {
+            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            throw(err);
+        }
+    }
 
       private async getDateFields(tableName:string, tableIdField:string, tableIdValue:number, fieldsToSelect:string[]):Promise<Date[]> {
         

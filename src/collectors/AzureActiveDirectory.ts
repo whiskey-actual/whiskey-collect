@@ -480,7 +480,7 @@ export class AzureActiveDirectory {
           let tuAzureActiveDirectory:TableUpdate = new TableUpdate('DeviceAzureActiveDirectory', 'DeviceAzureActiveDirectoryID')
           
           const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.AzureActiveDirectoryDevices[i].deviceName, mssql.VarChar(255))], true)
-          const DeviceAzureActiveDirectoryID:number = await this.db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureID', this.AzureActiveDirectoryDevices[i].azureDeviceId, mssql.VarChar(255))], true)
+          const DeviceAzureActiveDirectoryID:number = await this.db.getID("DeviceAzureActiveDirectory", [new ColumnValuePair('AzureDeviceID', this.AzureActiveDirectoryDevices[i].azureDeviceId, mssql.VarChar(255))], true)
 
           // update the device table to add the corresponding DeviceAzureActiveDirectoryID ..
           let ruDevice = new RowUpdate(DeviceID)
