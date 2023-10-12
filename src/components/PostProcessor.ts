@@ -39,7 +39,8 @@ export class PostProcessor {
                 }
 
                 if(devices[i].DeviceAzureActiveDirectoryID>0) {
-                    const aadObservedDateFields:string[] = ["azureDeletedDateTime","azureApproximateLastSignInDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"]
+                    // azureApproximateLastSignInDateTime
+                    const aadObservedDateFields:string[] = ["azureDeletedDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"]
                     observedDates = observedDates.concat(await this.getDateFields("DeviceAzureActiveDirectory", "DeviceAzureActiveDirectoryID", devices[i].DeviceAzureActiveDirectoryID, aadObservedDateFields))
                 }
 
