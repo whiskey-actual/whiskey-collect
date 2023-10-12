@@ -1,6 +1,6 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { Utilities } from 'whiskey-util'
+import { CleanedDate, CleanedString } from 'whiskey-util'
 
 import https from 'https'
 import axios from 'axios'
@@ -82,30 +82,30 @@ export class Connectwise
             deviceName: computers[i].ComputerName.toString().trim(),
             connectwiseID: computers[i].Id.toString().trim(),
             // strings
-            connectwiseDeviceType: Utilities.CleanedString(computers[i].Type),
-            connectwiseLocation: Utilities.CleanedString(computers[i].Location.Name),
-            connectwiseClient: Utilities.CleanedString(computers[i].Client.Name),
-            connectwiseOperatingSystem: Utilities.CleanedString(computers[i].OperatingSystemName),
-            connectwiseOperatingSystemVersion: Utilities.CleanedString(computers[i].OperatingSystemVersion),
-            connectwiseDomainName: Utilities.CleanedString(computers[i].DomainName),
-            connectwiseAgentVersion: Utilities.CleanedString(computers[i].RemoteAgentVersion),
-            connectwiseComment: Utilities.CleanedString(computers[i].Comment),
-            connectwiseIpAddress: Utilities.CleanedString(computers[i].LocalIPAddress),
-            connectwiseMacAddress: Utilities.CleanedString(computers[i].MACAddress),
-            connectwiseLastUserName: Utilities.CleanedString(computers[i].LastUserName),
-            connectwiseStatus: Utilities.CleanedString(computers[i].Status),
-            connectwiseSerialNumber: Utilities.CleanedString(computers[i].SerialNumber),
-            connectwiseManufacturer: Utilities.CleanedString(computers[i].BiosManufacturer),
-            connectwiseModel: Utilities.CleanedString(computers[i].Model),
-            connectwiseDescription: Utilities.CleanedString(computers[i].Description),
+            connectwiseDeviceType: CleanedString(computers[i].Type),
+            connectwiseLocation: CleanedString(computers[i].Location.Name),
+            connectwiseClient: CleanedString(computers[i].Client.Name),
+            connectwiseOperatingSystem: CleanedString(computers[i].OperatingSystemName),
+            connectwiseOperatingSystemVersion: CleanedString(computers[i].OperatingSystemVersion),
+            connectwiseDomainName: CleanedString(computers[i].DomainName),
+            connectwiseAgentVersion: CleanedString(computers[i].RemoteAgentVersion),
+            connectwiseComment: CleanedString(computers[i].Comment),
+            connectwiseIpAddress: CleanedString(computers[i].LocalIPAddress),
+            connectwiseMacAddress: CleanedString(computers[i].MACAddress),
+            connectwiseLastUserName: CleanedString(computers[i].LastUserName),
+            connectwiseStatus: CleanedString(computers[i].Status),
+            connectwiseSerialNumber: CleanedString(computers[i].SerialNumber),
+            connectwiseManufacturer: CleanedString(computers[i].BiosManufacturer),
+            connectwiseModel: CleanedString(computers[i].Model),
+            connectwiseDescription: CleanedString(computers[i].Description),
             // bigint
             connectwiseTotalMemory: computers[i].TotalMemory,
             connectwiseFreeMemory: computers[i].FreeMemory,
             // datetimes
-            connectwiseLastObserved: Utilities.CleanedDate(computers[i].RemoteAgentLastContact),
-            connectwiseWindowsUpdateDate: Utilities.CleanedDate(computers[i].WindowsUpdateDate),
-            connectwiseAntivirusDefinitionDate: Utilities.CleanedDate(computers[i].AntivirusDefinitionDate),
-            connectwiseFirstSeen: Utilities.CleanedDate(computers[i].DateAdded),
+            connectwiseLastObserved: CleanedDate(computers[i].RemoteAgentLastContact),
+            connectwiseWindowsUpdateDate: CleanedDate(computers[i].WindowsUpdateDate),
+            connectwiseAntivirusDefinitionDate: CleanedDate(computers[i].AntivirusDefinitionDate),
+            connectwiseFirstSeen: CleanedDate(computers[i].DateAdded),
             connectwiseAssetDate: undefined
           }
           this.ConnectwiseObjects.push(o)
@@ -140,20 +140,20 @@ export class Connectwise
               connectwiseSerialNumber: undefined,
               connectwiseTotalMemory:undefined,
               connectwiseWindowsUpdateDate: undefined,
-              connectwiseLocation: networkDevices[i].Location ? Utilities.CleanedString(networkDevices[i].Location.Name) : undefined,
-              connectwiseIpAddress:Utilities.CleanedString(networkDevices[i].LocalIPAddress),
-              connectwiseDeviceType:networkDevices[i].DeviceType ? Utilities.CleanedString(networkDevices[i].DeviceType.Name) : undefined,
-              connectwiseMacAddress:Utilities.CleanedString(networkDevices[i].MACAddress),
-              connectwiseStatus:Utilities.CleanedString(networkDevices[i].Status),
-              connectwiseComment:Utilities.CleanedString(networkDevices[i].AlertMessage),
-              connectwiseManufacturer:Utilities.CleanedString(networkDevices[i].ManufacturerName),
-              connectwiseModel:Utilities.CleanedString(networkDevices[i].ModelName),
-              connectwiseDescription:Utilities.CleanedString(networkDevices[i].Description),
-              connectwiseClient:networkDevices[i].Client ? Utilities.CleanedString(networkDevices[i].Client.Name) : undefined,
+              connectwiseLocation: networkDevices[i].Location ? CleanedString(networkDevices[i].Location.Name) : undefined,
+              connectwiseIpAddress:CleanedString(networkDevices[i].LocalIPAddress),
+              connectwiseDeviceType:networkDevices[i].DeviceType ? CleanedString(networkDevices[i].DeviceType.Name) : undefined,
+              connectwiseMacAddress:CleanedString(networkDevices[i].MACAddress),
+              connectwiseStatus:CleanedString(networkDevices[i].Status),
+              connectwiseComment:CleanedString(networkDevices[i].AlertMessage),
+              connectwiseManufacturer:CleanedString(networkDevices[i].ManufacturerName),
+              connectwiseModel:CleanedString(networkDevices[i].ModelName),
+              connectwiseDescription:CleanedString(networkDevices[i].Description),
+              connectwiseClient:networkDevices[i].Client ? CleanedString(networkDevices[i].Client.Name) : undefined,
               // dates
-              connectwiseFirstSeen:Utilities.CleanedDate(networkDevices[i].DateAdded),
-              connectwiseAssetDate:Utilities.CleanedDate(networkDevices[i].AssetDate),
-              connectwiseLastObserved:Utilities.CleanedDate(networkDevices[i].LastContact)
+              connectwiseFirstSeen:CleanedDate(networkDevices[i].DateAdded),
+              connectwiseAssetDate:CleanedDate(networkDevices[i].AssetDate),
+              connectwiseLastObserved:CleanedDate(networkDevices[i].LastContact)
             }
             this.ConnectwiseObjects.push(o)
 

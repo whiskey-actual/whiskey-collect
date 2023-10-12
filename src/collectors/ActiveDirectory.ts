@@ -1,6 +1,6 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { Utilities } from 'whiskey-util'
+import { CleanedDate, CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
 import { Client } from 'ldapts'
@@ -123,15 +123,15 @@ export class ActiveDirectory
               const add:ActiveDirectoryDevice = {
                 deviceDN: searchEntries[i].dn.toString().trim(),
                 deviceName: searchEntries[i].cn.toString().trim(),
-                activeDirectoryOperatingSystem: Utilities.CleanedString(searchEntries[i].operatingSystem),
-                activeDirectoryOperatingSystemVersion: Utilities.CleanedString(searchEntries[i].operatingSystemVersion),
-                activeDirectoryDNSHostName: Utilities.CleanedString(searchEntries[i].dNSHostName),
+                activeDirectoryOperatingSystem: CleanedString(searchEntries[i].operatingSystem),
+                activeDirectoryOperatingSystemVersion: CleanedString(searchEntries[i].operatingSystemVersion),
+                activeDirectoryDNSHostName: CleanedString(searchEntries[i].dNSHostName),
                 activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
-                activeDirectoryWhenCreated: Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
-                activeDirectoryWhenChanged: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
-                activeDirectoryLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
-                activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? Utilities.ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
-                activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
+                activeDirectoryWhenCreated: ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
+                activeDirectoryWhenChanged: searchEntries[i].whenChanged ? ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
+                activeDirectoryLastLogon: searchEntries[i].lastLogon ? ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
+                activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
+                activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
               }
               this.Devices.push(add)
             } catch (err) {
@@ -162,29 +162,29 @@ export class ActiveDirectory
               const adu:ActiveDirectoryUser = {
                 emailAddress: searchEntries[i].mail ? searchEntries[i].mail.toString().trim() : searchEntries[i].userPrincipalName ? searchEntries[i].userPrincipalName.toString().trim() : undefined,
                 userDN: searchEntries[i].dn.toString().trim(),
-                userCN: Utilities.CleanedString(searchEntries[i].cn),
-                userSN: Utilities.CleanedString(searchEntries[i].sn),
-                userCountry: Utilities.CleanedString(searchEntries[i].c),
-                userCity: Utilities.CleanedString(searchEntries[i].l),
-                userState: Utilities.CleanedString(searchEntries[i].st),
-                userTitle: Utilities.CleanedString(searchEntries[i].title),
-                userPhysicalDeliveryOfficeName: Utilities.CleanedString(searchEntries[i].physicalDeliveryOfficeName),
-                userTelephoneNumber: Utilities.CleanedString(searchEntries[i].telephoneNumber),
-                userGivenName: Utilities.CleanedString(searchEntries[i].givenName),
-                userDisplayName: Utilities.CleanedString(searchEntries[i].displayName),
-                userDepartment: Utilities.CleanedString(searchEntries[i].department),
-                userStreetAddress: Utilities.CleanedString(searchEntries[i].streetAddress),
-                userName: Utilities.CleanedString(searchEntries[i].name),
-                userEmployeeID: Utilities.CleanedString(searchEntries[i].employeeID),
+                userCN: CleanedString(searchEntries[i].cn),
+                userSN: CleanedString(searchEntries[i].sn),
+                userCountry: CleanedString(searchEntries[i].c),
+                userCity: CleanedString(searchEntries[i].l),
+                userState: CleanedString(searchEntries[i].st),
+                userTitle: CleanedString(searchEntries[i].title),
+                userPhysicalDeliveryOfficeName: CleanedString(searchEntries[i].physicalDeliveryOfficeName),
+                userTelephoneNumber: CleanedString(searchEntries[i].telephoneNumber),
+                userGivenName: CleanedString(searchEntries[i].givenName),
+                userDisplayName: CleanedString(searchEntries[i].displayName),
+                userDepartment: CleanedString(searchEntries[i].department),
+                userStreetAddress: CleanedString(searchEntries[i].streetAddress),
+                userName: CleanedString(searchEntries[i].name),
+                userEmployeeID: CleanedString(searchEntries[i].employeeID),
                 userLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
-                userSAMAccountName: Utilities.CleanedString(searchEntries[i].sAMAccountName),
-                userPrincipalName: Utilities.CleanedString(searchEntries[i].userPrincipalName),
-                userMail: Utilities.CleanedString(searchEntries[i].mail),
-                userCreatedDate: searchEntries[i].whenCreated ? Utilities.ldapTimestampToJS(searchEntries[i].whenCreated.toString()) : undefined,
-                userChangedDate: searchEntries[i].whenChanged ? Utilities.ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
-                userBadPasswordTime: searchEntries[i].badPasswordTime ? Utilities.ldapTimestampToJS(searchEntries[i].badPasswordTime.toString()) : undefined,
-                userLastLogon: searchEntries[i].lastLogon ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
-                userLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? Utilities.ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined,
+                userSAMAccountName: CleanedString(searchEntries[i].sAMAccountName),
+                userPrincipalName: CleanedString(searchEntries[i].userPrincipalName),
+                userMail: CleanedString(searchEntries[i].mail),
+                userCreatedDate: searchEntries[i].whenCreated ? ldapTimestampToJS(searchEntries[i].whenCreated.toString()) : undefined,
+                userChangedDate: searchEntries[i].whenChanged ? ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
+                userBadPasswordTime: searchEntries[i].badPasswordTime ? ldapTimestampToJS(searchEntries[i].badPasswordTime.toString()) : undefined,
+                userLastLogon: searchEntries[i].lastLogon ? ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
+                userLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined,
               }
             this.Users.push(adu)
             } catch (err) {
@@ -246,7 +246,7 @@ export class ActiveDirectory
           tuDeviceActiveDirectory.RowUpdates.push(ruDeviceActiveDirectory)
 
           // last seen
-          const deviceLastSeen = Utilities.getMaxDateFromObject(this.Devices[i], [
+          const deviceLastSeen = getMaxDateFromObject(this.Devices[i], [
             'activeDirectoryWhenCreated',
             'activeDirectoryWhenChanged',
             'activeDirectoryLastLogon',
@@ -319,7 +319,7 @@ export class ActiveDirectory
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
 
-          const employeeActiveDirectoryLastSeen = Utilities.getMaxDateFromObject(this.Users[i], [
+          const employeeActiveDirectoryLastSeen = getMaxDateFromObject(this.Users[i], [
             'EmployeeActiveDirectoryCreatedDate',
             'EmployeeActiveDirectoryChangedDate',
             'EmployeeActiveDirectoryLastLogon',

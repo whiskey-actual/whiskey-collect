@@ -1,6 +1,6 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { Utilities } from 'whiskey-util'
+import { CleanedDate, CleanedString, getProgressMessage } from 'whiskey-util'
 
 import axios from 'axios'
 import mssql from 'mssql'
@@ -87,38 +87,38 @@ export class Crowdstrike
             deviceName: deviceDetails.hostname.toString().trim(),
             crowdstrikeDeviceId: deviceDetails.device_id.toString().trim(),
             // strings
-            crowdstrikeCID: Utilities.CleanedString(deviceDetails.cid),
-            crowdstrikeAgentVersion: Utilities.CleanedString(deviceDetails.agent_version),
-            crowdstrikeBIOSManufacturer: Utilities.CleanedString(deviceDetails.bios_manufacturer),
-            crowdstrikeBIOSVersion: Utilities.CleanedString(deviceDetails.bios_version),
-            crowdstrikeExternalIP: Utilities.CleanedString(deviceDetails.external_ip),
-            crowdstrikeMACAddress: Utilities.CleanedString(deviceDetails.mac_address),
-            crowdstrikeLocalIP: Utilities.CleanedString(deviceDetails.local_ip),
-            crowdstrikeMachineDomain: Utilities.CleanedString(deviceDetails.machine_domain),
-            crowdstrikeMajorVersion: Utilities.CleanedString(deviceDetails.major_version),
-            crowdstrikeMinorVersion: Utilities.CleanedString(deviceDetails.minor_version),
-            crowdstrikeOSBuild: Utilities.CleanedString(deviceDetails.os_build),
-            crowdstrikeOSVersion: Utilities.CleanedString(deviceDetails.os_version),
-            crowdstrikePlatformName: Utilities.CleanedString(deviceDetails.platform_name),
-            crowdstrikeReducedFunctionalityMode: Utilities.CleanedString(deviceDetails.reduced_functionality_mode),
-            crowdstrikeProductTypeDesc: Utilities.CleanedString(deviceDetails.product_type_desc),
-            crowdstrikeProvisionStatus: Utilities.CleanedString(deviceDetails.provision_status),
-            crowdstrikeSerialNumber: Utilities.CleanedString(deviceDetails.serial_number),
-            crowdstrikeServicePackMajor: Utilities.CleanedString(deviceDetails.service_pack_major),
-            crowdstrikeServicePackMinor: Utilities.CleanedString(deviceDetails.service_pack_minor),
-            crowdstrikeStatus: Utilities.CleanedString(deviceDetails.status),
-            crowdstrikeSystemManufacturer: Utilities.CleanedString(deviceDetails.system_manufacturer),
-            crowdstrikeSystemProductName: Utilities.CleanedString(deviceDetails.system_product_name),
-            crowdstrikeKernelVersion: Utilities.CleanedString(deviceDetails.kernel_version),
+            crowdstrikeCID: CleanedString(deviceDetails.cid),
+            crowdstrikeAgentVersion: CleanedString(deviceDetails.agent_version),
+            crowdstrikeBIOSManufacturer: CleanedString(deviceDetails.bios_manufacturer),
+            crowdstrikeBIOSVersion: CleanedString(deviceDetails.bios_version),
+            crowdstrikeExternalIP: CleanedString(deviceDetails.external_ip),
+            crowdstrikeMACAddress: CleanedString(deviceDetails.mac_address),
+            crowdstrikeLocalIP: CleanedString(deviceDetails.local_ip),
+            crowdstrikeMachineDomain: CleanedString(deviceDetails.machine_domain),
+            crowdstrikeMajorVersion: CleanedString(deviceDetails.major_version),
+            crowdstrikeMinorVersion: CleanedString(deviceDetails.minor_version),
+            crowdstrikeOSBuild: CleanedString(deviceDetails.os_build),
+            crowdstrikeOSVersion: CleanedString(deviceDetails.os_version),
+            crowdstrikePlatformName: CleanedString(deviceDetails.platform_name),
+            crowdstrikeReducedFunctionalityMode: CleanedString(deviceDetails.reduced_functionality_mode),
+            crowdstrikeProductTypeDesc: CleanedString(deviceDetails.product_type_desc),
+            crowdstrikeProvisionStatus: CleanedString(deviceDetails.provision_status),
+            crowdstrikeSerialNumber: CleanedString(deviceDetails.serial_number),
+            crowdstrikeServicePackMajor: CleanedString(deviceDetails.service_pack_major),
+            crowdstrikeServicePackMinor: CleanedString(deviceDetails.service_pack_minor),
+            crowdstrikeStatus: CleanedString(deviceDetails.status),
+            crowdstrikeSystemManufacturer: CleanedString(deviceDetails.system_manufacturer),
+            crowdstrikeSystemProductName: CleanedString(deviceDetails.system_product_name),
+            crowdstrikeKernelVersion: CleanedString(deviceDetails.kernel_version),
             // datetimes
-            crowdstrikeFirstSeenDateTime: Utilities.CleanedDate(deviceDetails.first_seen),
-            crowdstrikeLastSeenDateTime: Utilities.CleanedDate(deviceDetails.last_seen),
-            crowdstrikeModifiedDateTime: Utilities.CleanedDate(deviceDetails.modified_timestamp)
+            crowdstrikeFirstSeenDateTime: CleanedDate(deviceDetails.first_seen),
+            crowdstrikeLastSeenDateTime: CleanedDate(deviceDetails.last_seen),
+            crowdstrikeModifiedDateTime: CleanedDate(deviceDetails.modified_timestamp)
           }
           this.CrowdstrikeObjects.push(o)
 
           if(i>0 && i%logUpdateInterval===0) {
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, Utilities.getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
+            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
           }
 
         } catch (err) {
