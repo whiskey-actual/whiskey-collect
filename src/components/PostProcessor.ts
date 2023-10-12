@@ -44,7 +44,7 @@ export class PostProcessor {
                 }
 
                 if(devices[i].DeviceAzureManagedID>0) {
-                    const mdmObservedDateFields:string[] = ["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime","azureManagedEASActivationDateTime","azureManagedExchangeLastSuccessfulSyncDateTime","azureManagedComplianceGracePeriodExpirationDateTime","azureManagedManagementCertificateExpirationDateTime"]
+                    const mdmObservedDateFields:string[] = ["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime"]
                     observedDates = observedDates.concat(await this.getDateFields("DeviceAzureManaged", "DeviceAzureManagedID", devices[i].DeviceAzureManagedID, mdmObservedDateFields))
                 }
 
