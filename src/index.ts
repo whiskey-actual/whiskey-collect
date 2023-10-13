@@ -106,6 +106,7 @@ export class Collector {
         try {
             const pp = new PostProcessor(this.le, this.db)
             await pp.updateDeviceDetails()
+            await pp.updateUserDetails()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
             throw(err);

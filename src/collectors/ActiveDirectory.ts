@@ -1,6 +1,6 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { CleanedDate, CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
+import { CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
 import { Client } from 'ldapts'
@@ -320,10 +320,11 @@ export class ActiveDirectory
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
 
           const employeeActiveDirectoryLastSeen = getMaxDateFromObject(this.Users[i], [
-            'EmployeeActiveDirectoryCreatedDate',
-            'EmployeeActiveDirectoryChangedDate',
-            'EmployeeActiveDirectoryLastLogon',
-            'EmployeeActiveDirectoryLastLogonTimestamp'
+            //'userCreatedDate',
+            //'userChangedDate',
+            'userBadPasswordTime',
+            'userLastLogon',
+            'userLastLogonTimestamp'
           ])
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
