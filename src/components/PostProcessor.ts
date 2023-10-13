@@ -96,18 +96,18 @@ export class PostProcessor {
                 if(users[i].EmployeeID > 0) {
                     const observedDateFields:string[] = ["ad_LastSeen","aad_LastSeen"]    
                     observedDates = observedDates.concat(await this.getDateFields("Employee", "EmployeeID", users[i].EmployeeID, observedDateFields))
-                }
 
-                const maxDate = getMaxDateFromArray(observedDates)
+                    const maxDate = getMaxDateFromArray(observedDates)
 
-                let tuUser:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
-                let ruUser = new RowUpdate(Number(users[i].EmployeeID))
-                ruUser.updateName=users[i].EmployeeEmailAddress
-                ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
-                ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                tuUser.RowUpdates.push(ruUser)
-
-                await this.db.updateTable(tuUser, true)
+                    let tuUser:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
+                    let ruUser = new RowUpdate(Number(users[i].EmployeeID))
+                    ruUser.updateName=users[i].EmployeeEmailAddress
+                    ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
+                    ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
+                    tuUser.RowUpdates.push(ruUser)
+    
+                    await this.db.updateTable(tuUser, true)
+                }     
             }
         } catch(err) {
             this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
