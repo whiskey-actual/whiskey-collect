@@ -83,6 +83,7 @@ export class PostProcessor {
             const users:mssql.IRecordSet<any> = await this.db.selectColumns("Employee", [
                 "EmployeeID",
                 "EmployeeEmailAddress",
+                "EmployeeLastObserved",
                 "ad_LastSeen",
                 "aad_LastSeen"   
             ], [])
@@ -94,19 +95,24 @@ export class PostProcessor {
                 let observedDates:Date[] = []
     
                 if(users[i].EmployeeID > 0) {
-                    const observedDateFields:string[] = ["ad_LastSeen","aad_LastSeen"]    
-                    observedDates = observedDates.concat(await this.getDateFields("Employee", "EmployeeID", users[i].EmployeeID, observedDateFields))
 
+                    observedDates.push(users[i].ad_LastSeen)
+                    observedDates.push(users[i].aad_LastSeen)
                     const maxDate = getMaxDateFromArray(observedDates)
 
-                    let tuUser:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
-                    let ruUser = new RowUpdate(Number(users[i].EmployeeID))
-                    ruUser.updateName=users[i].EmployeeEmailAddress
-                    ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
-                    ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                    tuUser.RowUpdates.push(ruUser)
-    
-                    await this.db.updateTable(tuUser, true)
+                    if(maxDate && (!users[i].EmployeeLastObserved || users[i].EmployeeLastObserved<maxDate)) {
+
+                        let tuUser:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
+                        let ruUser = new RowUpdate(Number(users[i].EmployeeID))
+                        ruUser.updateName=users[i].EmployeeEmailAddress
+                        ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
+                        ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
+                        tuUser.RowUpdates.push(ruUser)
+        
+                        await this.db.updateTable(tuUser, true)
+
+                    }
+                    
                 }     
             }
         } catch(err) {
