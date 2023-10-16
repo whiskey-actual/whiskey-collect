@@ -441,10 +441,10 @@ export class AzureActiveDirectory {
             azureManagedComplianceGracePeriodExpirationDateTime: CleanedDate(managedDevices[i].complianceGracePeriodExpirationDateTime),
             azureManagedManagementCertificateExpirationDateTime: CleanedDate(managedDevices[i].managementCertificateExpirationDateTime),
             // boolean
-            azureManagedIsEASActivated: managedDevices[i].easActivated,
-            azureManagedIsAzureADRegistered: managedDevices[i].azureADRegistered,
-            azureManagedIsSupervised: managedDevices[i].isSupervised,
-            azureManagedIsEncrypted: managedDevices[i].isEncrypted
+            azureManagedIsEASActivated: managedDevices[i].easActivated ? managedDevices[i].easActivated : false,
+            azureManagedIsAzureADRegistered: managedDevices[i].azureADRegistered ? managedDevices[i].azureADRegistered : false,
+            azureManagedIsSupervised: managedDevices[i].isSupervised ? managedDevices[i].isSupervised : false,
+            azureManagedIsEncrypted: managedDevices[i].isEncrypted ? managedDevices[i].isEncrypted : false
           }
 
           this.AzureManagedDevices.push(amd)
