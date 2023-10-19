@@ -1,13 +1,16 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
+import { CleanedString, ldapTimestampToJS, getMaxDateFromArray, getMaxDateFromObject } from 'whiskey-util'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
 import { Client } from 'ldapts'
 import mssql from 'mssql'
 
+
+
 // local imports
 import { OperatingSystemEngine } from '../components/OperatingSystemEngine';
+import { DeviceProcessor } from '../components/DeviceProcessor';
 
 export class ActiveDirectoryDevice {
   // mandatory
@@ -207,10 +210,40 @@ export class ActiveDirectory
     
     try {
 
+
+
       // devices
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (device) ..')
       for(let i=0; i<this.Devices.length; i++) {
         try {
+
+          let dates:(Date|undefined)[] = []
+          dates.push(this.Devices[i].activeDirectoryWhenCreated)
+          dates.push(this.Devices[i].activeDirectoryWhenChanged)
+          dates.push(this.Devices[i].activeDirectoryLastLogon)
+          dates.push(this.Devices[i].activeDirectoryPwdLastSet)
+          dates.push(this.Devices[i].activeDirectoryLastLogonTimestamp)
+
+          const d = {
+              name: this.Devices[i].deviceName,
+              ad_dn: this.Devices[i].deviceDN,
+              ad_dnsHostName: this.Devices[i].activeDirectoryDNSHostName,
+              ad_logonCount: this.Devices[i].activeDirectoryLogonCount,
+              ad_whenCreated: this.Devices[i].activeDirectoryWhenCreated,
+              ad_whenChanged: this.Devices[i].activeDirectoryWhenChanged,
+              ad_lastLogon: this.Devices[i].activeDirectoryLastLogon,
+              ad_pwdLastSet: this.Devices[i].activeDirectoryPwdLastSet,
+              ad_LastLogonTimestamp: this.Devices[i].activeDirectoryLastLogonTimestamp,
+              ad_lastSeen: getMaxDateFromArray(dates)
+            }
+          
+          await DeviceProcessor.persistDevice(this.Devices[i].deviceName, d)
+
+
+
+
+          
+
      
           let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
           let tuDeviceActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')

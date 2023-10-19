@@ -22,6 +22,7 @@
   "dependencies": {
     "@azure/identity": "^3.3.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@prisma/client": "^5.4.2",
     "axios": "^1.5.0",
     "ldapts": "^6.0.0",
     "mongoose": "^7.5.2",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^2.38.0",
-    "@types/mssql": "^9.1.0"
+    "@types/mssql": "^9.1.0",
+    "prisma": "^5.4.2"
   }
 }
