@@ -224,6 +224,7 @@ export class ActiveDirectory
           let ruDevice = new RowUpdate(DeviceID)
           ruDevice.updateName=this.Devices[i].deviceName
           ruDevice.updateName=this.Devices[i].deviceName
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_DN", mssql.VarChar(255), this.Devices[i].deviceDN))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_DNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystem", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystem))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystemVersion", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystemVersion))
