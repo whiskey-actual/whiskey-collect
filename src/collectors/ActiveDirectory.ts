@@ -1,16 +1,10 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { CleanedString, ldapTimestampToJS, getMaxDateFromArray, getMaxDateFromObject } from 'whiskey-util'
+import { CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
 import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
 
 import { Client } from 'ldapts'
 import mssql from 'mssql'
-
-
-
-// local imports
-import { OperatingSystemEngine } from '../components/OperatingSystemEngine';
-import { DeviceProcessor } from '../components/DeviceProcessor';
 
 export class ActiveDirectoryDevice {
   // mandatory
@@ -210,75 +204,11 @@ export class ActiveDirectory
     
     try {
 
-
-
       // devices
       this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (device) ..')
       for(let i=0; i<this.Devices.length; i++) {
         try {
 
-          let dates:(Date|undefined)[] = []
-          dates.push(this.Devices[i].activeDirectoryWhenCreated)
-          dates.push(this.Devices[i].activeDirectoryWhenChanged)
-          dates.push(this.Devices[i].activeDirectoryLastLogon)
-          dates.push(this.Devices[i].activeDirectoryPwdLastSet)
-          dates.push(this.Devices[i].activeDirectoryLastLogonTimestamp)
-
-          const d = {
-              name: this.Devices[i].deviceName,
-              ad_dn: this.Devices[i].deviceDN,
-              ad_dnsHostName: this.Devices[i].activeDirectoryDNSHostName,
-              ad_logonCount: this.Devices[i].activeDirectoryLogonCount,
-              ad_whenCreated: this.Devices[i].activeDirectoryWhenCreated,
-              ad_whenChanged: this.Devices[i].activeDirectoryWhenChanged,
-              ad_lastLogon: this.Devices[i].activeDirectoryLastLogon,
-              ad_pwdLastSet: this.Devices[i].activeDirectoryPwdLastSet,
-              ad_LastLogonTimestamp: this.Devices[i].activeDirectoryLastLogonTimestamp,
-              ad_lastSeen: getMaxDateFromArray(dates)
-            }
-          
-          await DeviceProcessor.persistDevice(this.Devices[i].deviceName, d)
-
-
-
-
-          
-
-     
-          let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-          let tuDeviceActiveDirectory:TableUpdate = new TableUpdate('DeviceActiveDirectory', 'DeviceActiveDirectoryID')
-          
-          const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
-          const DeviceActiveDirectoryID:number = await this.db.getID("DeviceActiveDirectory", [new ColumnValuePair('ActiveDirectoryDN', this.Devices[i].deviceDN, mssql.VarChar(255))], true)
-
-          // operating system
-          const ose = new OperatingSystemEngine(this.le, this.db)
-          const os = ose.parse(this.Devices[i].activeDirectoryOperatingSystem, this.Devices[i].activeDirectoryOperatingSystemVersion)
-          const operatingSystemXRefId:number = await ose.getId(os, true)
-
-          // update the device table to add the corresponding DeviceActiveDirectoryID ..
-          let ruDevice = new RowUpdate(DeviceID)
-          ruDevice.updateName=this.Devices[i].deviceName
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryID", mssql.Int, DeviceActiveDirectoryID))
-          tuDevice.RowUpdates.push(ruDevice)
-
-          // update the DeviceActiveDirectory table values ..
-          let ruDeviceActiveDirectory = new RowUpdate(DeviceActiveDirectoryID)
-          ruDeviceActiveDirectory.updateName=this.Devices[i].deviceName
-          // string
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
-          // int
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryOperatingSystemXRefID", mssql.Int, operatingSystemXRefId))
-          // datetimes
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryPwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
-          tuDeviceActiveDirectory.RowUpdates.push(ruDeviceActiveDirectory)
-
-          // last seen
           const deviceLastSeen = getMaxDateFromObject(this.Devices[i], [
             'activeDirectoryWhenCreated',
             'activeDirectoryWhenChanged',
@@ -286,11 +216,27 @@ export class ActiveDirectory
             'activeDirectoryPwdLastSet',
             'activeDirectoryLastLogonTimestamp'
           ])
+     
+          let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
+          const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
 
-          ruDeviceActiveDirectory.ColumnUpdates.push(new ColumnUpdate("activeDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
+          // update the device table to add the corresponding DeviceActiveDirectoryID ..
+          let ruDevice = new RowUpdate(DeviceID)
+          ruDevice.updateName=this.Devices[i].deviceName
+          ruDevice.updateName=this.Devices[i].deviceName
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_DNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystem", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystem))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystemVersion", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystemVersion))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_WhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_WhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_PwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, deviceLastSeen))
+          tuDevice.RowUpdates.push(ruDevice)
 
           await this.db.updateTable(tuDevice, true)
-          await this.db.updateTable(tuDeviceActiveDirectory, true)
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
