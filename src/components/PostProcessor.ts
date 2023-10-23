@@ -20,19 +20,19 @@ export class PostProcessor {
             let observedDateFields:string[] = []
             
             // ad fields
-            observedDateFields.concat(["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"])
+            observedDateFields.concat(["ad_WhenCreated","ad_WhenChanged","ad_LastLogon","ad_PwdLastSet","ad_LastLogonTimestamp"])
             
             // aad
-            observedDateFields.concat(["azureDeletedDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"])
+            observedDateFields.concat(["aad_DeletedDateTime","aad_ComplianceExpirationDateTime","aad_CreatedDateTime","aad_OnPremisesLastSyncDateTime","aad_RegistrationDateTime"])
 
             // azure mdm
-            observedDateFields.concat(["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime"])
+            observedDateFields.concat(["mdm_EnrolledDateTime","mdm_LastSyncDateTime"])
 
             // connectwise
-            observedDateFields.concat(["connectwiseFirstSeen","connectwiseLastObserved","connectwiseWindowsUpdateDate","connectwiseAntivirusDefinitionDate","connectwiseAssetDate"])
+            observedDateFields.concat(["cw_FirstSeen","cw_LastObserved","cw_WindowsUpdateDate","cw_AntivirusDefinitionDate","cw_AssetDate"])
 
             // crowdstrike
-            observedDateFields.concat(["crowdstrikeFirstSeenDateTime","crowdstrikeLastSeenDateTime","crowdstrikeModifiedDateTime"])
+            observedDateFields.concat(["cs_FirstSeenDateTime","cs_LastSeenDateTime","cs_ModifiedDateTime"])
 
             const devices:mssql.IRecordSet<any> = await this.db.selectColumns("Device", [
                 "DeviceID",
