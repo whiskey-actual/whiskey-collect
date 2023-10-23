@@ -46,7 +46,7 @@ export class PostProcessor {
                 let observedDates:Date[] = []
 
                 for(let j=0; j<observedDateFields.length; j++) {
-                    observedDateFields.push(devices[i][observedDateFields[j]])
+                    observedDates.push(devices[i][observedDateFields[j]])
                 }
     
                 const maxDate = getMaxDateFromArray(observedDates)
