@@ -189,24 +189,10 @@ export class Connectwise
       for(let i=0; i<this.ConnectwiseObjects.length; i++) {
 
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-        let tuConnectwise:TableUpdate = new TableUpdate('DeviceConnectwise', 'DeviceConnectwiseID')
-        
         const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceConnectwiseID:number = await this.db.getID("DeviceConnectwise", [new ColumnValuePair('ConnectwiseID', this.ConnectwiseObjects[i].connectwiseID, mssql.VarChar(255))], true)
-
-        // update the device table to add the corresponding DeviceConnectwiseID ..
-        let ruDevice = new RowUpdate(DeviceID)
-        ruDevice.updateName=this.ConnectwiseObjects[i].deviceName
-        ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceConnectwiseID", mssql.Int, DeviceConnectwiseID))
-        tuDevice.RowUpdates.push(ruDevice)
-
-        // operating system
-        const ose = new OperatingSystemEngine(this.le, this.db)
-        const os = ose.parse(this.ConnectwiseObjects[i].connectwiseOperatingSystem, this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion)
-        const operatingSystemXRefId:number = await ose.getId(os)
 
         // update the DeviceConnectwise table values ..
-        let ruConnectwise = new RowUpdate(DeviceConnectwiseID)
+        let ruConnectwise = new RowUpdate(DeviceID)
         ruConnectwise.updateName=this.ConnectwiseObjects[i].deviceName
         // strings
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseDeviceType", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDeviceType))
@@ -223,6 +209,8 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseManufacturer", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseManufacturer))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseModel", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseModel))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseDescription", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDescription))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystem", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystem))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystemVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion))
         // bigint
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseTotalMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseTotalMemory))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseFreeMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseFreeMemory))
@@ -231,11 +219,10 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseWindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseAntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseFirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("connectwiseOperatingSystemXRefId", mssql.VarChar(255), operatingSystemXRefId))        
-        tuConnectwise.RowUpdates.push(ruConnectwise)
+             
+        tuDevice.RowUpdates.push(ruConnectwise)
 
         await this.db.updateTable(tuDevice, true)
-        await this.db.updateTable(tuConnectwise, true)
 
       }
 
