@@ -150,52 +150,42 @@ export class Crowdstrike
       for(let i=0; i<this.CrowdstrikeObjects.length; i++) {
 
         let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
-        let tuCrowdstrike:TableUpdate = new TableUpdate('DeviceCrowdstrike', 'DeviceCrowdstrikeID')
-        
         const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.CrowdstrikeObjects[i].deviceName, mssql.VarChar(255))], true)
-        const DeviceCrowdstrikeID:number = await this._db.getID("DeviceCrowdstrike", [new ColumnValuePair('CrowdstrikeDeviceID', this.CrowdstrikeObjects[i].crowdstrikeDeviceId, mssql.VarChar(255))], true)
-
-        // update the device table to add the corresponding DeviceCrowdstrikeID ..
-        let ruDevice = new RowUpdate(DeviceID)
-        ruDevice.updateName=this.CrowdstrikeObjects[i].deviceName
-        ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceCrowdstrikeID", mssql.Int, DeviceCrowdstrikeID))
-        tuDevice.RowUpdates.push(ruDevice)
-
+        
         // update the DeviceCrowdstrike table values ..
-        let ruCrowdstrike = new RowUpdate(DeviceCrowdstrikeID)
+        let ruCrowdstrike = new RowUpdate(DeviceID)
         ruCrowdstrike.updateName=this.CrowdstrikeObjects[i].deviceName
         // strings
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeCID", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeCID))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeAgentVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeAgentVersion))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeBIOSManufacturer", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeBIOSManufacturer))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeBIOSVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeBIOSVersion))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeExternalIP", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeExternalIP))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeMACAddress", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMACAddress))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeLocalIP", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeLocalIP))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeMachineDomain", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMachineDomain))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeMajorVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMajorVersion))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeMinorVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMinorVersion))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeOSBuild", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeOSBuild))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeOSVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeOSVersion))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikePlatformName", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikePlatformName))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeReducedFunctionalityMode", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeReducedFunctionalityMode))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeProductTypeDesc", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeProductTypeDesc))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeProvisionStatus", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeProvisionStatus))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeSerialNumber", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeSerialNumber))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeServicePackMajor", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeServicePackMajor))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeServicePackMinor", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeServicePackMinor))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeStatus", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeStatus))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeSystemManufacturer", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeSystemManufacturer))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeSystemProductName", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeSystemProductName))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeKernelVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeKernelVersion))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeFirstSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeFirstSeenDateTime))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeLastSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeLastSeenDateTime))
-        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("crowdstrikeModifiedDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeModifiedDateTime))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_CID", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeCID))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_AgentVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeAgentVersion))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_BIOSManufacturer", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeBIOSManufacturer))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_BIOSVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeBIOSVersion))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ExternalIP", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeExternalIP))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_MACAddress", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMACAddress))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_LocalIP", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeLocalIP))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_MachineDomain", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMachineDomain))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_MajorVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMajorVersion))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_MinorVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeMinorVersion))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_OSBuild", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeOSBuild))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_OSVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeOSVersion))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_PlatformName", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikePlatformName))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ReducedFunctionalityMode", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeReducedFunctionalityMode))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ProductTypeDesc", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeProductTypeDesc))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ProvisionStatus", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeProvisionStatus))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_SerialNumber", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeSerialNumber))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ServicePackMajor", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeServicePackMajor))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ServicePackMinor", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeServicePackMinor))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_Status", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeStatus))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_SystemManufacturer", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeSystemManufacturer))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_SystemProductName", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeSystemProductName))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_KernelVersion", mssql.VarChar(255), this.CrowdstrikeObjects[i].crowdstrikeKernelVersion))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_FirstSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeFirstSeenDateTime))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_LastSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeLastSeenDateTime))
+        ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ModifiedDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeModifiedDateTime))
         
-        tuCrowdstrike.RowUpdates.push(ruCrowdstrike)
+        tuDevice.RowUpdates.push(ruCrowdstrike)
 
         await this._db.updateTable(tuDevice, true)
-        await this._db.updateTable(tuCrowdstrike, true)
 
       }
   

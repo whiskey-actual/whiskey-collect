@@ -501,7 +501,7 @@ export class AzureActiveDirectory {
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_SourceType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureSourceType))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_TrustType", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureTrustType))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_OperatingSystem", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureOperatingSystem))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_OperatingSsytemVersion", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_OperatingSystemVersion", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureOperatingSystemVersion))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_DeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureDeletedDateTime))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_ApproximateLastSignInDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureApproximateLastSignInDateTime))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_ComplianceExpirationDateTime", mssql.DateTime2, this.AzureActiveDirectoryDevices[i].azureComplianceExpirationDateTime))
