@@ -17,49 +17,38 @@ export class PostProcessor {
 
         try {
 
+            let observedDateFields:string[] = []
+            
+            // ad fields
+            observedDateFields.concat(["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"])
+            
+            // aad
+            observedDateFields.concat(["azureDeletedDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"])
+
+            // azure mdm
+            observedDateFields.concat(["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime"])
+
+            // connectwise
+            observedDateFields.concat(["connectwiseFirstSeen","connectwiseLastObserved","connectwiseWindowsUpdateDate","connectwiseAntivirusDefinitionDate","connectwiseAssetDate"])
+
+            // crowdstrike
+            observedDateFields.concat(["crowdstrikeFirstSeenDateTime","crowdstrikeLastSeenDateTime","crowdstrikeModifiedDateTime"])
+
             const devices:mssql.IRecordSet<any> = await this.db.selectColumns("Device", [
                 "DeviceID",
-                "DeviceName",
-                "DeviceActiveDirectoryID",
-                "DeviceAzureActiveDirectoryID",
-                "DeviceAzureManagedID",
-                "DeviceConnectwiseID",
-                "DeviceCrowdstrikeID"
-            ], [])
+                "DeviceName"              
+            ].concat(observedDateFields), [])
     
             // dates
             
             for(let i=0; i<devices.length; i++) {
 
                 let observedDates:Date[] = []
+
+                for(let j=0; j<observedDateFields.length; j++) {
+                    observedDateFields.push(devices[i][observedDateFields[j]])
+                }
     
-                if(devices[i].DeviceActiveDirectoryID > 0) {
-                    const adObservedDateFields:string[] = ["activeDirectoryWhenCreated","activeDirectoryWhenChanged","activeDirectoryLastLogon","activeDirectoryPwdLastSet","activeDirectoryLastLogonTimestamp"]    
-                    observedDates = observedDates.concat(await this.getDateFields("DeviceActiveDirectory", "DeviceActiveDirectoryID", devices[i].DeviceActiveDirectoryID, adObservedDateFields))
-                }
-
-                if(devices[i].DeviceAzureActiveDirectoryID>0) {
-                    // azureApproximateLastSignInDateTime
-                    const aadObservedDateFields:string[] = ["azureDeletedDateTime","azureComplianceExpirationDateTime","azureCreatedDateTime","azureOnPremisesLastSyncDateTime","azureRegistrationDateTime"]
-                    observedDates = observedDates.concat(await this.getDateFields("DeviceAzureActiveDirectory", "DeviceAzureActiveDirectoryID", devices[i].DeviceAzureActiveDirectoryID, aadObservedDateFields))
-                }
-
-                if(devices[i].DeviceAzureManagedID>0) {
-                    const mdmObservedDateFields:string[] = ["azureManagedEnrolledDateTime","azureManagedLastSyncDateTime"]
-                    observedDates = observedDates.concat(await this.getDateFields("DeviceAzureManaged", "DeviceAzureManagedID", devices[i].DeviceAzureManagedID, mdmObservedDateFields))
-                }
-
-                if(devices[i].DeviceConnectwiseID>0) {
-                    const cwObservedDateFields:string[] = ["connectwiseFirstSeen","connectwiseLastObserved","connectwiseWindowsUpdateDate","connectwiseAntivirusDefinitionDate","connectwiseAssetDate"]
-                    observedDates = observedDates.concat(await this.getDateFields("DeviceConnectwise", "DeviceConnectwiseID", devices[i].DeviceConnectwiseID, cwObservedDateFields))
-                }
-
-                if(devices[i].DeviceCrowdstrikeID>0) {
-                    const csObservedDateFields:string[] = ["crowdstrikeFirstSeenDateTime","crowdstrikeLastSeenDateTime","crowdstrikeModifiedDateTime"]
-                    observedDates = observedDates.concat(await this.getDateFields("DeviceCrowdstrike", "DeviceCrowdstrikeID", devices[i].DeviceCrowdstrikeID, csObservedDateFields))
-                }
-
-
                 const maxDate = getMaxDateFromArray(observedDates)
 
                 let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
