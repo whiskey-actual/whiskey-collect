@@ -37,10 +37,10 @@ export class OperatingSystemEngine {
                 output = await this.getOperatingSystemXRefId(OperatingSystemID, OperatingSystemVersionID, OperatingSystemVariantID, insertIfMissing)
             }
 
-            //this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `got OsXRefId: ${output} (desc: ${os.Description} | var: ${os.Variant} | ver: ${os.Version})`)
+            //this.le.AddLogEntry(LogEngine.EntryType.Info, LogEngine.EntryType.Note, `got OsXRefId: ${output} (desc: ${os.Description} | var: ${os.Variant} | ver: ${os.Version})`)
         }
         catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -60,7 +60,7 @@ export class OperatingSystemEngine {
             }
         }
         catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -78,7 +78,7 @@ export class OperatingSystemEngine {
             }
         }
         catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -96,7 +96,7 @@ export class OperatingSystemEngine {
             }
         }
         catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -114,7 +114,7 @@ export class OperatingSystemEngine {
             ], insertIfMissing)
         }
         catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -161,7 +161,7 @@ export class OperatingSystemEngine {
                 }
             }
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()

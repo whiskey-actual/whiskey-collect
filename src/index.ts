@@ -36,7 +36,7 @@ export class Collector {
             await ad.fetch()
             await ad.persist()
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -56,7 +56,7 @@ export class Collector {
             await aad.getManagedDevices()
             await aad.persist()
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
@@ -74,7 +74,7 @@ export class Collector {
             await cw.fetch(baseURL, clientId, userName, password);
             await cw.persist()
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         }
         
@@ -91,7 +91,7 @@ export class Collector {
             await cs.fetch(baseURL, clientId, clientSecret)
             await cs.persist()
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         }
         
@@ -108,7 +108,7 @@ export class Collector {
             await pp.updateDeviceDetails()
             await pp.updateUserDetails()
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         }
         

@@ -86,19 +86,19 @@ export class ActiveDirectory
 
     try {
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. binding LDAP ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. binding LDAP ..')
       await this.ldapClient.bind(this.bindDN, this.pw);
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. authenticated successfully ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Success, '.. authenticated successfully ..')
       
       await this.fetchDevices();
       await this.fetchUsers();
       
     } catch (ex) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${ex}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
       throw ex;
     } finally {
       await this.ldapClient.unbind();
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, 'done.')
+      this.le.AddLogEntry(LogEngine.EntryType.Success, 'done.')
       this.le.logStack.pop()
     }
     
@@ -110,11 +110,11 @@ export class ActiveDirectory
     this.le.logStack.push("fetchDevices")
 
     try {
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. querying devices ..')
+          this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying devices ..')
           const { searchEntries } = await this.ldapClient.search(this.searchDN,  {filter: '&(objectClass=computer)', paged: this.isPaged, sizeLimit: this.sizeLimit},);
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${searchEntries.length} devices .. `)
+          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} devices .. `)
           
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. creating objects ..`)
+          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. creating objects ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
               const add:ActiveDirectoryDevice = {
@@ -132,12 +132,12 @@ export class ActiveDirectory
               }
               this.Devices.push(add)
             } catch (err) {
-              this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+              this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             }  
           }
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${this.Devices.length } objects created.`)
+          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${this.Devices.length } objects created.`)
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {
       this.le.logStack.pop()
@@ -149,11 +149,11 @@ export class ActiveDirectory
     this.le.logStack.push("fetchUsers")
 
     try {
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. querying users ..')
+          this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying users ..')
           const { searchEntries } = await this.ldapClient.search(this.searchDN,  {filter: '(&(objectClass=user)(&(!(objectClass=computer))))', paged: this.isPaged, sizeLimit: this.sizeLimit},);
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${searchEntries.length} users .. `)
+          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} users .. `)
           
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `.. creating objects ..`)
+          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. creating objects ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
               const adu:ActiveDirectoryUser = {
@@ -185,12 +185,12 @@ export class ActiveDirectory
               }
             this.Users.push(adu)
             } catch (err) {
-              this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+              this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             }  
           }
-          this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. ${this.Users.length} objects created.`)
+          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${this.Users.length} objects created.`)
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {
       this.le.logStack.pop()
@@ -205,7 +205,7 @@ export class ActiveDirectory
     try {
 
       // devices
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (device) ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (device) ..')
       for(let i=0; i<this.Devices.length; i++) {
         try {
 
@@ -240,7 +240,7 @@ export class ActiveDirectory
           await this.db.updateTable(tuDevice, true)
 
         } catch(err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.Devices[i])
           throw(err);
         }
@@ -248,7 +248,7 @@ export class ActiveDirectory
       }
 
       // users
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing table updates (user) ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (user) ..')
       for(let i=0; i<this.Users.length; i++) {
         try {
 
@@ -313,7 +313,7 @@ export class ActiveDirectory
 
           await this.db.updateTable(tuEmployee, true)
         } catch(err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.Users[i])
           throw(err);
         }
@@ -321,10 +321,10 @@ export class ActiveDirectory
       }
 
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'done')
       this.le.logStack.pop()
     }
 

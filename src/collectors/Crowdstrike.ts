@@ -60,16 +60,16 @@ export class Crowdstrike
     try {
 
       // get access token
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. getting access token ..')
+      this._le.AddLogEntry(LogEngine.EntryType.Info, '.. getting access token ..')
       const instance = axios.create({baseURL: baseURL});
       const response = await instance.post(`/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}`)
       instance.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. access token received; querying devices ..`)
+      this._le.AddLogEntry(LogEngine.EntryType.Info, `.. access token received; querying devices ..`)
 
       const foundDevices = (await instance.get("/devices/queries/devices-scroll/v1?limit=5000")).data.resources;
 
 
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. found ${foundDevices.length} devices; fetching details ..`)
+      this._le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${foundDevices.length} devices; fetching details ..`)
 
       const startDate = new Date()
       const logUpdateInterval:number=250
@@ -118,19 +118,19 @@ export class Crowdstrike
           this.CrowdstrikeObjects.push(o)
 
           if(i>0 && i%logUpdateInterval===0) {
-            this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
+            this._le.AddLogEntry(LogEngine.EntryType.Info, getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
           }
 
         } catch (err) {
-          this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this._le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           throw(err)
         }
       }
   
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+      this._le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
 
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this._le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err)
     } finally {
       this._le.logStack.pop()
@@ -143,7 +143,7 @@ export class Crowdstrike
   public async persist() {
 
     this._le.logStack.push('persist')
-    this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'building requests ..')
+    this._le.AddLogEntry(LogEngine.EntryType.Info, 'building requests ..')
 
     try {
       
@@ -190,10 +190,10 @@ export class Crowdstrike
       }
   
     } catch(err) {
-      this._le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this._le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {
-      this._le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, '.. done')
+      this._le.AddLogEntry(LogEngine.EntryType.Info, '.. done')
       this._le.logStack.pop()
     }
 

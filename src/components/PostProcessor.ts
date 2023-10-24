@@ -61,8 +61,10 @@ export class PostProcessor {
                 await this.db.updateTable(tuDevice, true)
             }
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
+        } finally {
+            this.le.logStack.pop()
         }
       }
 
@@ -105,7 +107,7 @@ export class PostProcessor {
                 }     
             }
         } catch(err) {
-            this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         }
     }

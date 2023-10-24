@@ -187,11 +187,11 @@ export class AzureActiveDirectory {
 
     try {
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching devices ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching devices ..`)
 
       const devices = await this.getData('/devices')
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${devices.length} devices; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${devices.length} devices; creating objects ..`)
 
       for(let i=0; i<devices.length; i++) {
 
@@ -236,15 +236,15 @@ export class AzureActiveDirectory {
 
           this.AzureActiveDirectoryDevices.push(aado)
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(devices[i])
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
     } finally {
       this.le.logStack.pop()
     }
@@ -258,7 +258,7 @@ export class AzureActiveDirectory {
 
     try {
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching users ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching users ..`)
 
       const fieldsToFetch = [
         'userPrincipalName',
@@ -307,7 +307,7 @@ export class AzureActiveDirectory {
 
       const users = await this.getData('/users', fieldsToFetch)
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${users.length} devices; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${users.length} devices; creating objects ..`)
 
       for(let i=0; i<users.length; i++) {
 
@@ -351,15 +351,15 @@ export class AzureActiveDirectory {
 
           this.AzureActiveDirectoryUsers.push(aadu)
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(users[i])
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
     } finally {
       this.le.logStack.pop()
     }
@@ -373,11 +373,11 @@ export class AzureActiveDirectory {
 
     try {
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, `fetching managed devices ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching managed devices ..`)
 
       const managedDevices = await this.getData('/deviceManagement/managedDevices')
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, `.. received ${managedDevices.length} devices; creating objects ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${managedDevices.length} devices; creating objects ..`)
 
       for(let i=0; i<managedDevices.length; i++) {
 
@@ -446,15 +446,15 @@ export class AzureActiveDirectory {
 
           this.AzureManagedDevices.push(amd)
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(managedDevices[i])
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Success, '.. objects created.')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
     } finally {
       this.le.logStack.pop()
     }
@@ -469,7 +469,7 @@ export class AzureActiveDirectory {
     try {
 
       // AAD devices
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing AAD device updates ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD device updates ..')
       for(let i=0; i<this.AzureActiveDirectoryDevices.length; i++) {
         try {
 
@@ -519,14 +519,14 @@ export class AzureActiveDirectory {
           await this.db.updateTable(tuDevice, true)
           
         } catch(err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.AzureActiveDirectoryDevices[i])
           throw(err);
         }
       }
       
       // AAD Users ..
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing AAD user updates ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD user updates ..')
       for(let i=0; i<this.AzureActiveDirectoryUsers.length; i++) {
         try {
 
@@ -598,7 +598,7 @@ export class AzureActiveDirectory {
           await this.db.updateTable(tuEmployee, true)
 
         } catch(err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.AzureActiveDirectoryUsers[i])
           throw(err);
         }
@@ -606,7 +606,7 @@ export class AzureActiveDirectory {
       }
 
       // AAD managed devices ..
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'performing AAD managed device updates ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD managed device updates ..')
       for(let i=0; i<this.AzureManagedDevices.length; i++) {
         try {
 
@@ -679,7 +679,7 @@ export class AzureActiveDirectory {
           await this.db.updateTable(tuDevice, true)
         
         }  catch(err) {
-          this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.AzureManagedDevices[i])
           throw(err);
         }
@@ -687,10 +687,10 @@ export class AzureActiveDirectory {
       }
     
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {
-      this.le.AddLogEntry(LogEngine.Severity.Info, LogEngine.Action.Note, 'done')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'done')
       this.le.logStack.pop()
     }
 
@@ -721,7 +721,7 @@ export class AzureActiveDirectory {
       await pageIterator.iterate();
       
     } catch (err) {
-      this.le.AddLogEntry(LogEngine.Severity.Error, LogEngine.Action.Note, `${err}`)
+      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err)
     } finally {
       this.le.logStack.pop()
