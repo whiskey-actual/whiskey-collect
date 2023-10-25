@@ -1,6 +1,6 @@
 // imports
 import { LogEngine } from 'whiskey-log';
-import { CleanedDate, CleanedString, getMaxDateFromObject } from 'whiskey-util'
+import { CleanedDate, CleanedString, getMaxDateFromObject, minimumJsonDate } from 'whiskey-util'
 
 import { Client, PageCollection, PageIterator, PageIteratorCallback } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials'
@@ -99,6 +99,15 @@ export class AzureActiveDirectoryUser {
   public readonly deletedDateTime:Date|undefined=undefined
   public readonly lastPasswordChangeDateTime:Date|undefined=undefined
 
+  public readonly services:UserService[] = []
+
+}
+
+export class UserService {
+  public readonly serviceName?:string = ''
+  public readonly servicePlanId?:string = ''
+  public readonly assignedDateTime?:Date = minimumJsonDate
+  public readonly serviceStatus?:string = ''
 }
 
 export class AzureManagedDevice {
@@ -317,8 +326,15 @@ export class AzureActiveDirectory {
 
         console.debug(users[i].assignedPlans)
 
+        let userServices:UserService[] = []
         for(let j=0; i<users[i].assignedLicenses; j++) {
-         console.debug(users[i].assignedLicenses[j])
+          const us:UserService = {
+            serviceName: CleanedString(users[i].assignedLicenses[j].serviceName),
+            servicePlanId: CleanedString(users[i].assignedLicenses[j].servicePlanId),
+            assignedDateTime: CleanedDate(users[i].assignedLicenses[j].assignedDateTime),
+            serviceStatus: CleanedString(users[i].assignedLicenses[j].capabilityStatus)
+          }
+          userServices.push(us);
         }
 
           const aadu:AzureActiveDirectoryUser = {
@@ -355,6 +371,7 @@ export class AzureActiveDirectory {
             createdDateTime: CleanedDate(users[i].createdDateTime),
             deletedDateTime: CleanedDate(users[i].deletedDateTime),
             lastPasswordChangeDateTime: CleanedDate(users[i].lastPasswordChangeDateTime),
+            services: userServices
           }
 
           this.AzureActiveDirectoryUsers.push(aadu)
@@ -599,11 +616,30 @@ export class AzureActiveDirectory {
           ])
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSeen", mssql.DateTime2, aadLastSeen))
-
-
           tuEmployee.RowUpdates.push(ruEmployee)
 
           await this.db.updateTable(tuEmployee, true)
+
+          // update licenses
+          let tuLicenses:TableUpdate = new TableUpdate('License', 'LicenseID')
+          let tuEmployeeLicense:TableUpdate = new TableUpdate('EmployeeLicense', 'EmployeeLicenseID')
+          for(let j=0; j<this.AzureActiveDirectoryUsers[i].services.length; j++) {
+            const LicenseID = await this.db.getID("License", [new ColumnValuePair("LicensePlanID", this.AzureActiveDirectoryUsers[i].services[j].servicePlanId, mssql.VarChar(255))], true)
+            let ruLicense:RowUpdate = new RowUpdate(LicenseID)
+            ruLicense.ColumnUpdates.push(new ColumnUpdate("LicenseDescription", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceName))
+            tuLicenses.RowUpdates.push(ruLicense)
+            
+            const EmployeeLicenseID = await this.db.getID("EmployeeLicense", [
+              new ColumnValuePair("EmployeeID", EmployeeID, mssql.Int),
+              new ColumnValuePair("LicenseID", LicenseID, mssql.Int)
+            ], true)
+            let ruEmployeeLicense:RowUpdate = new RowUpdate(EmployeeLicenseID)
+            ruEmployeeLicense.ColumnUpdates.push(new ColumnUpdate("AssignmentDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].services[j].assignedDateTime))
+            ruEmployeeLicense.ColumnUpdates.push(new ColumnUpdate("AssignmentStatus", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceStatus))
+            tuEmployeeLicense.RowUpdates.push(ruEmployeeLicense)
+          }
+          await this.db.updateTable(tuLicenses, true)
+          await this.db.updateTable(tuEmployeeLicense, true)
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
