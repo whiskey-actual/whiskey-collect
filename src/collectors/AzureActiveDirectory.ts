@@ -272,7 +272,7 @@ export class AzureActiveDirectory {
         'officeLocation',
         'surname',
         'accountEnabled',
-        //'assignedLicenses',
+        'assignedLicenses',
         'assignedPlans',
         'city',
         'country',
@@ -310,8 +310,17 @@ export class AzureActiveDirectory {
       this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${users.length} devices; creating objects ..`)
 
       for(let i=0; i<users.length; i++) {
-
         try {
+
+          // assignedLicenses
+        // assignedPlans: CleanedString(users[i].assignedPlans),
+
+        console.debug(users[i].assignedPlans)
+
+        for(let j=0; i<users[i].assignedLicenses; j++) {
+         console.debug(users[i].assignedLicenses[j])
+        }
+
           const aadu:AzureActiveDirectoryUser = {
             emailAddress: users[i].mail ? users[i].mail.toString().trim() : users[i].userPrincipalName ? users[i].userPrincipalName.toString().trim() : users[i].onPremisesUserPrincipalName ? users[i].onPremisesUserPrincipalName.toString().trim() : undefined,
             mail: CleanedString(users[i].mail),
@@ -324,8 +333,7 @@ export class AzureActiveDirectory {
             mobilePhone: CleanedString(users[i].mobilePhone),
             officeLocation: CleanedString(users[i].officeLocation),
             surname: CleanedString(users[i].surname),
-            //assignedPlans: CleanedString(users[i].assignedPlans),
-            assignedPlans: undefined,
+            assignedPlans: CleanedString(users[i].assignedPlans),
             city: CleanedString(users[i].city),
             country: CleanedString(users[i].country),
             creationType: CleanedString(users[i].creationType),
