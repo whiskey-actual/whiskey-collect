@@ -621,10 +621,15 @@ export class AzureActiveDirectory {
           await this.db.updateTable(tuEmployee, true)
 
           // update licenses
+
+          console.debug(this.AzureActiveDirectoryUsers[i].services);
+
           let tuLicenses:TableUpdate = new TableUpdate('License', 'LicenseID')
           let tuEmployeeLicense:TableUpdate = new TableUpdate('EmployeeLicense', 'EmployeeLicenseID')
           for(let j=0; j<this.AzureActiveDirectoryUsers[i].services.length; j++) {
+            
             console.debug(this.AzureActiveDirectoryUsers[i].services[j])
+            
             const LicenseID = await this.db.getID("License", [new ColumnValuePair("LicensePlanID", this.AzureActiveDirectoryUsers[i].services[j].servicePlanId, mssql.VarChar(255))], true)
             let ruLicense:RowUpdate = new RowUpdate(LicenseID)
             ruLicense.ColumnUpdates.push(new ColumnUpdate("LicenseDescription", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceName))
