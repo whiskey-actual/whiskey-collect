@@ -327,7 +327,7 @@ export class AzureActiveDirectory {
           //console.debug(users[i].assignedPlans)
 
           let userServices:UserService[] = []
-          for(let j=0; i<users[i].assignedPlans.length; j++) {
+          for(let j=0; j<users[i].assignedPlans.length; j++) {
             try {
               const us:UserService = {
                 serviceName: CleanedString(users[i].assignedPlans[j].service),
@@ -337,6 +337,7 @@ export class AzureActiveDirectory {
               }
               userServices.push(us);
             } catch(err) {
+              console.debug(users[i].assignedPlans)
               console.debug(users[i].assignedPlans[j])
               throw err;
             }
