@@ -324,7 +324,7 @@ export class AzureActiveDirectory {
           // assignedLicenses
         // assignedPlans: CleanedString(users[i].assignedPlans),
 
-        console.debug(users[i].assignedPlans)
+        //console.debug(users[i].assignedPlans)
 
         let userServices:UserService[] = []
         for(let j=0; i<users[i].assignedLicenses; j++) {
