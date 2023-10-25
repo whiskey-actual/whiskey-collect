@@ -322,20 +322,20 @@ export class AzureActiveDirectory {
         try {
 
           // assignedLicenses
-        // assignedPlans: CleanedString(users[i].assignedPlans),
+          // assignedPlans: CleanedString(users[i].assignedPlans),
 
-        //console.debug(users[i].assignedPlans)
+          //console.debug(users[i].assignedPlans)
 
-        let userServices:UserService[] = []
-        for(let j=0; i<users[i].assignedPlans; j++) {
-          const us:UserService = {
-            serviceName: CleanedString(users[i].assignedLicenses[j].serviceName),
-            servicePlanId: CleanedString(users[i].assignedLicenses[j].servicePlanId),
-            assignedDateTime: CleanedDate(users[i].assignedLicenses[j].assignedDateTime),
-            serviceStatus: CleanedString(users[i].assignedLicenses[j].capabilityStatus)
+          let userServices:UserService[] = []
+          for(let j=0; i<users[i].assignedPlans.length; j++) {
+            const us:UserService = {
+              serviceName: CleanedString(users[i].assignedLicenses[j].serviceName),
+              servicePlanId: CleanedString(users[i].assignedLicenses[j].servicePlanId),
+              assignedDateTime: CleanedDate(users[i].assignedLicenses[j].assignedDateTime),
+              serviceStatus: CleanedString(users[i].assignedLicenses[j].capabilityStatus)
+            }
+            userServices.push(us);
           }
-          userServices.push(us);
-        }
 
           const aadu:AzureActiveDirectoryUser = {
             emailAddress: users[i].mail ? users[i].mail.toString().trim() : users[i].userPrincipalName ? users[i].userPrincipalName.toString().trim() : users[i].onPremisesUserPrincipalName ? users[i].onPremisesUserPrincipalName.toString().trim() : undefined,
@@ -622,13 +622,13 @@ export class AzureActiveDirectory {
 
           // update licenses
 
-          console.debug(this.AzureActiveDirectoryUsers[i].services);
+          //console.debug(this.AzureActiveDirectoryUsers[i].services);
 
           let tuLicenses:TableUpdate = new TableUpdate('License', 'LicenseID')
           let tuEmployeeLicense:TableUpdate = new TableUpdate('EmployeeLicense', 'EmployeeLicenseID')
           for(let j=0; j<this.AzureActiveDirectoryUsers[i].services.length; j++) {
             
-            console.debug(this.AzureActiveDirectoryUsers[i].services[j])
+            //console.debug(this.AzureActiveDirectoryUsers[i].services[j])
             
             const LicenseID = await this.db.getID("License", [new ColumnValuePair("LicensePlanID", this.AzureActiveDirectoryUsers[i].services[j].servicePlanId, mssql.VarChar(255))], true)
             let ruLicense:RowUpdate = new RowUpdate(LicenseID)
