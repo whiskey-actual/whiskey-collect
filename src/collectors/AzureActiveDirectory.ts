@@ -329,7 +329,7 @@ export class AzureActiveDirectory {
           let userServices:UserService[] = []
           for(let j=0; i<users[i].assignedPlans.length; j++) {
             const us:UserService = {
-              serviceName: CleanedString(users[i].assignedLicenses[j].serviceName),
+              serviceName: CleanedString(users[i].assignedLicenses[j].service),
               servicePlanId: CleanedString(users[i].assignedLicenses[j].servicePlanId),
               assignedDateTime: CleanedDate(users[i].assignedLicenses[j].assignedDateTime),
               serviceStatus: CleanedString(users[i].assignedLicenses[j].capabilityStatus)
