@@ -583,7 +583,7 @@ export class AzureActiveDirectory {
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_MobilePhone", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].mobilePhone))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_OfficeLocation", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].officeLocation))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Surname", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].surname))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_AssignedPlans", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].assignedPlans))
+          //ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_AssignedPlans", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].assignedPlans))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_City", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].city))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Country", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].country))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_CreationType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].creationType))
