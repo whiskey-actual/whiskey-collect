@@ -98,6 +98,7 @@ export class AzureActiveDirectoryUser {
   public readonly createdDateTime:Date|undefined=undefined
   public readonly deletedDateTime:Date|undefined=undefined
   public readonly lastPasswordChangeDateTime:Date|undefined=undefined
+  public readonly lastSignInDateTime?:Date=undefined
 
   public readonly services:UserService[] = []
 
@@ -381,7 +382,8 @@ export class AzureActiveDirectory {
             createdDateTime: CleanedDate(users[i].createdDateTime),
             deletedDateTime: CleanedDate(users[i].deletedDateTime),
             lastPasswordChangeDateTime: CleanedDate(users[i].lastPasswordChangeDateTime),
-            services: userServices
+            services: userServices,
+            lastSignInDateTime: users[i].signInActivity ? CleanedDate(users[i].signInActivity.lastSignInDateTime) : undefined
           }
 
           this.AzureActiveDirectoryUsers.push(aadu)
@@ -618,11 +620,12 @@ export class AzureActiveDirectory {
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_CreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].createdDateTime))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_DeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].deletedDateTime))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastPasswordChangeDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].lastPasswordChangeDateTime))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSignInDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].lastSignInDateTime))
 
           const aadLastSeen = getMaxDateFromObject(this.AzureActiveDirectoryUsers[i], [
             'createdDateTime',
-            'deletedDateTime',
             'lastPasswordChangeDateTime',
+            'aad_LastSignInDateTime'
           ])
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSeen", mssql.DateTime2, aadLastSeen))
