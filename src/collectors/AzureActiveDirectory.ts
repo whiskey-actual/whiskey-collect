@@ -625,7 +625,7 @@ export class AzureActiveDirectory {
           const aadLastSeen = getMaxDateFromObject(this.AzureActiveDirectoryUsers[i], [
             'createdDateTime',
             'lastPasswordChangeDateTime',
-            'aad_LastSignInDateTime'
+            'lastSignInDateTime'
           ])
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSeen", mssql.DateTime2, aadLastSeen))
