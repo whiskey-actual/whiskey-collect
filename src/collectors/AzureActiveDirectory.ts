@@ -323,7 +323,7 @@ export class AzureActiveDirectory {
       for(let i=0; i<users.length; i++) {
         try {
 
-          console.debug(users[i].signInActivity)
+          //console.debug(users[i].signInActivity)
 
           // assignedLicenses
           // assignedPlans: CleanedString(users[i].assignedPlans),
