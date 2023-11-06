@@ -2,6 +2,8 @@
 import { LogEngine } from 'whiskey-log'
 import { DBEngine } from 'whiskey-sql'
 
+import { initializeDatabase } from './initialization/initializeDatabase'
+
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
 import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
@@ -25,6 +27,10 @@ export class Collector {
 
     public async disconnectFromDB() {
         await this.db.disconnect()
+    }
+
+    public async initializeDatabase() {
+        const db = new initializeDatabase(this.le, this.db)
     }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
