@@ -4,7 +4,9 @@ import { CleanedDate, CleanedString, getProgressMessage } from 'whiskey-util'
 
 import axios from 'axios'
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
+import { DBEngine } from 'whiskey-sql';
+import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 export class CrowdstrikeObject {
   // mandatory
@@ -149,7 +151,6 @@ export class Crowdstrike
       
       for(let i=0; i<this.CrowdstrikeObjects.length; i++) {
 
-        let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         const DeviceID:number = await this._db.getID("Device", [new ColumnValuePair("deviceName", this.CrowdstrikeObjects[i].deviceName, mssql.VarChar(255))], true)
         
         // update the DeviceCrowdstrike table values ..
@@ -182,10 +183,8 @@ export class Crowdstrike
         ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_FirstSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeFirstSeenDateTime))
         ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_LastSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeLastSeenDateTime))
         ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ModifiedDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeModifiedDateTime))
-        
-        tuDevice.RowUpdates.push(ruCrowdstrike)
 
-        await this._db.updateTable(tuDevice, true)
+        await this._db.updateTable('Device', 'DeviceID', [ruCrowdstrike], true)
 
       }
   

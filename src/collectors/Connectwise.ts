@@ -5,7 +5,9 @@ import { CleanedDate, CleanedString } from 'whiskey-util'
 import https from 'https'
 import axios from 'axios'
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
+import { DBEngine } from 'whiskey-sql';
+import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 export class ConnectwiseObject {
   // mandatory
@@ -186,7 +188,6 @@ export class Connectwise
       
       for(let i=0; i<this.ConnectwiseObjects.length; i++) {
 
-        let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
         const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.ConnectwiseObjects[i].deviceName, mssql.VarChar(255))], true)
 
         // update the DeviceConnectwise table values ..
@@ -217,10 +218,8 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_WindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_AntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_FirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
-             
-        tuDevice.RowUpdates.push(ruConnectwise)
 
-        await this.db.updateTable(tuDevice, true)
+        await this.db.updateTable('Device', 'DeviceID', [ruConnectwise], true)
 
       }
 

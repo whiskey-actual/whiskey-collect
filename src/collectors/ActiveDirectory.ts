@@ -1,7 +1,9 @@
 // imports
 import { LogEngine } from 'whiskey-log';
 import { CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
+import { DBEngine } from 'whiskey-sql';
+import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 import { Client } from 'ldapts'
 import mssql from 'mssql'
@@ -217,7 +219,6 @@ export class ActiveDirectory
             'activeDirectoryLastLogonTimestamp'
           ])
      
-          let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
           const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.Devices[i].deviceName, mssql.VarChar(255))], true)
 
           // update the device table to add the corresponding DeviceActiveDirectoryID ..
@@ -235,10 +236,7 @@ export class ActiveDirectory
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_PwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, deviceLastSeen))
-          tuDevice.RowUpdates.push(ruDevice)
-
-          await this.db.updateTable(tuDevice, true)
-
+          await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.Devices[i])
@@ -251,8 +249,6 @@ export class ActiveDirectory
       this.le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (user) ..')
       for(let i=0; i<this.Users.length; i++) {
         try {
-
-          let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
 
           let EmployeeID:number = 0
           let updateName:string|undefined=undefined
@@ -309,9 +305,8 @@ export class ActiveDirectory
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
 
-          tuEmployee.RowUpdates.push(ruEmployee)
+          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee], true)
 
-          await this.db.updateTable(tuEmployee, true)
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.Users[i])

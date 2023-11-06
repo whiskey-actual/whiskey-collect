@@ -7,7 +7,9 @@ import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-grap
 
 import { ClientSecretCredential } from '@azure/identity'
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from 'whiskey-sql';
+import { DBEngine } from 'whiskey-sql';
+import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 export class AzureActiveDirectoryDevice {
   // mandatory
@@ -517,9 +519,7 @@ export class AzureActiveDirectory {
             'azureRegistrationDateTime'
           ])
 
-          let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
           const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.AzureActiveDirectoryDevices[i].deviceName, mssql.VarChar(255))], true)
-
           let ruDevice = new RowUpdate(DeviceID)
           ruDevice.updateName=this.AzureActiveDirectoryDevices[i].deviceName
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_DeviceCategory", mssql.VarChar(255), this.AzureActiveDirectoryDevices[i].azureDeviceCategory))
@@ -551,9 +551,8 @@ export class AzureActiveDirectory {
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_IsCompliant", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsCompliant))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_IsManaged", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsManaged))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_IsRooted", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsRooted))
-          tuDevice.RowUpdates.push(ruDevice)
+          await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
 
-          await this.db.updateTable(tuDevice, true)
           
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -568,8 +567,6 @@ export class AzureActiveDirectory {
         try {
 
           // find (insert if missing) this employee email address
-          let tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')    
-
           let EmployeeID:number = 0
           let UpdateName:string|undefined = undefined
           // if we have an email address, try to find the id that way first (don't create the row, since we'll try a second match ..)
@@ -629,16 +626,15 @@ export class AzureActiveDirectory {
           ])
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSeen", mssql.DateTime2, aadLastSeen))
-          tuEmployee.RowUpdates.push(ruEmployee)
 
-          await this.db.updateTable(tuEmployee, true)
+          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee], true)
 
           // update licenses
 
           //console.debug(this.AzureActiveDirectoryUsers[i].services);
 
-          let tuLicenses:TableUpdate = new TableUpdate('License', 'LicenseID')
-          let tuEmployeeLicense:TableUpdate = new TableUpdate('EmployeeLicense', 'EmployeeLicenseID')
+          let ruLicenses:RowUpdate[] = []
+          let ruEmployeeLicenses:RowUpdate[] = []
           for(let j=0; j<this.AzureActiveDirectoryUsers[i].services.length; j++) {
             
             //console.debug(this.AzureActiveDirectoryUsers[i].services[j])
@@ -646,7 +642,7 @@ export class AzureActiveDirectory {
             const LicenseID = await this.db.getID("License", [new ColumnValuePair("LicensePlanID", this.AzureActiveDirectoryUsers[i].services[j].servicePlanId, mssql.VarChar(255))], true)
             let ruLicense:RowUpdate = new RowUpdate(LicenseID)
             ruLicense.ColumnUpdates.push(new ColumnUpdate("LicenseDescription", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceName))
-            tuLicenses.RowUpdates.push(ruLicense)
+            ruLicenses.push(ruLicense)
             
             const EmployeeLicenseID = await this.db.getID("EmployeeLicense", [
               new ColumnValuePair("EmployeeID", EmployeeID, mssql.Int),
@@ -655,10 +651,11 @@ export class AzureActiveDirectory {
             let ruEmployeeLicense:RowUpdate = new RowUpdate(EmployeeLicenseID)
             ruEmployeeLicense.ColumnUpdates.push(new ColumnUpdate("AssignmentDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].services[j].assignedDateTime))
             ruEmployeeLicense.ColumnUpdates.push(new ColumnUpdate("AssignmentStatus", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceStatus))
-            tuEmployeeLicense.RowUpdates.push(ruEmployeeLicense)
+            ruEmployeeLicenses.push(ruEmployeeLicense)
           }
-          await this.db.updateTable(tuLicenses, true)
-          await this.db.updateTable(tuEmployeeLicense, true)
+
+          await this.db.updateTable('License', 'LicenseID', ruLicenses, true)
+          await this.db.updateTable('EmployeeLicense', 'EmployeeLicenseID', ruEmployeeLicenses, true)
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -680,7 +677,6 @@ export class AzureActiveDirectory {
             'azureManagedExchangeLastSuccessfulSyncDateTime',
           ])
 
-          let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')  
           const DeviceID:number = await this.db.getID("Device", [new ColumnValuePair("deviceName", this.AzureManagedDevices[i].deviceName, mssql.VarChar(255))], true)
     
           // update the DeviceActiveDirectory table values ..
@@ -738,8 +734,7 @@ export class AzureActiveDirectory {
           ruDevice.ColumnUpdates.push(new ColumnUpdate("mdm_IsAzureADRegistered", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsAzureADRegistered))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("mdm_IsSupervised", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsSupervised))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("mdm_IsEncrypted", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsEncrypted))
-          tuDevice.RowUpdates.push(ruDevice)
-          await this.db.updateTable(tuDevice, true)
+          await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
         
         }  catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)

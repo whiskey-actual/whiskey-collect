@@ -1,7 +1,9 @@
 import { LogEngine } from "whiskey-log"
 import mssql from 'mssql'
-import { DBEngine, ColumnValuePair, TableUpdate, RowUpdate, ColumnUpdate } from "whiskey-sql"
+import { DBEngine } from "whiskey-sql"
 import { getMaxDateFromArray } from "whiskey-util"
+import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 export class PostProcessor {
     constructor(le:LogEngine, db:DBEngine) {
@@ -51,14 +53,12 @@ export class PostProcessor {
     
                 const maxDate = getMaxDateFromArray(observedDates)
 
-                let tuDevice:TableUpdate = new TableUpdate('Device', 'DeviceID')
                 let ruDevice = new RowUpdate(Number(devices[i].DeviceID))
                 ruDevice.updateName=devices[i].DeviceName
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceLastObserved", mssql.DateTime2, maxDate))
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold) : false))
-                tuDevice.RowUpdates.push(ruDevice)
 
-                await this.db.updateTable(tuDevice, true)
+                await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
             }
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -92,16 +92,11 @@ export class PostProcessor {
                     const maxDate = getMaxDateFromArray(observedDates)
 
                     if(maxDate && (!users[i].EmployeeLastObserved || users[i].EmployeeLastObserved<maxDate)) {
-
-                        let tuUser:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
                         let ruUser = new RowUpdate(Number(users[i].EmployeeID))
                         ruUser.updateName=users[i].EmployeeEmailAddress
                         ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
                         ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                        tuUser.RowUpdates.push(ruUser)
-        
-                        await this.db.updateTable(tuUser, true)
-
+                        await this.db.updateTable('Employee', 'EmployeeID', [ruUser], true)
                     }
                     
                 }     

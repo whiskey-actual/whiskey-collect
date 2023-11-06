@@ -13,7 +13,7 @@ export class Collector {
 
     constructor(logStack:string[], sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false, logStackColumnWidth:number=48) {
         this.le = new LogEngine(logStack, showDebug, logStackColumnWidth);
-        this.db = new DBEngine(this.le, sqlConfig, logFrequency)
+        this.db = new DBEngine(this.le, sqlConfig)
     }
     //private _mongoURI:string=''
     private le:LogEngine
