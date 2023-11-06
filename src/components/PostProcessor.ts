@@ -58,7 +58,7 @@ export class PostProcessor {
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceLastObserved", mssql.DateTime2, maxDate))
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold) : false))
 
-                await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
+                await this.db.updateTable('Device', 'DeviceID', [ruDevice])
             }
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -96,7 +96,7 @@ export class PostProcessor {
                         ruUser.updateName=users[i].EmployeeEmailAddress
                         ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
                         ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                        await this.db.updateTable('Employee', 'EmployeeID', [ruUser], true)
+                        await this.db.updateTable('Employee', 'EmployeeID', [ruUser])
                     }
                     
                 }     

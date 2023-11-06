@@ -212,14 +212,14 @@ export class Connectwise
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_OperatingSystemVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion))
         // bigint
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_TotalMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseTotalMemory))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_FreeMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseFreeMemory))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_FreeMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseFreeMemory, false))
         // dates
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_LastObserved", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseLastObserved))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_WindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_AntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_FirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
 
-        await this.db.updateTable('Device', 'DeviceID', [ruConnectwise], true)
+        await this.db.updateTable('Device', 'DeviceID', [ruConnectwise])
 
       }
 

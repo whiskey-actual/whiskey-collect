@@ -33,8 +33,7 @@
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^2.38.0",
-    "@types/mssql": "^9.1.0",
-    "prisma": "^5.4.2"
+    "@types/mssql": "^9.1.0"
   },
   "prisma": {
     "schema": "./prisma/schema.prisma"

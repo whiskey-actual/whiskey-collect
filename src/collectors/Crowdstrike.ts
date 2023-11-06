@@ -184,7 +184,7 @@ export class Crowdstrike
         ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_LastSeenDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeLastSeenDateTime))
         ruCrowdstrike.ColumnUpdates.push(new ColumnUpdate("cs_ModifiedDateTime", mssql.DateTime2, this.CrowdstrikeObjects[i].crowdstrikeModifiedDateTime))
 
-        await this._db.updateTable('Device', 'DeviceID', [ruCrowdstrike], true)
+        await this._db.updateTable('Device', 'DeviceID', [ruCrowdstrike])
 
       }
   

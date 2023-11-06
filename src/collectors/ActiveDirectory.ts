@@ -229,14 +229,14 @@ export class ActiveDirectory
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_DNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystem", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystem))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystemVersion", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystemVersion))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount, false))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_WhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_WhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_PwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, deviceLastSeen))
-          await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
+          await this.db.updateTable('Device', 'DeviceID', [ruDevice])
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(this.Devices[i])
@@ -285,7 +285,7 @@ export class ActiveDirectory
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_PrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
           // int
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Users[i].userLogonCount))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Users[i].userLogonCount, false))
           // bit
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Observed", mssql.Bit, true))
           // datetime
@@ -305,7 +305,7 @@ export class ActiveDirectory
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
 
-          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee], true)
+          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee])
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)

@@ -551,7 +551,7 @@ export class AzureActiveDirectory {
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_IsCompliant", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsCompliant))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_IsManaged", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsManaged))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("aad_IsRooted", mssql.Bit, this.AzureActiveDirectoryDevices[i].azureIsRooted))
-          await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
+          await this.db.updateTable('Device', 'DeviceID', [ruDevice])
 
           
         } catch(err) {
@@ -586,7 +586,7 @@ export class AzureActiveDirectory {
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_UserPrincipalName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].userPrincipalName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_Id", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].id))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_BusinessPhone", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].businessPhone))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_BisplayName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].displayName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_DisplayName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].displayName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_GivenName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].givenName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_JobTitle", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].jobTitle))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_MobilePhone", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].mobilePhone))
@@ -627,7 +627,7 @@ export class AzureActiveDirectory {
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("aad_LastSeen", mssql.DateTime2, aadLastSeen))
 
-          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee], true)
+          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee])
 
           // update licenses
 
@@ -654,8 +654,8 @@ export class AzureActiveDirectory {
             ruEmployeeLicenses.push(ruEmployeeLicense)
           }
 
-          await this.db.updateTable('License', 'LicenseID', ruLicenses, true)
-          await this.db.updateTable('EmployeeLicense', 'EmployeeLicenseID', ruEmployeeLicenses, true)
+          await this.db.updateTable('License', 'LicenseID', ruLicenses)
+          await this.db.updateTable('EmployeeLicense', 'EmployeeLicenseID', ruEmployeeLicenses)
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -734,7 +734,7 @@ export class AzureActiveDirectory {
           ruDevice.ColumnUpdates.push(new ColumnUpdate("mdm_IsAzureADRegistered", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsAzureADRegistered))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("mdm_IsSupervised", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsSupervised))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("mdm_IsEncrypted", mssql.Bit, this.AzureManagedDevices[i].azureManagedIsEncrypted))
-          await this.db.updateTable('Device', 'DeviceID', [ruDevice], true)
+          await this.db.updateTable('Device', 'DeviceID', [ruDevice])
         
         }  catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
