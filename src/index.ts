@@ -30,8 +30,20 @@ export class Collector {
     }
 
     public async initializeDatabase() {
-        const db = new initializeDatabase(this.le, this.db)
-        await db.build()
+        this.le.AddDelimiter("initializeDatabase")
+        this.le.logStack.push('initializeDatabase');
+
+        try {
+            const db = new initializeDatabase(this.le, this.db)
+            await db.build()
+        } catch(err) {
+            this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+            throw(err);
+        } finally {
+            this.le.logStack.pop()
+        }
+        
+        return new Promise<void>((resolve) => {resolve()})
     }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
