@@ -34,8 +34,8 @@ export class Collector {
         this.le.logStack.push('initializeDatabase');
 
         try {
-            const db = new initializeDatabase(this.le, this.db)
-            await db.build()
+            const init = new initializeDatabase(this.le, this.db)
+            await init.build()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);

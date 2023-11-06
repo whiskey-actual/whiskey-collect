@@ -23,9 +23,9 @@ export class initializeDatabase
 
       // source table
       let columns:ColumnDefinition[] = []
-      columns.push(new ColumnDefinition('URI', mssql.VarChar(255), true))
-      columns.push(new ColumnDefinition('Credential', mssql.VarChar(255), true))
-      columns.push(new ColumnDefinition('Authentication', mssql.VarChar(255), true))
+      columns.push(new ColumnDefinition('URI', mssql.VarChar(255), true, true))
+      columns.push(new ColumnDefinition('Credential', mssql.VarChar(255), true, true))
+      columns.push(new ColumnDefinition('Authentication', mssql.VarChar(255), true, true))
       await this.db.createTable('Source', columns)
       
     } catch (ex) {
