@@ -31,6 +31,7 @@ export class Collector {
 
     public async initializeDatabase() {
         const db = new initializeDatabase(this.le, this.db)
+        await db.build()
     }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
