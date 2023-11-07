@@ -5,7 +5,7 @@ export function DeviceTable():ColumnDefinition[] {
     let Columns:ColumnDefinition[] = []
     
     Columns.push(new ColumnDefinition('Name', "VARCHAR", false, true, 255))
-    Columns.push(new ColumnDefinition('IsActive', "BIT", false, true))
+    Columns.push(new ColumnDefinition('IsActive', "BIT", false, true, undefined, false))
     Columns.push(new ColumnDefinition('FirstObserved', "DATETIME2"))
     Columns.push(new ColumnDefinition('LastObserved', "DATETIME2"))
 

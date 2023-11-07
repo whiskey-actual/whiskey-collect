@@ -5,10 +5,10 @@ export function UserTable():ColumnDefinition[] {
     let Columns:ColumnDefinition[] = []
     Columns.push(new ColumnDefinition('EmailAddress', "VARCHAR", true, true))
     Columns.push(new ColumnDefinition('LastObserved', "DATETIME2"))
-    Columns.push(new ColumnDefinition('IsActive', "BIT", false))
+    Columns.push(new ColumnDefinition('IsActive', "BIT", false, true, undefined, false))
 
-    Columns.push(new ColumnDefinition('ObservedByActiveDirectory', "BIT", false, true))
-    Columns.push(new ColumnDefinition('ObservedByAzureActiveDirectory', "BIT", false, true))
+    Columns.push(new ColumnDefinition('ObservedByActiveDirectory', "BIT", false, true, undefined, false))
+    Columns.push(new ColumnDefinition('ObservedByAzureActiveDirectory', "BIT", false, true, undefined, false))
     
     Columns.push(new ColumnDefinition('ActiveDirectoryDN', "VARCHAR"))
     Columns.push(new ColumnDefinition('ActiveDirectoryCN', "VARCHAR"))
