@@ -224,7 +224,6 @@ export class ActiveDirectory
           // update the device table to add the corresponding DeviceActiveDirectoryID ..
           let ruDevice = new RowUpdate(DeviceID)
           ruDevice.updateName=this.Devices[i].deviceName
-          ruDevice.updateName=this.Devices[i].deviceName
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDN", mssql.VarChar(255), this.Devices[i].deviceDN))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryOperatingSystem", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystem))
