@@ -6,7 +6,8 @@ import https from 'https'
 import axios from 'axios'
 import mssql from 'mssql'
 import { DBEngine } from 'whiskey-sql';
-import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { RowUpdate } from 'whiskey-sql/lib/components/RowUpdate';
+import { ColumnUpdate } from 'whiskey-sql/lib/components/ColumnUpdate';
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 export class ConnectwiseObject {
@@ -194,30 +195,30 @@ export class Connectwise
         let ruConnectwise = new RowUpdate(DeviceID)
         ruConnectwise.updateName=this.ConnectwiseObjects[i].deviceName
         // strings
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_DeviceType", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDeviceType))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Location", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseLocation))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Client", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseClient))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_DomainName", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDomainName))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_AgentVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseAgentVersion))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Comment", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseComment))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_IpAddress", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseIpAddress))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_MacAddress", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseMacAddress))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_LastUserName", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseLastUserName))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Status", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseStatus))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_SerialNumber", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseSerialNumber))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Manufacturer", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseManufacturer))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Model", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseModel))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_Description", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDescription))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_OperatingSystem", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystem))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_OperatingSystemVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseDeviceType", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDeviceType))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseLocation", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseLocation))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseClient", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseClient))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseDomainName", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDomainName))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseAgentVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseAgentVersion))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseComment", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseComment))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseIpAddress", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseIpAddress))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseMacAddress", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseMacAddress))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseLastUserName", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseLastUserName))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseStatus", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseStatus))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseSerialNumber", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseSerialNumber))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseManufacturer", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseManufacturer))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseModel", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseModel))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseDescription", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseDescription))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseOperatingSystem", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystem))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseOperatingSystemVersion", mssql.VarChar(255), this.ConnectwiseObjects[i].connectwiseOperatingSystemVersion))
         // bigint
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_TotalMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseTotalMemory))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_FreeMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseFreeMemory, false))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseTotalMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseTotalMemory))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseFreeMemory", mssql.BigInt, this.ConnectwiseObjects[i].connectwiseFreeMemory, false))
         // dates
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_LastObserved", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseLastObserved))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_WindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_AntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
-        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("cw_FirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseLastObserved", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseLastObserved))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseWindowsUpdateDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseWindowsUpdateDate))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseAntivirusDefinitionDate", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseAntivirusDefinitionDate))
+        ruConnectwise.ColumnUpdates.push(new ColumnUpdate("ConnectwiseFirstSeen", mssql.DateTime2, this.ConnectwiseObjects[i].connectwiseFirstSeen))
 
         await this.db.updateTable('Device', 'DeviceID', [ruConnectwise])
 

@@ -2,7 +2,8 @@
 import { LogEngine } from 'whiskey-log';
 import { CleanedString, ldapTimestampToJS, getMaxDateFromObject } from 'whiskey-util'
 import { DBEngine } from 'whiskey-sql';
-import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { RowUpdate } from 'whiskey-sql/lib/components/RowUpdate';
+import { ColumnUpdate } from 'whiskey-sql/lib/components/ColumnUpdate';
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 import { Client } from 'ldapts'

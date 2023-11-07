@@ -5,7 +5,8 @@ import { CleanedDate, CleanedString, getProgressMessage } from 'whiskey-util'
 import axios from 'axios'
 import mssql from 'mssql'
 import { DBEngine } from 'whiskey-sql';
-import { RowUpdate, ColumnUpdate } from "whiskey-sql/lib/update"
+import { RowUpdate } from 'whiskey-sql/lib/components/RowUpdate';
+import { ColumnUpdate } from 'whiskey-sql/lib/components/ColumnUpdate';
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 
 export class CrowdstrikeObject {
