@@ -1,8 +1,13 @@
 // imports
 import { LogEngine } from 'whiskey-log';
 import { DBEngine } from 'whiskey-sql';
-import mssql from 'mssql'
-import { ColumnDefinition } from 'whiskey-sql/lib/components/columnDefinition';
+
+// table definitions
+import { SourceTable } from './tables/SourceTable';
+import { UserTable } from './tables/UserTable';
+import { LicenseTable } from './tables/LicenseTable';
+import { UserLicenseTable } from './tables/UserLicenseTable';
+import { DeviceTable } from './tables/DeviceTable';
 
 export class initializeDatabase
 {
@@ -18,16 +23,12 @@ export class initializeDatabase
     this.le.logStack.push('build')
 
     try {
-
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. building tables ..')
-
-      // source table
-      let columns:ColumnDefinition[] = []
-      columns.push(new ColumnDefinition('URI', mssql.VarChar(255), true, true))
-      columns.push(new ColumnDefinition('Credential', mssql.VarChar(255), true, true))
-      columns.push(new ColumnDefinition('Authentication', mssql.VarChar(255), true, true))
-      await this.db.createTable('Source', columns)
-      
+      await this.db.createTable('Source', SourceTable())
+      await this.db.createTable('User', UserTable())
+      await this.db.createTable('License', LicenseTable())
+      await this.db.createTable('UserLicense', UserLicenseTable())
+      await this.db.createTable('Device', DeviceTable())
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
       throw ex;

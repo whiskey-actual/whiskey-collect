@@ -225,17 +225,17 @@ export class ActiveDirectory
           let ruDevice = new RowUpdate(DeviceID)
           ruDevice.updateName=this.Devices[i].deviceName
           ruDevice.updateName=this.Devices[i].deviceName
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_DN", mssql.VarChar(255), this.Devices[i].deviceDN))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_DNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystem", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystem))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_OperatingSystemVersion", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystemVersion))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount, false))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_WhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_WhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_PwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
-          ruDevice.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, deviceLastSeen))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDN", mssql.VarChar(255), this.Devices[i].deviceDN))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDNSHostName", mssql.VarChar(255), this.Devices[i].activeDirectoryDNSHostName))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryOperatingSystem", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystem))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryOperatingSystemVersion", mssql.VarChar(255), this.Devices[i].activeDirectoryOperatingSystemVersion))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLogonCount", mssql.Int, this.Devices[i].activeDirectoryLogonCount, false))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryWhenCreated", mssql.DateTime2, this.Devices[i].activeDirectoryWhenCreated))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryWhenChanged", mssql.DateTime2, this.Devices[i].activeDirectoryWhenChanged))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLastLogon", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogon))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryPwdLastSet", mssql.DateTime2, this.Devices[i].activeDirectoryPwdLastSet))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLastLogonTimestamp", mssql.DateTime2, this.Devices[i].activeDirectoryLastLogonTimestamp))
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
           await this.db.updateTable('Device', 'DeviceID', [ruDevice])
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -250,50 +250,50 @@ export class ActiveDirectory
       for(let i=0; i<this.Users.length; i++) {
         try {
 
-          let EmployeeID:number = 0
+          let UserID:number = 0
           let updateName:string|undefined=undefined
           // if we have an email address, try to find the id that way first (don't create the row, since we'll try a second match ..)
           if(this.Users[i].emailAddress) {
-            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("EmployeeEmailAddress", this.Users[i].emailAddress, mssql.VarChar(255))], false)
+            UserID = await this.db.getID("User", [new ColumnValuePair("EmployeeEmailAddress", this.Users[i].emailAddress, mssql.VarChar(255))], false)
             updateName = this.Users[i].emailAddress
           }  // otherwise, use the DN; if this doesnt exist, insert it.
-          if(EmployeeID===0) {
-            EmployeeID = await this.db.getID("Employee", [new ColumnValuePair("ad_DN", this.Users[i].userDN, mssql.VarChar(255))], true)
+          if(UserID===0) {
+            UserID = await this.db.getID("User", [new ColumnValuePair("ActiveDirectoryDN", this.Users[i].userDN, mssql.VarChar(255))], true)
             updateName = this.Users[i].userDN
           }
 
           // update the Employee table values ..
-          let ruEmployee = new RowUpdate(EmployeeID)
-          ruEmployee.updateName=updateName ? updateName : 'unknown user'
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), this.Users[i].emailAddress))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_userMail", mssql.VarChar(255), this.Users[i].userMail))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_DN", mssql.VarChar(255), this.Users[i].userDN))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CN", mssql.VarChar(255), this.Users[i].userCN))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SN", mssql.VarChar(255), this.Users[i].userSN))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Country", mssql.VarChar(255), this.Users[i].userCountry))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_City", mssql.VarChar(255), this.Users[i].userCity))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_State", mssql.VarChar(255), this.Users[i].userState))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Title", mssql.VarChar(255), this.Users[i].userTitle))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Office", mssql.VarChar(255), this.Users[i].userPhysicalDeliveryOfficeName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_TelephoneNumber", mssql.VarChar(255), this.Users[i].userTelephoneNumber))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_GivenName", mssql.VarChar(255), this.Users[i].userGivenName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_DisplayName", mssql.VarChar(255), this.Users[i].userDisplayName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Department", mssql.VarChar(255), this.Users[i].userDepartment))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_StreetAddress", mssql.VarChar(255), this.Users[i].userStreetAddress))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_UserName", mssql.VarChar(255), this.Users[i].userName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_EmployeeID", mssql.VarChar(255), this.Users[i].userEmployeeID))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_SAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_PrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
+          let ruUser = new RowUpdate(UserID)
+          ruUser.updateName=updateName ? updateName : 'unknown user'
+          ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), this.Users[i].emailAddress))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryUserMail", mssql.VarChar(255), this.Users[i].userMail))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDN", mssql.VarChar(255), this.Users[i].userDN))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryCN", mssql.VarChar(255), this.Users[i].userCN))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectorySN", mssql.VarChar(255), this.Users[i].userSN))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryCountry", mssql.VarChar(255), this.Users[i].userCountry))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryCity", mssql.VarChar(255), this.Users[i].userCity))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryState", mssql.VarChar(255), this.Users[i].userState))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryTitle", mssql.VarChar(255), this.Users[i].userTitle))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryOffice", mssql.VarChar(255), this.Users[i].userPhysicalDeliveryOfficeName))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryTelephoneNumber", mssql.VarChar(255), this.Users[i].userTelephoneNumber))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryGivenName", mssql.VarChar(255), this.Users[i].userGivenName))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDisplayName", mssql.VarChar(255), this.Users[i].userDisplayName))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryDepartment", mssql.VarChar(255), this.Users[i].userDepartment))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryStreetAddress", mssql.VarChar(255), this.Users[i].userStreetAddress))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryUserName", mssql.VarChar(255), this.Users[i].userName))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryEmployeeID", mssql.VarChar(255), this.Users[i].userEmployeeID))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectorySAMAccountName", mssql.VarChar(255), this.Users[i].userSAMAccountName))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryPrincipalName", mssql.VarChar(255), this.Users[i].userPrincipalName))
           // int
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LogonCount", mssql.Int, this.Users[i].userLogonCount, false))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLogonCount", mssql.Int, this.Users[i].userLogonCount, false))
           // bit
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_Observed", mssql.Bit, true))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryObserved", mssql.Bit, true))
           // datetime
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_CreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_ChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_BadPasswordTime", mssql.DateTime2, this.Users[i].userBadPasswordTime))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryCreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryBadPasswordTime", mssql.DateTime2, this.Users[i].userBadPasswordTime))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLastLogon", mssql.DateTime2, this.Users[i].userLastLogon))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLastLogonTimestamp", mssql.DateTime2, this.Users[i].userLastLogonTimestamp))
 
           const employeeActiveDirectoryLastSeen = getMaxDateFromObject(this.Users[i], [
             //'userCreatedDate',
@@ -303,9 +303,9 @@ export class ActiveDirectory
             'userLastLogonTimestamp'
           ])
 
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("ad_LastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("ActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
 
-          await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee])
+          await this.db.updateTable('User', 'UserID', [ruUser])
 
         } catch(err) {
           this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
