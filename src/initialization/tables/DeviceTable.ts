@@ -4,10 +4,10 @@ import { ColumnDefinition } from "whiskey-sql/lib/components/columnDefinition"
 export function DeviceTable():ColumnDefinition[] {
     let Columns:ColumnDefinition[] = []
     
-    Columns.push(new ColumnDefinition('DeviceName', mssql.VarChar(255), false, true))
-    Columns.push(new ColumnDefinition('DeviceIsActive', mssql.Bit, false, true))
-    Columns.push(new ColumnDefinition('DeviceFirstObserved', mssql.DateTime2))
-    Columns.push(new ColumnDefinition('DeviceLastObserved', mssql.DateTime2))
+    Columns.push(new ColumnDefinition('Name', mssql.VarChar(255), false, true))
+    Columns.push(new ColumnDefinition('IsActive', mssql.Bit, false, true))
+    Columns.push(new ColumnDefinition('FirstObserved', mssql.DateTime2))
+    Columns.push(new ColumnDefinition('LastObserved', mssql.DateTime2))
 
     // Active Directory details
     Columns.push(new ColumnDefinition('ActiveDirectoryDN', mssql.VarChar(255), true, true))
