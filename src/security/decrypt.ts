@@ -7,7 +7,12 @@ export function decrypt(le:LogEngine, encryptedText:string, encryptionKey:string
     let output:string = ""
 
     try {
-        const decipher = crypto.createDecipheriv('aes-256-cbc', encryptionKey, initializationVector);
+
+        // Convert the hex strings to Buffer objects
+        const keyBuffer = Buffer.from(encryptionKey, 'hex');
+        const ivBuffer = Buffer.from(initializationVector, 'hex');
+        
+        const decipher = crypto.createDecipheriv('aes-256-cbc', keyBuffer, ivBuffer);
         let decrypted = decipher.update(encryptedText, 'base64', 'utf8');
         decrypted += decipher.final('utf8');
         output = decrypted
