@@ -613,7 +613,7 @@ export class AzureActiveDirectory {
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryUserType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].userType))
           // bit
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryAccountEnabled", mssql.Bit, this.AzureActiveDirectoryUsers[i].accountEnabled))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryObserved", mssql.Bit, true))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("UserObservedByAzureActiveDirectory", mssql.Bit, true))
           // datetime
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryCreatedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].createdDateTime))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryDeletedDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].deletedDateTime))

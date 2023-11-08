@@ -287,7 +287,7 @@ export class ActiveDirectory
           // int
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryLogonCount", mssql.Int, this.Users[i].userLogonCount, false))
           // bit
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryObserved", mssql.Bit, true))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("UserObservedByActiveDirectory", mssql.Bit, true))
           // datetime
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryCreatedDate", mssql.DateTime2, this.Users[i].userCreatedDate))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryChangedDate", mssql.DateTime2, this.Users[i].userChangedDate))
