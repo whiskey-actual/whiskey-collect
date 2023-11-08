@@ -2,7 +2,10 @@
 import { LogEngine } from 'whiskey-log'
 import { DBEngine } from 'whiskey-sql'
 
-import { initializeDatabase } from './initialization/initializeDatabase'
+import { createTables } from './initialization/createTables'
+
+import { Sources } from './sources'
+import { SourceType } from './sources/sourceType'
 
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
@@ -11,15 +14,20 @@ import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
 import { PostProcessor } from './components/PostProcessor'
 
+
 export class Collector {
 
-    constructor(logStack:string[], sqlConfig:string='', logFrequency:number=1000, showDebug:boolean=false, logStackColumnWidth:number=48) {
+    constructor(logStack:string[], sqlConfig:string, dbEncryptionKey:string, dbInitializationVector:string, logFrequency:number=1000, showDebug:boolean=false, logStackColumnWidth:number=48) {
         this.le = new LogEngine(logStack, showDebug, logStackColumnWidth);
         this.db = new DBEngine(this.le, sqlConfig)
+        this.dbEncryptionKey=dbEncryptionKey
+        this.dbInitializationVector=dbInitializationVector
     }
     //private _mongoURI:string=''
     private le:LogEngine
     private db:DBEngine
+    private dbEncryptionKey:string
+    private dbInitializationVector:string
 
     public async connectToDB() {
         await this.db.connect()
@@ -32,18 +40,23 @@ export class Collector {
     public async initializeDatabase() {
         this.le.AddDelimiter("initializeDatabase")
         this.le.logStack.push('initializeDatabase');
-
         try {
-            const init = new initializeDatabase(this.le, this.db)
-            await init.build()
+            await createTables(this.le, this.db)
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
         } finally {
             this.le.logStack.pop()
         }
-        
         return new Promise<void>((resolve) => {resolve()})
+    }
+
+    public async addDataSource(dataSourceName:string, dataSourceURI:string, sourceType:SourceType, dataSourceCredential:string, dataSourceAuthentication:string, dataSourceParameter?:string) {
+        await Sources.addSource(this.le, this.db, this.dbEncryptionKey, this.dbInitializationVector, dataSourceName, dataSourceURI, dataSourceCredential, dataSourceAuthentication, dataSourceParameter)
+    }
+
+    public async getDataSources() {
+        return await Sources.getSources(this.le, this.db)
     }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
