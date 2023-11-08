@@ -7,7 +7,7 @@ export function SourceTable():ColumnDefinition[] {
     Columns.push(new ColumnDefinition('Port', "INT"))
     Columns.push(new ColumnDefinition('Credential', "VARCHAR", true, true))
     Columns.push(new ColumnDefinition('Authentication', "VARCHAR", true, true))
-    Columns.push(new ColumnDefinition('QueryString', "VARCHAR"))
+    Columns.push(new ColumnDefinition('Parameter', "VARCHAR"))
     Columns.push(new ColumnDefinition('QueryIntervalInMinutes', "INT"))
     Columns.push(new ColumnDefinition('LastRunDateTime', "DATETIME2"))
     Columns.push(new ColumnDefinition('LastRunSuccessful', "BIT", false, true, undefined, false))
