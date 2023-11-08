@@ -1,4 +1,3 @@
-import mssql from 'mssql'
 import { ColumnDefinition } from 'whiskey-sql/lib/create/columnDefinition'
 
 export function UserTable():ColumnDefinition[] {
