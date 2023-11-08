@@ -254,11 +254,11 @@ export class ActiveDirectory
           let updateName:string|undefined=undefined
           // if we have an email address, try to find the id that way first (don't create the row, since we'll try a second match ..)
           if(this.Users[i].emailAddress) {
-            UserID = await this.db.getID("User", [new ColumnValuePair("EmployeeEmailAddress", this.Users[i].emailAddress, mssql.VarChar(255))], false)
+            UserID = await this.db.getID("User", [new ColumnValuePair("UserEmailAddress", this.Users[i].emailAddress, mssql.VarChar(255))], false)
             updateName = this.Users[i].emailAddress
           }  // otherwise, use the DN; if this doesnt exist, insert it.
           if(UserID===0) {
-            UserID = await this.db.getID("User", [new ColumnValuePair("ActiveDirectoryDN", this.Users[i].userDN, mssql.VarChar(255))], true)
+            UserID = await this.db.getID("User", [new ColumnValuePair("UserActiveDirectoryDN", this.Users[i].userDN, mssql.VarChar(255))], true)
             updateName = this.Users[i].userDN
           }
 
