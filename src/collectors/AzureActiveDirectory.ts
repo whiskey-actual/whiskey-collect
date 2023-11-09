@@ -72,7 +72,7 @@ export class AzureActiveDirectoryUser {
   public readonly creationType:string|undefined=undefined
   
   public readonly department:string|undefined=undefined
-  public readonly UserHireDate:string|undefined=undefined
+  public readonly EmployeeHireDate:string|undefined=undefined
   //public readonly UserLeaveDateTime:string|undefined=undefined
   public readonly EmployeeId:string|undefined=undefined
   public readonly EmployeeOrgData:string|undefined=undefined
@@ -293,11 +293,11 @@ export class AzureActiveDirectory {
         'creationType',
         'deletedDateTime',
         'department',
-        'UserHireDate',
+        'EmployeeHireDate',
         //'UserLeaveDateTime',
-        'UserId',
-        'UserOrgData',
-        'UserType',
+        'EmployeeId',
+        'EmployeeOrgData',
+        'EmployeeType',
         //'externalUserState',
         //'hireDate',
         'id',
@@ -368,7 +368,7 @@ export class AzureActiveDirectory {
             country: CleanedString(users[i].country),
             creationType: CleanedString(users[i].creationType),
             department: CleanedString(users[i].department),
-            UserHireDate: CleanedString(users[i].UserHireDate),
+            EmployeeHireDate: CleanedString(users[i].EmployeeHireDate),
             EmployeeId: CleanedString(users[i].EmployeeId),
             EmployeeOrgData: CleanedString(users[i].EmployeeOrgData),
             EmployeeType: CleanedString(users[i].EmployeeType),
@@ -598,7 +598,7 @@ export class AzureActiveDirectory {
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryCountry", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].country))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryCreationType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].creationType))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryDepartment", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].department))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryUserHireDate", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].UserHireDate))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeHireDate", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeHireDate))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeId", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeId))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeOrgData", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeOrgData))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeType))
