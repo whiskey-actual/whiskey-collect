@@ -9,7 +9,7 @@ import { SourceType } from './sources/sourceType'
 
 // collectors
 import { ActiveDirectory } from './collectors/ActiveDirectory'
-import { AzureActiveDirectory } from './collectors/AzureActiveDirectory'
+import { Azure } from './collectors/Azure'
 import { Connectwise } from './collectors/Connectwise'
 import { Crowdstrike } from './collectors/Crowdstrike'
 import { PostProcessor } from './components/PostProcessor'
@@ -66,7 +66,6 @@ export class Collector {
         try {
             const ad = new ActiveDirectory(this.le, this.db, ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit);
             await ad.fetch()
-            await ad.persist()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
@@ -82,11 +81,8 @@ export class Collector {
         this.le.logStack.push('AzureActiveDirectory');
         
         try {
-            const aad = new AzureActiveDirectory(this.le, this.db, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
-            await aad.getDevices()
-            await aad.getUsers()
-            await aad.getManagedDevices()
-            await aad.persist()
+            const azure = new Azure(this.le, this.db, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
+            await azure.fetch()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
