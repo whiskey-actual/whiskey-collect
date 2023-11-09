@@ -646,12 +646,12 @@ export class AzureActiveDirectory {
             ruLicenses.push(ruLicense)
             
             const UserLicenseID = await this.db.getID("UserLicense", [
-              new ColumnValuePair("UserID", UserID, mssql.Int),
-              new ColumnValuePair("LicenseID", LicenseID, mssql.Int)
+              new ColumnValuePair("UserLicenseUserID", UserID, mssql.Int),
+              new ColumnValuePair("UserLicenseLicenseID", LicenseID, mssql.Int)
             ], true)
             let ruUserLicense:RowUpdate = new RowUpdate(UserLicenseID)
-            ruUserLicense.ColumnUpdates.push(new ColumnUpdate("AssignmentDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].services[j].assignedDateTime))
-            ruUserLicense.ColumnUpdates.push(new ColumnUpdate("AssignmentStatus", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceStatus))
+            ruUserLicense.ColumnUpdates.push(new ColumnUpdate("UserLicenseAssignmentDateTime", mssql.DateTime2, this.AzureActiveDirectoryUsers[i].services[j].assignedDateTime))
+            ruUserLicense.ColumnUpdates.push(new ColumnUpdate("UserLicenseAssignmentStatus", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].services[j].serviceStatus))
             ruUserLicenses.push(ruUserLicense)
           }
 
