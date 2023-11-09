@@ -72,12 +72,12 @@ export class PostProcessor {
       public async updateUserDetails() {
         this.le.logStack.push("updateUserDetails")
         try {
-            const users:mssql.IRecordSet<any> = await this.db.selectColumns("Employee", [
-                "EmployeeID",
-                "EmployeeEmailAddress",
-                "EmployeeLastObserved",
-                "DeviceActiveDirectoryLastSeen",
-                "DeviceAzureActiveDirectoryLastSeen"   
+            const users:mssql.IRecordSet<any> = await this.db.selectColumns("User", [
+                "UserID",
+                "UserEmailAddress",
+                "UserLastObserved",
+                "UserActiveDirectoryLastSeen",
+                "UserAzureActiveDirectoryLastSeen"   
             ], [])
 
               // dates
@@ -95,9 +95,9 @@ export class PostProcessor {
                     if(maxDate && (!users[i].EmployeeLastObserved || users[i].EmployeeLastObserved<maxDate)) {
                         let ruUser = new RowUpdate(Number(users[i].EmployeeID))
                         ruUser.updateName=users[i].EmployeeEmailAddress
-                        ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
-                        ruUser.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                        await this.db.updateTable('Employee', 'EmployeeID', [ruUser])
+                        ruUser.ColumnUpdates.push(new ColumnUpdate("UserLastObserved", mssql.DateTime2, maxDate))
+                        ruUser.ColumnUpdates.push(new ColumnUpdate("UserIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
+                        await this.db.updateTable('User', 'UserID', [ruUser])
                     }
                     
                 }     
