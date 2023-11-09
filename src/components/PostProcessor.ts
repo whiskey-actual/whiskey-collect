@@ -23,19 +23,19 @@ export class PostProcessor {
             let observedDateFields:string[] = []
             
             // ad fields
-            observedDateFields = observedDateFields.concat(["ad_WhenCreated","ad_WhenChanged","ad_LastLogon","ad_PwdLastSet","ad_LastLogonTimestamp"])
+            observedDateFields = observedDateFields.concat(["DeviceActiveDirectoryWhenCreated","DeviceActiveDirectoryWhenChanged","DeviceActiveDirectoryLastLogon","DeviceActiveDirectoryPwdLastSet","DeviceActiveDirectoryLastLogonTimestamp"])
             
             // aad
-            observedDateFields = observedDateFields.concat(["aad_DeletedDateTime","aad_ComplianceExpirationDateTime","aad_CreatedDateTime","aad_OnPremisesLastSyncDateTime","aad_RegistrationDateTime"])
+            observedDateFields = observedDateFields.concat(["DeviceAzureActiveDirectoryDeletedDateTime","DeviceAzureActiveDirectoryComplianceExpirationDateTime","DeviceAzureActiveDirectoryCreatedDateTime","DeviceAzureActiveDirectoryOnPremisesLastSyncDateTime","DeviceAzureActiveDirectoryRegistrationDateTime"])
 
             // azure mdm
-            observedDateFields = observedDateFields.concat(["mdm_EnrolledDateTime","mdm_LastSyncDateTime"])
+            observedDateFields = observedDateFields.concat(["DeviceAzureMDMEnrolledDateTime","DeviceAzureMDMLastSyncDateTime"])
 
             // connectwise
-            observedDateFields = observedDateFields.concat(["cw_FirstSeen","cw_LastObserved","cw_WindowsUpdateDate","cw_AntivirusDefinitionDate","cw_AssetDate"])
+            observedDateFields = observedDateFields.concat(["DeviceConnectwiseFirstSeen","DeviceConnectwiseLastObserved","DeviceConnectwiseWindowsUpdateDate","DeviceConnectwiseAntivirusDefinitionDate","DeviceConnectwiseAssetDate"])
 
             // crowdstrike
-            observedDateFields = observedDateFields.concat(["cs_FirstSeenDateTime","cs_LastSeenDateTime","cs_ModifiedDateTime"])
+            observedDateFields = observedDateFields.concat(["DeviceCrowdstrikeFirstSeenDateTime","DeviceCrowdstrikeLastSeenDateTime","DeviceCrowdstrikeModifiedDateTime"])
 
             const devices:mssql.IRecordSet<any> = await this.db.selectColumns("Device", [
                 "DeviceID",
@@ -76,8 +76,8 @@ export class PostProcessor {
                 "EmployeeID",
                 "EmployeeEmailAddress",
                 "EmployeeLastObserved",
-                "ad_LastSeen",
-                "aad_LastSeen"   
+                "DeviceActiveDirectoryLastSeen",
+                "DeviceAzureActiveDirectoryLastSeen"   
             ], [])
 
               // dates
@@ -88,8 +88,8 @@ export class PostProcessor {
     
                 if(users[i].EmployeeID > 0) {
 
-                    observedDates.push(users[i].ad_LastSeen)
-                    observedDates.push(users[i].aad_LastSeen)
+                    observedDates.push(users[i].DeviceActiveDirectoryLastSeen)
+                    observedDates.push(users[i].DeviceAzureActiveDirectoryLastSeen)
                     const maxDate = getMaxDateFromArray(observedDates)
 
                     if(maxDate && (!users[i].EmployeeLastObserved || users[i].EmployeeLastObserved<maxDate)) {

@@ -74,9 +74,9 @@ export class AzureActiveDirectoryUser {
   public readonly department:string|undefined=undefined
   public readonly UserHireDate:string|undefined=undefined
   //public readonly UserLeaveDateTime:string|undefined=undefined
-  public readonly UserId:string|undefined=undefined
-  public readonly UserOrgData:string|undefined=undefined
-  public readonly UserType:string|undefined=undefined
+  public readonly EmployeeId:string|undefined=undefined
+  public readonly EmployeeOrgData:string|undefined=undefined
+  public readonly EmployeeType:string|undefined=undefined
   //public readonly externalUserState:string|undefined=undefined
   //public readonly hireDate:string|undefined=undefined
   
@@ -369,9 +369,9 @@ export class AzureActiveDirectory {
             creationType: CleanedString(users[i].creationType),
             department: CleanedString(users[i].department),
             UserHireDate: CleanedString(users[i].UserHireDate),
-            UserId: CleanedString(users[i].UserId),
-            UserOrgData: CleanedString(users[i].UserOrgData),
-            UserType: CleanedString(users[i].UserType),
+            EmployeeId: CleanedString(users[i].EmployeeId),
+            EmployeeOrgData: CleanedString(users[i].EmployeeOrgData),
+            EmployeeType: CleanedString(users[i].EmployeeType),
             onPremisesDistinguishedName: CleanedString(users[i].onPremisesDistinguishedName),
             onPremisesDomainName: CleanedString(users[i].onPremisesDomainName),
             onPremisesSamAccountName: CleanedString(users[i].onPremisesSamAccountName),
@@ -599,9 +599,9 @@ export class AzureActiveDirectory {
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryCreationType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].creationType))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryDepartment", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].department))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryUserHireDate", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].UserHireDate))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryUserId", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].UserId))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryUserOrgData", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].UserOrgData))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryUserType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].UserType))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeId", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeId))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeOrgData", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeOrgData))
+          ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryEmployeeType", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].EmployeeType))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryOnPremisesDistinguishedName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].onPremisesDistinguishedName))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryOnPremisesDomainName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].onPremisesDomainName))
           ruUser.ColumnUpdates.push(new ColumnUpdate("UserAzureActiveDirectoryOnPremisesSamAccountName", mssql.VarChar(255), this.AzureActiveDirectoryUsers[i].onPremisesSamAccountName))
