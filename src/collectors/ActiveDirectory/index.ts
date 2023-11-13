@@ -29,8 +29,6 @@ export class ActiveDirectory
   private sizeLimit:number
   private ldapClient:Client
 
-  
-
   public async fetch():Promise<void> {
     this.le.logStack.push('fetch')
 
@@ -41,11 +39,13 @@ export class ActiveDirectory
       this.le.AddLogEntry(LogEngine.EntryType.Success, '.. authenticated successfully ..')
       
       // get the devices
-      let devices = await fetchDevices(this.le, this.searchDN, this.ldapClient, this.isPaged, this.sizeLimit)
+      const devices = await fetchDevices(this.le, this.searchDN, this.ldapClient, this.isPaged, this.sizeLimit)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices, persisting ..`)
       await persistDevices(this.le, this.db, devices)
 
       // get the users
-      let users = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
+      const users = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} employees, persisting ..`)
       await persistEmployees(this.le, this.db, users)
       
     } catch (ex) {

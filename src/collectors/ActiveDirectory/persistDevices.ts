@@ -50,11 +50,11 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:ActiveDi
   
       }
     } catch(err) {
-        le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
-        throw(err);
-      } finally {
-        le.logStack.pop()
-      }
+      le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      throw(err);
+    } finally {
+      le.logStack.pop()
+    }
 
     return new Promise<void>((resolve) => {resolve()})
 }
