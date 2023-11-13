@@ -28,7 +28,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
             UpdateName = users[i].emailAddress
           }  // otherwise, use the Id; if this doesnt exist, insert it.
           if(EmployeeID===0) {
-            EmployeeID = await db.getID("Employee", [new ColumnValuePair("AzureActiveDirectoryId", users[i].id, mssql.VarChar(255))], true)
+            EmployeeID = await db.getID("Employee", [new ColumnValuePair("EmployeeAzureActiveDirectoryId", users[i].id, mssql.VarChar(255))], true)
             UpdateName = users[i].id
           }
 

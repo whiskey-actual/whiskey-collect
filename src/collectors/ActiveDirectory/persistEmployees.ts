@@ -17,50 +17,50 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
       for(let i=0; i<employees.length; i++) {
         try {
 
-          let UserID:number = 0
+          let EmployeeID:number = 0
           let updateName:string|undefined=undefined
           // if we have an email address, try to find the id that way first (don't create the row, since we'll try a second match ..)
           if(employees[i].emailAddress) {
-            UserID = await db.getID("User", [new ColumnValuePair("UserEmailAddress", employees[i].emailAddress, mssql.VarChar(255))], false)
+            EmployeeID = await db.getID("Employee", [new ColumnValuePair("EmployeeEmailAddress", employees[i].emailAddress, mssql.VarChar(255))], false)
             updateName = employees[i].emailAddress
           }  // otherwise, use the DN; if this doesnt exist, insert it.
-          if(UserID===0) {
-            UserID = await db.getID("User", [new ColumnValuePair("UserActiveDirectoryDN", employees[i].employeeDN, mssql.VarChar(255))], true)
+          if(EmployeeID===0) {
+            EmployeeID = await db.getID("Employee", [new ColumnValuePair("EmployeeActiveDirectoryDN", employees[i].employeeDN, mssql.VarChar(255))], true)
             updateName = employees[i].employeeDN
           }
 
           // update the Employee table values ..
-          let ruUser = new RowUpdate(UserID)
-          ruUser.updateName=updateName ? updateName : 'unknown employee'
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserEmailAddress", mssql.VarChar(255), employees[i].emailAddress))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryUserMail", mssql.VarChar(255), employees[i].employeeMail))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryDN", mssql.VarChar(255), employees[i].employeeDN))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryCN", mssql.VarChar(255), employees[i].employeeCN))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectorySN", mssql.VarChar(255), employees[i].employeeSN))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryCountry", mssql.VarChar(255), employees[i].employeeCountry))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryCity", mssql.VarChar(255), employees[i].employeeCity))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryState", mssql.VarChar(255), employees[i].employeeState))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryTitle", mssql.VarChar(255), employees[i].employeeTitle))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryOffice", mssql.VarChar(255), employees[i].employeePhysicalDeliveryOfficeName))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryTelephoneNumber", mssql.VarChar(255), employees[i].employeeTelephoneNumber))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryGivenName", mssql.VarChar(255), employees[i].employeeGivenName))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryDisplayName", mssql.VarChar(255), employees[i].employeeDisplayName))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryDepartment", mssql.VarChar(255), employees[i].employeeDepartment))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryStreetAddress", mssql.VarChar(255), employees[i].employeeStreetAddress))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryUserName", mssql.VarChar(255), employees[i].employeeName))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryEmployeeID", mssql.VarChar(255), employees[i].employeeEmployeeID))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectorySAMAccountName", mssql.VarChar(255), employees[i].employeeSAMAccountName))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryPrincipalName", mssql.VarChar(255), employees[i].employeePrincipalName))
+          let ruEmployee = new RowUpdate(EmployeeID)
+          ruEmployee.updateName=updateName ? updateName : 'unknown employee'
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), employees[i].emailAddress))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeMail", mssql.VarChar(255), employees[i].employeeMail))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDN", mssql.VarChar(255), employees[i].employeeDN))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCN", mssql.VarChar(255), employees[i].employeeCN))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySN", mssql.VarChar(255), employees[i].employeeSN))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCountry", mssql.VarChar(255), employees[i].employeeCountry))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCity", mssql.VarChar(255), employees[i].employeeCity))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryState", mssql.VarChar(255), employees[i].employeeState))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryTitle", mssql.VarChar(255), employees[i].employeeTitle))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryOffice", mssql.VarChar(255), employees[i].employeePhysicalDeliveryOfficeName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryTelephoneNumber", mssql.VarChar(255), employees[i].employeeTelephoneNumber))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryGivenName", mssql.VarChar(255), employees[i].employeeGivenName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDisplayName", mssql.VarChar(255), employees[i].employeeDisplayName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDepartment", mssql.VarChar(255), employees[i].employeeDepartment))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryStreetAddress", mssql.VarChar(255), employees[i].employeeStreetAddress))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeName", mssql.VarChar(255), employees[i].employeeName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeID", mssql.VarChar(255), employees[i].employeeEmployeeID))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySAMAccountName", mssql.VarChar(255), employees[i].employeeSAMAccountName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryPrincipalName", mssql.VarChar(255), employees[i].employeePrincipalName))
           // int
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryLogonCount", mssql.Int, employees[i].employeeLogonCount, false))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLogonCount", mssql.Int, employees[i].employeeLogonCount, false))
           // bit
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserObservedByActiveDirectory", mssql.Bit, true))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeObservedByActiveDirectory", mssql.Bit, true))
           // datetime
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryCreatedDate", mssql.DateTime2, employees[i].employeeCreatedDate))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryChangedDate", mssql.DateTime2, employees[i].employeeChangedDate))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryBadPasswordTime", mssql.DateTime2, employees[i].employeeBadPasswordTime))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryLastLogon", mssql.DateTime2, employees[i].employeeLastLogon))
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryLastLogonTimestamp", mssql.DateTime2, employees[i].employeeLastLogonTimestamp))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCreatedDate", mssql.DateTime2, employees[i].employeeCreatedDate))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryChangedDate", mssql.DateTime2, employees[i].employeeChangedDate))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryBadPasswordTime", mssql.DateTime2, employees[i].employeeBadPasswordTime))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogon", mssql.DateTime2, employees[i].employeeLastLogon))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastLogonTimestamp", mssql.DateTime2, employees[i].employeeLastLogonTimestamp))
 
           const employeeActiveDirectoryLastSeen = getMaxDateFromObject(employees[i], [
             //'employeeCreatedDate',
@@ -70,9 +70,9 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
             'employeeLastLogonTimestamp'
           ])
 
-          ruUser.ColumnUpdates.push(new ColumnUpdate("UserActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
 
-          await db.updateTable('User', 'UserID', [ruUser])
+          await db.updateTable('Employee', 'EmployeeID', [ruEmployee])
 
         } catch(err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)

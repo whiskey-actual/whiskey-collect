@@ -37,7 +37,7 @@ export function Employee():ColumnDefinition[] {
     
     Columns.push(new ColumnDefinition('AzureActiveDirectoryAccountEnabled', "BIT", true, true))
     Columns.push(new ColumnDefinition('AzureActiveDirectoryUserPrincipalName', "VARCHAR"))
-    Columns.push(new ColumnDefinition('AzureActiveDirectoryId', "VARCHAR"))
+    Columns.push(new ColumnDefinition('AzureActiveDirectoryId', "VARCHAR", true, true))
     Columns.push(new ColumnDefinition('AzureActiveDirectoryBusinessPhone', "VARCHAR"))
     Columns.push(new ColumnDefinition('AzureActiveDirectoryDisplayName', "VARCHAR"))
     Columns.push(new ColumnDefinition('AzureActiveDirectoryGivenName', "VARCHAR"))
