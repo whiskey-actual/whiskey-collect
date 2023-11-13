@@ -14,10 +14,10 @@ export class ActiveDirectoryEmployee {
   public readonly employeeDepartment:string|undefined=undefined
   public readonly employeeStreetAddress:string|undefined=undefined
   public readonly employeeName:string|undefined=undefined
-  public readonly employeeEmployeeID:string|undefined=undefined
+  public readonly employeeUserID:string|undefined=undefined
   public readonly employeeLogonCount:number|undefined=undefined
   public readonly employeeSAMAccountName:string|undefined=undefined
-  public readonly employeePrincipalName:string|undefined=undefined
+  public readonly employeeUserPrincipalName:string|undefined=undefined
   public readonly employeeMail:string|undefined=undefined
   // dates
   public readonly employeeCreatedDate:Date|undefined=undefined
