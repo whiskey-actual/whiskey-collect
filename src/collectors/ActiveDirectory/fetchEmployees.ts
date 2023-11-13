@@ -6,17 +6,13 @@ import { ActiveDirectoryEmployee } from "./ActiveDirectoryEmployee";
 
 export async function fetchEmployees(le:LogEngine, ldapClient:Client, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryEmployee[]> {
     le.logStack.push("fetchEmployee")
-
     let output:ActiveDirectoryEmployee[] = []
     try {
-          le.AddLogEntry(LogEngine.EntryType.Info, '.. querying Employees ..')
           const { searchEntries } = await ldapClient.search(searchDN,  {filter: '(&(objectClass=Employee)(&(!(objectClass=computer))))', paged:isPaged, sizeLimit:sizeLimit},);
-          le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} Employees .. `)
-          
-          le.AddLogEntry(LogEngine.EntryType.Info, `.. creating objects ..`)
+          le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
-              const adu:ActiveDirectoryEmployee = {
+              const ade:ActiveDirectoryEmployee = {
                 emailAddress: searchEntries[i].mail ? searchEntries[i].mail.toString().trim() : searchEntries[i].EmployeePrincipalName ? searchEntries[i].EmployeePrincipalName.toString().trim() : undefined,
                 employeeDN: searchEntries[i].dn.toString().trim(),
                 employeeCN: CleanedString(searchEntries[i].cn),
@@ -43,19 +39,16 @@ export async function fetchEmployees(le:LogEngine, ldapClient:Client, searchDN:s
                 employeeLastLogon: searchEntries[i].lastLogon ? ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
                 employeeLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined,
               }
-            output.push(adu)
+            output.push(ade)
             } catch (err) {
               le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             }  
           }
-          le.AddLogEntry(LogEngine.EntryType.Info, `.. ${output.length} objects created.`)
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {
       le.logStack.pop()
     }
-
     return new Promise<ActiveDirectoryEmployee[]>((resolve) => {resolve(output)})
-
   }

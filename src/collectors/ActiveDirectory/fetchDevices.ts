@@ -6,14 +6,10 @@ import { Client } from 'ldapts'
 
 export async function fetchDevices(le:LogEngine, searchDN:string, ldapClient:Client, isPaged:boolean=true, sizeLimit:number=500):Promise<ActiveDirectoryDevice[]> {
   le.logStack.push("fetchDevices")
-
   let output:ActiveDirectoryDevice[] = []
   try {
-        le.AddLogEntry(LogEngine.EntryType.Info, '.. querying devices ..')
         const { searchEntries } = await ldapClient.search(searchDN,  {filter: '&(objectClass=computer)', paged: isPaged, sizeLimit: sizeLimit},);
-        le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} devices .. `)
-        
-        le.AddLogEntry(LogEngine.EntryType.Info, `.. creating objects ..`)
+        le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} devices, processing ..`)
         for(let i=0; i<searchEntries.length; i++) {
           try {
             const add:ActiveDirectoryDevice = {
@@ -34,14 +30,11 @@ export async function fetchDevices(le:LogEngine, searchDN:string, ldapClient:Cli
             le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           }  
         }
-        le.AddLogEntry(LogEngine.EntryType.Info, `.. ${output.length } objects created.`)
   } catch(err) {
     le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
     throw(err);
   } finally {
     le.logStack.pop()
   }
-
   return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
-
 }

@@ -34,16 +34,18 @@ export class ActiveDirectory
 
     try {
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. binding LDAP ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'binding LDAP ..')
       await this.ldapClient.bind(this.bindDN, this.pw);
-      this.le.AddLogEntry(LogEngine.EntryType.Success, '.. authenticated successfully ..')
+      this.le.AddLogEntry(LogEngine.EntryType.Success, '.. authenticated successfully.')
       
       // get the devices
+      this.le.AddLogEntry(LogEngine.EntryType.Info, 'querying devices ..')
       const devices = await fetchDevices(this.le, this.searchDN, this.ldapClient, this.isPaged, this.sizeLimit)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices, persisting ..`)
       await persistDevices(this.le, this.db, devices)
 
       // get the users
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying employees ..')
       const employees = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees, persisting ..`)
       await persistEmployees(this.le, this.db, employees)
