@@ -60,8 +60,8 @@ export class Collector {
     }
 
     public async fetchActiveDirectory(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500):Promise<void> {
-        this.le.AddDelimiter("ActiveDirectory")
-        this.le.logStack.push('ActiveDirectory');
+        this.le.AddDelimiter("AD")
+        this.le.logStack.push('AD');
 
         try {
             const ad = new ActiveDirectory(this.le, this.db, ldapURL, bindDN, pw, searchDN, isPaged, sizeLimit);
@@ -77,8 +77,8 @@ export class Collector {
     }
 
     public async fetchAzureActiveDirectory(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string):Promise<void> {
-        this.le.AddDelimiter("AzureActiveDirectory")
-        this.le.logStack.push('AzureActiveDirectory');
+        this.le.AddDelimiter("AAD")
+        this.le.logStack.push('AAD');
         
         try {
             const azure = new Azure(this.le, this.db, TENANT_ID, CLIENT_ID, CLIENT_SECRET);
