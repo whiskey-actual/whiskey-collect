@@ -44,9 +44,9 @@ export class ActiveDirectory
       await persistDevices(this.le, this.db, devices)
 
       // get the users
-      const users = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
-      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} employees, persisting ..`)
-      await persistEmployees(this.le, this.db, users)
+      const employees = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees, persisting ..`)
+      await persistEmployees(this.le, this.db, employees)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
