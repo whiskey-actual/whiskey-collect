@@ -8,7 +8,7 @@ export async function fetchEmployees(le:LogEngine, ldapClient:Client, searchDN:s
     le.logStack.push("fetchEmployee")
     let output:ActiveDirectoryEmployee[] = []
     try {
-          const { searchEntries } = await ldapClient.search(searchDN,  {filter: '(&(objectClass=Employee)(&(!(objectClass=computer))))', paged:isPaged, sizeLimit:sizeLimit},);
+          const { searchEntries } = await ldapClient.search(searchDN,  {filter: '(&(objectClass=user)(&(!(objectClass=computer))))', paged:isPaged, sizeLimit:sizeLimit},);
           le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
