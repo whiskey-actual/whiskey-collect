@@ -69,15 +69,15 @@ export class PostProcessor {
         }
       }
 
-      public async updateUserDetails() {
-        this.le.logStack.push("updateUserDetails")
+      public async updateEmployeeDetails() {
+        this.le.logStack.push("updateEmployeeDetails")
         try {
-            const users:mssql.IRecordSet<any> = await this.db.selectColumns("User", [
-                "UserID",
-                "UserEmailAddress",
-                "UserLastObserved",
-                "UserActiveDirectoryLastSeen",
-                "UserAzureActiveDirectoryLastSeen"   
+            const users:mssql.IRecordSet<any> = await this.db.selectColumns("Employee", [
+                "EmployeeID",
+                "EmployeeEmailAddress",
+                "EmployeeLastObserved",
+                "EmployeeActiveDirectoryLastSeen",
+                "EmployeeAzureActiveDirectoryLastSeen"   
             ], [])
 
               // dates
@@ -93,11 +93,11 @@ export class PostProcessor {
                     const maxDate = getMaxDateFromArray(observedDates)
 
                     if(maxDate && (!users[i].EmployeeLastObserved || users[i].EmployeeLastObserved<maxDate)) {
-                        let ruUser = new RowUpdate(Number(users[i].EmployeeID))
-                        ruUser.updateName=users[i].EmployeeEmailAddress
-                        ruUser.ColumnUpdates.push(new ColumnUpdate("UserLastObserved", mssql.DateTime2, maxDate))
-                        ruUser.ColumnUpdates.push(new ColumnUpdate("UserIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                        await this.db.updateTable('User', 'UserID', [ruUser])
+                        let ruEmployee = new RowUpdate(Number(users[i].EmployeeID))
+                        ruEmployee.updateName=users[i].EmployeeEmailAddress
+                        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
+                        ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
+                        await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee])
                     }
                     
                 }     

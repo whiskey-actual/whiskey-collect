@@ -3,16 +3,16 @@ import { CleanedString, CleanedDate } from "whiskey-util"
 import { Client } from "@microsoft/microsoft-graph-client"
 import { getData } from "./getData"
 
-import { AzureActiveDirectoryUser } from "./AzureActiveDirectoryUser"
-import { UserService } from "./UserService"
+import { AzureActiveDirectoryEmployee } from "./AzureActiveDirectoryEmployee"
+import { EmployeeService } from "./EmployeeService"
 
-export async function fetchUsers(le:LogEngine, graphClient:Client):Promise<AzureActiveDirectoryUser[]> {
-    le.logStack.push("users")
+export async function fetchEmployees(le:LogEngine, graphClient:Client):Promise<AzureActiveDirectoryEmployee[]> {
+    le.logStack.push("fetchEmployees")
 
-    let output:AzureActiveDirectoryUser[] = []
+    let output:AzureActiveDirectoryEmployee[] = []
     try {
 
-      le.AddLogEntry(LogEngine.EntryType.Info, `fetching users ..`)
+      le.AddLogEntry(LogEngine.EntryType.Info, `fetching employees ..`)
 
       const fieldsToFetch = [
         'userPrincipalName',
@@ -74,16 +74,16 @@ export async function fetchUsers(le:LogEngine, graphClient:Client):Promise<Azure
 
           //console.debug(users[i].assignedPlans)
 
-          let userServices:UserService[] = []
+          let employeeServices:EmployeeService[] = []
           for(let j=0; j<users[i].assignedPlans.length; j++) {
             try {
-              const us:UserService = {
+              const es:EmployeeService = {
                 serviceName: CleanedString(users[i].assignedPlans[j].service),
                 servicePlanId: CleanedString(users[i].assignedPlans[j].servicePlanId),
                 assignedDateTime: CleanedDate(users[i].assignedPlans[j].assignedDateTime),
                 serviceStatus: CleanedString(users[i].assignedPlans[j].capabilityStatus)
               }
-              userServices.push(us);
+              employeeServices.push(es);
             } catch(err) {
               console.debug(users[i].assignedPlans)
               console.debug(users[i].assignedPlans[j])
@@ -92,7 +92,7 @@ export async function fetchUsers(le:LogEngine, graphClient:Client):Promise<Azure
             
           }
 
-          const aadu:AzureActiveDirectoryUser = {
+          const aade:AzureActiveDirectoryEmployee = {
             emailAddress: users[i].mail ? users[i].mail.toString().trim() : users[i].userPrincipalName ? users[i].userPrincipalName.toString().trim() : users[i].onPremisesUserPrincipalName ? users[i].onPremisesUserPrincipalName.toString().trim() : undefined,
             mail: CleanedString(users[i].mail),
             userPrincipalName: CleanedString(users[i].userPrincipalName),
@@ -126,11 +126,11 @@ export async function fetchUsers(le:LogEngine, graphClient:Client):Promise<Azure
             createdDateTime: CleanedDate(users[i].createdDateTime),
             deletedDateTime: CleanedDate(users[i].deletedDateTime),
             lastPasswordChangeDateTime: CleanedDate(users[i].lastPasswordChangeDateTime),
-            services: userServices,
+            services: employeeServices,
             lastSignInDateTime: users[i].signInActivity ? CleanedDate(users[i].signInActivity.lastSignInDateTime) : undefined
           }
 
-          output.push(aadu)
+          output.push(aade)
         } catch (err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(users[i])
@@ -145,6 +145,6 @@ export async function fetchUsers(le:LogEngine, graphClient:Client):Promise<Azure
       le.logStack.pop()
     }
     
-    return new Promise<AzureActiveDirectoryUser[]>((resolve) => {resolve(output)})
+    return new Promise<AzureActiveDirectoryEmployee[]>((resolve) => {resolve(output)})
 
   }

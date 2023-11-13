@@ -9,10 +9,10 @@ import { DBEngine } from 'whiskey-sql';
 
 import { fetchDevices } from './fetchDevices';
 import { fetchMDM } from './fetchMDM';
-import { fetchUsers } from './fetchUsers';
+import { fetchEmployees } from './fetchEmployees';
 
 import { persistDevices } from './persistDevices';
-import { persistUsers } from './persistUsers';
+import { persistEmployees } from './persistEmployees';
 import { persistMDM } from './persistMDM';
 
 export class Azure {
@@ -45,8 +45,8 @@ export class Azure {
       await persistMDM(this.le, this.db, mdm)
 
       // get the users
-      let users = await fetchUsers(this.le, this.graphClient)
-      await persistUsers(this.le, this.db, users)
+      let employees = await fetchEmployees(this.le, this.graphClient)
+      await persistEmployees(this.le, this.db, employees)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)

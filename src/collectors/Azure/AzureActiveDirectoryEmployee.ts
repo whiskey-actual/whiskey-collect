@@ -1,6 +1,6 @@
-import { UserService } from "./UserService"
+import { EmployeeService } from "./EmployeeService"
 
-export class AzureActiveDirectoryUser {
+export class AzureActiveDirectoryEmployee {
 
     public readonly id:string=''
   
@@ -53,6 +53,6 @@ export class AzureActiveDirectoryUser {
     public readonly lastPasswordChangeDateTime:Date|undefined=undefined
     public readonly lastSignInDateTime?:Date=undefined
   
-    public readonly services:UserService[] = []
+    public readonly services:EmployeeService[] = []
   
   }

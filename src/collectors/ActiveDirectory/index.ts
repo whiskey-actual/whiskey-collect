@@ -4,8 +4,8 @@ import { DBEngine } from 'whiskey-sql';
 import { Client } from 'ldapts'
 import { fetchDevices } from './fetchDevices';
 import { persistDevices } from './persistDevices';
-import { fetchUsers } from './fetchUsers';
-import { persistUsers } from './persistUsers';
+import { fetchEmployees } from './fetchEmployees';
+import { persistEmployees } from './persistEmployees';
 
 export class ActiveDirectory
 {
@@ -45,8 +45,8 @@ export class ActiveDirectory
       await persistDevices(this.le, this.db, devices)
 
       // get the users
-      let users = await fetchUsers(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
-      await persistUsers(this.le, this.db, users)
+      let users = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
+      await persistEmployees(this.le, this.db, users)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)

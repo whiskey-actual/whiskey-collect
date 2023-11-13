@@ -1,6 +1,6 @@
 import { ColumnDefinition } from 'whiskey-sql/lib/create/columnDefinition'
 
-export function UserTable():ColumnDefinition[] {
+export function Employee():ColumnDefinition[] {
     let Columns:ColumnDefinition[] = []
     Columns.push(new ColumnDefinition('EmailAddress', "VARCHAR", true, true))
     Columns.push(new ColumnDefinition('LastObserved', "DATETIME2"))

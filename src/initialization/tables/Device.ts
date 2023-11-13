@@ -1,7 +1,6 @@
-import mssql from 'mssql'
 import { ColumnDefinition } from 'whiskey-sql/lib/create/columnDefinition'
 
-export function DeviceTable():ColumnDefinition[] {
+export function Device():ColumnDefinition[] {
     let Columns:ColumnDefinition[] = []
     
     Columns.push(new ColumnDefinition('Name', "VARCHAR", false, true, 255))

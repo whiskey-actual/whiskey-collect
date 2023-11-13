@@ -2,7 +2,7 @@
 import { LogEngine } from 'whiskey-log'
 import { DBEngine } from 'whiskey-sql'
 
-import { createTables } from './initialization/createTables'
+import { verifyTables } from './initialization/verifyTables'
 
 import { Sources } from './sources'
 import { SourceType } from './sources/sourceType'
@@ -41,7 +41,7 @@ export class Collector {
         this.le.AddDelimiter("initializeDatabase")
         this.le.logStack.push('initializeDatabase');
         try {
-            await createTables(this.le, this.db)
+            await verifyTables(this.le, this.db)
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
@@ -134,7 +134,7 @@ export class Collector {
         try {
             const pp = new PostProcessor(this.le, this.db)
             await pp.updateDeviceDetails()
-            await pp.updateUserDetails()
+            await pp.updateEmployeeDetails()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
