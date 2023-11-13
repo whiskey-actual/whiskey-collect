@@ -33,7 +33,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
           let ruEmployee = new RowUpdate(EmployeeID)
           ruEmployee.updateName=updateName ? updateName : 'unknown employee'
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), employees[i].emailAddress))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeMail", mssql.VarChar(255), employees[i].employeeMail))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserMail", mssql.VarChar(255), employees[i].employeeMail))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDN", mssql.VarChar(255), employees[i].employeeDN))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryCN", mssql.VarChar(255), employees[i].employeeCN))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySN", mssql.VarChar(255), employees[i].employeeSN))
