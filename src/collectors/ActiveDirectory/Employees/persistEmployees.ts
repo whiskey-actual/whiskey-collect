@@ -47,7 +47,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDisplayName", mssql.VarChar(255), employees[i].employeeDisplayName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryDepartment", mssql.VarChar(255), employees[i].employeeDepartment))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryStreetAddress", mssql.VarChar(255), employees[i].employeeStreetAddress))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeName", mssql.VarChar(255), employees[i].employeeName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserName", mssql.VarChar(255), employees[i].employeeName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryEmployeeID", mssql.VarChar(255), employees[i].employeeEmployeeID))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySAMAccountName", mssql.VarChar(255), employees[i].employeeSAMAccountName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryPrincipalName", mssql.VarChar(255), employees[i].employeePrincipalName))
