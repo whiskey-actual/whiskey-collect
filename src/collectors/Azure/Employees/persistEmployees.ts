@@ -36,7 +36,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
           let ruEmployee = new RowUpdate(EmployeeID)
           ruEmployee.updateName = UpdateName ? UpdateName : 'unknown user'
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeEmailAddress", mssql.VarChar(255), users[i].emailAddress))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryEmployeePrincipalName", mssql.VarChar(255), users[i].userPrincipalName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryUserPrincipalName", mssql.VarChar(255), users[i].userPrincipalName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryId", mssql.VarChar(255), users[i].id))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryBusinessPhone", mssql.VarChar(255), users[i].businessPhone))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryDisplayName", mssql.VarChar(255), users[i].displayName))
