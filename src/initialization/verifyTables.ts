@@ -13,7 +13,7 @@ export async function verifyTables(le:LogEngine, db:DBEngine):Promise<void> {
       await db.createTable('Source', Source())
       await db.createTable('Employee', Employee())
       await db.createTable('License', License())
-      await db.createTable('UserLicense', EmployeeLicense())
+      await db.createTable('EmployeeLicense', EmployeeLicense())
       await db.createTable('Device', Device())
     } catch (ex) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
