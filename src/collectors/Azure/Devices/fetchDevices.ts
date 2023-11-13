@@ -1,7 +1,7 @@
 import { LogEngine } from "whiskey-log"
 import { CleanedString, CleanedDate } from "whiskey-util"
 import { AzureActiveDirectoryDevice } from "./AzureActiveDirectoryDevice"
-import { getData } from "./getData"
+import { getData } from "../getData"
 import { Client } from "@microsoft/microsoft-graph-client"
 
 export async function fetchDevices(le:LogEngine, graphClient:Client):Promise<AzureActiveDirectoryDevice[]> {

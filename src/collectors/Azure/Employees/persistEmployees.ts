@@ -57,7 +57,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryOnPremisesDistinguishedName", mssql.VarChar(255), users[i].onPremisesDistinguishedName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryOnPremisesDomainName", mssql.VarChar(255), users[i].onPremisesDomainName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryOnPremisesSamAccountName", mssql.VarChar(255), users[i].onPremisesSamAccountName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryOnPremisesEmployeePrincipalName", mssql.VarChar(255), users[i].onPremisesUserPrincipalName))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryOnPremisesUserPrincipalName", mssql.VarChar(255), users[i].onPremisesUserPrincipalName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryPasswordPolicies", mssql.VarChar(255), users[i].passwordPolicies))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryPostalCode", mssql.VarChar(255), users[i].postalCode))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryState", mssql.VarChar(255), users[i].state))

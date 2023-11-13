@@ -2,10 +2,10 @@
 import { LogEngine } from 'whiskey-log';
 import { DBEngine } from 'whiskey-sql';
 import { Client } from 'ldapts'
-import { fetchDevices } from './fetchDevices';
-import { persistDevices } from './persistDevices';
-import { fetchEmployees } from './fetchEmployees';
-import { persistEmployees } from './persistEmployees';
+import { fetchDevices } from './Devices/fetchDevices';
+import { persistDevices } from './Devices/persistDevices';
+import { fetchEmployees } from './Employees/fetchEmployees';
+import { persistEmployees } from './Employees/persistEmployees';
 
 export class ActiveDirectory
 {

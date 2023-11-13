@@ -1,7 +1,7 @@
 import { LogEngine } from "whiskey-log"
 import { CleanedString, CleanedDate } from "whiskey-util"
 import { Client } from "@microsoft/microsoft-graph-client"
-import { getData } from "./getData"
+import { getData } from "../getData"
 import { AzureManagedDevice } from "./AzureManagedDevice"
 
 export async function fetchMDM(le:LogEngine, graphClient:Client):Promise<AzureManagedDevice[]> {

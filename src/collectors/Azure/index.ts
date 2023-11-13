@@ -7,13 +7,13 @@ import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-grap
 import { ClientSecretCredential } from '@azure/identity'
 import { DBEngine } from 'whiskey-sql';
 
-import { fetchDevices } from './fetchDevices';
-import { fetchMDM } from './fetchMDM';
-import { fetchEmployees } from './fetchEmployees';
+import { fetchDevices } from './Devices/fetchDevices';
+import { fetchMDM } from './MDM/fetchMDM';
+import { fetchEmployees } from './Employees/fetchEmployees';
 
-import { persistDevices } from './persistDevices';
-import { persistEmployees } from './persistEmployees';
-import { persistMDM } from './persistMDM';
+import { persistDevices } from './Devices/persistDevices';
+import { persistEmployees } from './Employees/persistEmployees';
+import { persistMDM } from './MDM/persistMDM';
 
 export class Azure {
 
