@@ -20,6 +20,8 @@ export class PostProcessor {
 
         try {
 
+            this.le.AddLogEntry(LogEngine.EntryType.Info, 'updating device details ..')
+
             let observedDateFields:string[] = []
             
             // ad fields
@@ -72,6 +74,9 @@ export class PostProcessor {
       public async updateEmployeeDetails() {
         this.le.logStack.push("updateEmployeeDetails")
         try {
+
+            this.le.AddLogEntry(LogEngine.EntryType.Info, 'updating employee details ..')
+
             const users:mssql.IRecordSet<any> = await this.db.selectColumns("Employee", [
                 "EmployeeID",
                 "EmployeeEmailAddress",

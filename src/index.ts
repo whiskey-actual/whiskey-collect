@@ -98,15 +98,15 @@ export class Collector {
         this.le.logStack.push('Connectwise');
         
         try {
-            const cw = new Connectwise(this.le, this.db);
-            await cw.fetch(baseURL, clientId, userName, password);
-            await cw.persist()
+            const cw = new Connectwise(this.le, this.db, baseURL, clientId, userName, password);
+            await cw.fetch()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
+        } finally {
+            this.le.logStack.pop()
         }
         
-        this.le.logStack.pop()
         return new Promise<void>((resolve) => {resolve()})
     }
     
