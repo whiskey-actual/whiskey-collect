@@ -17,10 +17,14 @@ export class Connectwise
     this.username = username
     this.password = password
 
+    this.le.AddLogEntry(LogEngine.EntryType.Info, 'creating instance ..')
+
     // create the request agent
     this.axiosInstance = axios.create({baseURL: baseUrl, headers: {clientId: clientId}});
     const httpsAgent = new https.Agent({ rejectUnauthorized: false})
     this.axiosInstance.defaults.httpsAgent=httpsAgent;
+
+    this.le.AddLogEntry(LogEngine.EntryType.Info, '.. instance created.')
 
     console.debug(this.axiosInstance)
   }

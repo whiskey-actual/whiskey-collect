@@ -43,7 +43,7 @@ export class PostProcessor {
                 "DeviceID",
                 "DeviceName"              
             ].concat(observedDateFields), [])
-    
+            this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${devices.length} records, processing ..`)
             // dates
             
             for(let i=0; i<devices.length; i++) {
@@ -85,7 +85,7 @@ export class PostProcessor {
                 "EmployeeAzureActiveDirectoryLastSeen"   
             ], [])
 
-            this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${users.length} records.`)
+            this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${users.length} records, processing ..`)
 
               // dates
             
@@ -95,8 +95,8 @@ export class PostProcessor {
     
                 if(users[i].EmployeeID > 0) {
 
-                    observedDates.push(users[i].DeviceActiveDirectoryLastSeen)
-                    observedDates.push(users[i].DeviceAzureActiveDirectoryLastSeen)
+                    observedDates.push(users[i].EmployeeActiveDirectoryLastSeen)
+                    observedDates.push(users[i].EmployeeAzureActiveDirectoryLastSeen)
                     const maxDate = getMaxDateFromArray(observedDates)
 
                     if(maxDate && (!users[i].EmployeeLastObserved || users[i].EmployeeLastObserved<maxDate)) {
