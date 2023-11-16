@@ -62,7 +62,6 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryPostalCode", mssql.VarChar(255), users[i].postalCode))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryState", mssql.VarChar(255), users[i].state))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryStreetAddress", mssql.VarChar(255), users[i].streetAddress))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryEmployeeType", mssql.VarChar(255), users[i].userType))
           // bit
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryAccountEnabled", mssql.Bit, users[i].accountEnabled))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeObservedByAzureActiveDirectory", mssql.Bit, true))
