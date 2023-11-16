@@ -21,6 +21,8 @@ export class Connectwise
     this.axiosInstance = axios.create({baseURL: baseUrl, headers: {clientId: clientId}});
     const httpsAgent = new https.Agent({ rejectUnauthorized: false})
     this.axiosInstance.defaults.httpsAgent=httpsAgent;
+
+    console.debug(this.axiosInstance)
   }
   private le:LogEngine
   private db:DBEngine

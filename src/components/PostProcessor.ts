@@ -85,6 +85,8 @@ export class PostProcessor {
                 "EmployeeAzureActiveDirectoryLastSeen"   
             ], [])
 
+            this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${users.length} records.`)
+
               // dates
             
               for(let i=0; i<users.length; i++) {
