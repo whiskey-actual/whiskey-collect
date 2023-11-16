@@ -11,38 +11,27 @@ import { persistDevices } from './persistDevices';
 export class Connectwise
 {
 
-  constructor(le:LogEngine, db:DBEngine, baseUrl:string, clientId:string, username:string, password:string) {
+  constructor(le:LogEngine, db:DBEngine, baseUrl:string, clientId:string) {
     this.le=le
     this.db=db
-    this.username = username
-    this.password = password
-
-    console.debug('creating instance ..')
-    this.le.AddLogEntry(LogEngine.EntryType.Info, 'creating instance ..')
-
+    
     // create the request agent
     this.axiosInstance = axios.create({baseURL: baseUrl, headers: {clientId: clientId}});
     const httpsAgent = new https.Agent({ rejectUnauthorized: false})
     this.axiosInstance.defaults.httpsAgent=httpsAgent;
-
-    this.le.AddLogEntry(LogEngine.EntryType.Info, '.. instance created.')
-    console.debug('.. instance created')
-
-    console.debug(this.axiosInstance)
   }
+
   private le:LogEngine
   private db:DBEngine
-  private username:string
-  private password:string
   private axiosInstance:AxiosInstance
 
-  public async fetch():Promise<void> {
+  public async fetch(username:string, password:string):Promise<void> {
     this.le.logStack.push('fetch')
 
     try {
 
         // get access token
-        const accessToken = await getAccessToken(this.le, this.axiosInstance, this.username, this.password)
+        const accessToken = await getAccessToken(this.le, this.axiosInstance, username, password)
         this.axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
 
         // get the devices
@@ -68,5 +57,6 @@ export class Connectwise
     return new Promise<void>((resolve) => {resolve()})
 
   }
+
 }
   

@@ -93,14 +93,13 @@ export class Collector {
         return new Promise<void>((resolve) => {resolve()})
     }
 
-    public async fetchConnectwise(baseURL:string, clientId:string, userName:string, password:string):Promise<void> {
+    public async fetchConnectwise(baseURL:string, clientId:string, username:string, password:string):Promise<void> {
         this.le.AddDelimiter("Connectwise")
         this.le.logStack.push('Connectwise');
         
         try {
-            const cw = new Connectwise(this.le, this.db, baseURL, clientId, userName, password);
-            console.debug(cw)
-            await cw.fetch()
+            const cw = new Connectwise(this.le, this.db, baseURL, clientId);
+            await cw.fetch(username, password)
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
@@ -116,9 +115,8 @@ export class Collector {
         this.le.logStack.push('Crowdstrike');
 
         try {
-            const cs = new Crowdstrike(this.le, this.db)
-            await cs.fetch(baseURL, clientId, clientSecret)
-            await cs.persist()
+            const cs = new Crowdstrike(this.le, this.db, baseURL)
+            await cs.fetch(clientId, clientSecret)
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
