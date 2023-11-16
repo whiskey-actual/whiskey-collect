@@ -28,6 +28,7 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:AzureAct
           const DeviceID:number = await db.getID("Device", [new ColumnValuePair("deviceName", devices[i].deviceName, mssql.VarChar(255))], true)
           let ruDevice = new RowUpdate(DeviceID)
           ruDevice.updateName=devices[i].deviceName
+          ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryId", mssql.VarChar(255), devices[i].azureDeviceId))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryDeviceCategory", mssql.VarChar(255), devices[i].azureDeviceCategory))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryDeviceMetadata", mssql.VarChar(255), devices[i].azureDeviceMetadata))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryDeviceOwnership", mssql.VarChar(255), devices[i].azureDeviceOwnership))
