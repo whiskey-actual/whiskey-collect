@@ -17,6 +17,7 @@ export class Connectwise
     this.username = username
     this.password = password
 
+    console.debug('creating instance ..')
     this.le.AddLogEntry(LogEngine.EntryType.Info, 'creating instance ..')
 
     // create the request agent
@@ -25,6 +26,7 @@ export class Connectwise
     this.axiosInstance.defaults.httpsAgent=httpsAgent;
 
     this.le.AddLogEntry(LogEngine.EntryType.Info, '.. instance created.')
+    console.debug('.. instance created')
 
     console.debug(this.axiosInstance)
   }

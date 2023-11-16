@@ -99,6 +99,8 @@ export class Collector {
         
         try {
             const cw = new Connectwise(this.le, this.db, baseURL, clientId, userName, password);
+
+            console.debug(cw)
             await cw.fetch()
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
