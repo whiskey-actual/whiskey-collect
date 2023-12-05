@@ -55,7 +55,7 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, employees:
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserID", mssql.VarChar(255), employees[i].employeeUserID))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectorySAMAccountName", mssql.VarChar(255), employees[i].employeeSAMAccountName))
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryUserPrincipalName", mssql.VarChar(255), employees[i].employeeUserPrincipalName))
-          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeManager", mssql.VarChar(255), employees[i].employeeManager))
+          ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryManager", mssql.VarChar(255), employees[i].employeeManager))
           // int
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLogonCount", mssql.Int, employees[i].employeeLogonCount, false))
           // bit
