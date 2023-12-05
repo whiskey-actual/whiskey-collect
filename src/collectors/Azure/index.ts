@@ -43,13 +43,13 @@ export class Azure {
       let devices = await fetchDevices(this.le, this.graphClient)
       updates.push(... await BuildDeviceUpdates(this.le, this.db, devices))
 
-      // get the MDM devices
-      let mdm = await fetchMDM(this.le, this.graphClient)
-      updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
-
       // get the users
       let employees = await fetchEmployees(this.le, this.graphClient)
       updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
+
+      // get the MDM devices
+      let mdm = await fetchMDM(this.le, this.graphClient)
+      updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
 
       await this.db.PerformTableUpdates(updates)
       

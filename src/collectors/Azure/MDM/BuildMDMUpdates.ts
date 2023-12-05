@@ -19,7 +19,7 @@ export async function BuildMDMUpdates(le:LogEngine, db:DBEngine, devices:AzureMa
       const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
 
       // AAD managed devices ..
-      le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD managed device updates ..')
+      le.AddLogEntry(LogEngine.EntryType.Info, `.. building ${devices.length} updates for AzureMDM devices .. `)
       for(let i=0; i<devices.length; i++) {
         
         try {
@@ -89,13 +89,10 @@ export async function BuildMDMUpdates(le:LogEngine, db:DBEngine, devices:AzureMa
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureMDMIsSupervised", mssql.Bit, devices[i].azureManagedIsSupervised))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureMDMIsEncrypted", mssql.Bit, devices[i].azureManagedIsEncrypted))
           tu.RowUpdates.push(ruDevice)
-        
         } catch(err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
-          console.debug(devices[i])
           throw(err);
         }
-
       }
 
       output.push(tu)

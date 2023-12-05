@@ -21,7 +21,7 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:Azur
       const tuEmployeeLicense:TableUpdate = new TableUpdate('EmployeeLicense', 'EmployeeLicenseID')
 
       // AAD Employees ..
-      le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD user updates ..')
+      le.AddLogEntry(LogEngine.EntryType.Info, `.. building ${users.length} updates for AzureAD employees .. `)
       for(let i=0; i<users.length; i++) {
         try {
 

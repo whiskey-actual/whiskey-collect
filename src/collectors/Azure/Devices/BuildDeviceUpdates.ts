@@ -18,7 +18,7 @@ export async function BuildDeviceUpdates(le:LogEngine, db:DBEngine, devices:Azur
       const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
 
       // AAD devices
-      le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD device updates ..')
+      le.AddLogEntry(LogEngine.EntryType.Info, `.. building ${devices.length} updates for AzureAD devices .. `)
       for(let i=0; i<devices.length; i++) {
         try {
 
