@@ -16,8 +16,8 @@ export async function addSource(le:LogEngine, db:DBEngine, encryptionKey:string,
     try {
         credential = Security.encrypt(le, credential, encryptionKey, initializationVector)
         const SourceID:number = await db.getID('Source', [new ColumnValuePair('SourceDescription', name, mssql.VarChar(255))], true)
-        const tu = new TableUpdate('Source', 'SourceID')
-        const ru = new RowUpdate(SourceID)
+        let tu = new TableUpdate('Source', 'SourceID')
+        let ru = new RowUpdate(SourceID)
         ru.updateName = name
         ru.ColumnUpdates.push(new ColumnUpdate("SourceURI", mssql.VarChar(255), URI))
         ru.ColumnUpdates.push(new ColumnUpdate("SourceCredential", mssql.VarChar(255), credential))
