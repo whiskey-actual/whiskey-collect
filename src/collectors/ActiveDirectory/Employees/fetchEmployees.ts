@@ -11,6 +11,9 @@ export async function fetchEmployees(le:LogEngine, ldapClient:Client, searchDN:s
           const { searchEntries } = await ldapClient.search(searchDN,  {filter: '(&(objectClass=user)(&(!(objectClass=computer))))', paged:isPaged, sizeLimit:sizeLimit},);
           le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
+
+            console.debug(searchEntries[i])
+
             try {
               const ade:ActiveDirectoryEmployee = {
                 emailAddress: searchEntries[i].mail ? searchEntries[i].mail.toString().trim() : searchEntries[i].EmployeePrincipalName ? searchEntries[i].EmployeePrincipalName.toString().trim() : undefined,
