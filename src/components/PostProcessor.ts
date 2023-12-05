@@ -1,10 +1,11 @@
 import { LogEngine } from "whiskey-log"
-import mssql from 'mssql'
+import mssql, { Table } from 'mssql'
 import { DBEngine } from "whiskey-sql"
 import { getMaxDateFromArray } from "whiskey-util"
 import { RowUpdate } from 'whiskey-sql/lib/components/RowUpdate';
 import { ColumnUpdate } from 'whiskey-sql/lib/components/ColumnUpdate';
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate";
 
 export class PostProcessor {
     constructor(le:LogEngine, db:DBEngine) {
@@ -46,6 +47,8 @@ export class PostProcessor {
             this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${devices.length} records, processing ..`)
             // dates
             
+            let tu:TableUpdate = new TableUpdate("Device", "DeviceID")
+
             for(let i=0; i<devices.length; i++) {
 
                 let observedDates:Date[] = []
@@ -53,16 +56,16 @@ export class PostProcessor {
                 for(let j=0; j<observedDateFields.length; j++) {
                     observedDates.push(devices[i][observedDateFields[j]])
                 }
-    
                 const maxDate = getMaxDateFromArray(observedDates)
-
                 let ruDevice = new RowUpdate(Number(devices[i].DeviceID))
                 ruDevice.updateName=devices[i].DeviceName
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceLastObserved", mssql.DateTime2, maxDate))
                 ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold) : false))
-
-                await this.db.updateTable('Device', 'DeviceID', [ruDevice])
+                tu.RowUpdates.push(ruDevice)
             }
+
+            await this.db.PerformTableUpdates([tu])
+
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
@@ -89,6 +92,7 @@ export class PostProcessor {
 
               // dates
             
+              let tu:TableUpdate = new TableUpdate("Employee", "EmployeeID")
               for(let i=0; i<users.length; i++) {
 
                 let observedDates:Date[] = []
@@ -104,11 +108,12 @@ export class PostProcessor {
                         ruEmployee.updateName=users[i].EmployeeEmailAddress
                         ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeLastObserved", mssql.DateTime2, maxDate))
                         ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeIsActive", mssql.Bit, maxDate ? (maxDate>this.activeThreshold): false))
-                        await this.db.updateTable('Employee', 'EmployeeID', [ruEmployee])
-                    }
-                    
+                        tu.RowUpdates.push(ruEmployee)
+                    }                    
                 }     
             }
+            await this.db.PerformTableUpdates([tu])
+            
         } catch(err) {
             this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
             throw(err);
