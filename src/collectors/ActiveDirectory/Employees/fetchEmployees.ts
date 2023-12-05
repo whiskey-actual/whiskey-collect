@@ -12,7 +12,7 @@ export async function fetchEmployees(le:LogEngine, ldapClient:Client, searchDN:s
           le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
 
-            console.debug(searchEntries[i])
+            //console.debug(searchEntries[i])
 
             try {
               const ade:ActiveDirectoryEmployee = {
