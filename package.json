@@ -1,6 +1,6 @@
 {
   "name": "whiskey-collect",
-  "version": "1.4.79",
+  "version": "1.4.80",
   "description": "",
   "main": "./lib/index.js",
   "files": [
