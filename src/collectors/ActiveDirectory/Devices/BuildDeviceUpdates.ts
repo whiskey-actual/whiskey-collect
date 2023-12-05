@@ -17,7 +17,6 @@ export async function BuildDeviceUpdates(le:LogEngine, db:DBEngine, devices:Acti
       const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
 
       // devices
-      le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (device) ..')
       for(let i=0; i<devices.length; i++) {
         try {
 

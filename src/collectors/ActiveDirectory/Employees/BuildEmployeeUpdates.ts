@@ -17,7 +17,6 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, employees:
       const tu:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
 
       // employees
-      le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (employee) ..')
       for(let i=0; i<employees.length; i++) {
         try {
 
