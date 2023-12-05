@@ -23,9 +23,11 @@ export class Azure {
     this.db=db
 
     // set up the graph client
+    this.le.AddLogEntry(LogEngine.EntryType.Info, '.. creating graph client ..')
     const credential = new ClientSecretCredential(TENANT_ID, CLIENT_ID, CLIENT_SECRET);
     const authProvider = new TokenCredentialAuthenticationProvider(credential, {scopes: ['https://graph.microsoft.com/.default']})
     this.graphClient = Client.initWithMiddleware({authProvider: authProvider})
+    this.le.AddLogEntry(LogEngine.EntryType.Info, '.. graph client created.')
 
   }
   private le:LogEngine
@@ -40,17 +42,24 @@ export class Azure {
     try {
 
       // get the devices
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying devices ..')
       let devices = await fetchDevices(this.le, this.graphClient)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices ..`)
       updates.push(... await BuildDeviceUpdates(this.le, this.db, devices))
 
       // get the users
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying employees ..')
       let employees = await fetchEmployees(this.le, this.graphClient)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees ..`)
       updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
 
       // get the MDM devices
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying MDM devices ..')
       let mdm = await fetchMDM(this.le, this.graphClient)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${mdm.length} MDM devices ..`)
       updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
 
+      this.le.AddLogEntry(LogEngine.EntryType.Success, '.. persisting .. ')
       await this.db.PerformTableUpdates(updates)
       
     } catch (ex) {

@@ -44,16 +44,16 @@ export class ActiveDirectory
       // get the devices
       this.le.AddLogEntry(LogEngine.EntryType.Info, 'querying devices ..')
       const devices = await fetchDevices(this.le, this.searchDN, this.ldapClient, this.isPaged, this.sizeLimit)
-      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices, persisting ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices ..`)
       updates.push(...await BuildDeviceUpdates(this.le, this.db, devices))
 
       // get the users
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying employees ..')
       const employees = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
-      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees, persisting ..`)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees ..`)
       updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
 
-
+      this.le.AddLogEntry(LogEngine.EntryType.Success, '.. persisting .. ')
       await this.db.PerformTableUpdates(updates)
       
     } catch (ex) {
