@@ -6,11 +6,15 @@ import { getMaxDateFromObject } from "whiskey-util"
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 import { ColumnUpdate } from "whiskey-sql/lib/components/ColumnUpdate"
 import { RowUpdate } from "whiskey-sql/lib/components/RowUpdate"
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
-export async function persistEmployees(le:LogEngine, db:DBEngine, employees:ActiveDirectoryEmployee[]):Promise<void> {
-    le.logStack.push('persistEmployee')
+export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, employees:ActiveDirectoryEmployee[]):Promise<TableUpdate[]> {
+  le.logStack.push('BuildEmployeeUpdates')
+  let output:TableUpdate[] = []
     
     try {
+
+      const tu:TableUpdate = new TableUpdate('Enployee', 'EmployeeID')
 
       // employees
       le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (employee) ..')
@@ -72,7 +76,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeActiveDirectoryLastSeen", mssql.DateTime2, employeeActiveDirectoryLastSeen))
 
-          await db.updateTable('Employee', 'EmployeeID', [ruEmployee])
+          tu.RowUpdates.push(ruEmployee)
 
         } catch(err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -82,6 +86,8 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
 
       }
 
+      output.push(tu)
+
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
@@ -90,6 +96,6 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, employees:Acti
       le.logStack.pop()
     }
 
-    return new Promise<void>((resolve) => {resolve()})
+    return new Promise<TableUpdate[]>((resolve) => {resolve(output)})
 
   }

@@ -11,9 +11,10 @@ import { fetchDevices } from './Devices/fetchDevices';
 import { fetchMDM } from './MDM/fetchMDM';
 import { fetchEmployees } from './Employees/fetchEmployees';
 
-import { persistDevices } from './Devices/persistDevices';
-import { persistEmployees } from './Employees/persistEmployees';
-import { persistMDM } from './MDM/persistMDM';
+import { BuildDeviceUpdates } from './Devices/BuildDeviceUpdates';
+import { BuildEmployeeUpdates } from './Employees/BuildEmployeeUpdates';
+import { BuildMDMUpdates } from './MDM/BuildMDMUpdates';
+import { TableUpdate } from 'whiskey-sql/lib/components/TableUpdate';
 
 export class Azure {
 
@@ -31,22 +32,26 @@ export class Azure {
   private db:DBEngine
   private graphClient:Client
 
-  public async fetch():Promise<void> {
+  public async fetch():Promise<TableUpdate[]> {
     this.le.logStack.push('fetch')
 
+    let updates:TableUpdate[] = []
+
     try {
-      
+
       // get the devices
       let devices = await fetchDevices(this.le, this.graphClient)
-      await persistDevices(this.le, this.db, devices)
+      updates.push(... await BuildDeviceUpdates(this.le, this.db, devices))
 
       // get the MDM devices
       let mdm = await fetchMDM(this.le, this.graphClient)
-      await persistMDM(this.le, this.db, mdm)
+      updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
 
       // get the users
       let employees = await fetchEmployees(this.le, this.graphClient)
-      await persistEmployees(this.le, this.db, employees)
+      updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
+
+      await this.db.PerformTableUpdates(updates)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
@@ -56,7 +61,7 @@ export class Azure {
       this.le.logStack.pop()
     }
     
-    return new Promise<void>((resolve) => {resolve()})
+    return new Promise<TableUpdate[]>((resolve) => {resolve(updates)})
 
   }
 

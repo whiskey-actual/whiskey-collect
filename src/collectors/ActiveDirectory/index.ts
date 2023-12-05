@@ -3,9 +3,10 @@ import { LogEngine } from 'whiskey-log';
 import { DBEngine } from 'whiskey-sql';
 import { Client } from 'ldapts'
 import { fetchDevices } from './Devices/fetchDevices';
-import { persistDevices } from './Devices/persistDevices';
+import { BuildDeviceUpdates } from './Devices/BuildDeviceUpdates';
 import { fetchEmployees } from './Employees/fetchEmployees';
-import { persistEmployees } from './Employees/persistEmployees';
+import { BuildEmployeeUpdates } from './Employees/BuildEmployeeUpdates';
+import { TableUpdate } from 'whiskey-sql/lib/components/TableUpdate';
 
 export class ActiveDirectory
 {
@@ -29,8 +30,10 @@ export class ActiveDirectory
   private sizeLimit:number
   private ldapClient:Client
 
-  public async fetch():Promise<void> {
+  public async fetch():Promise<TableUpdate[]> {
     this.le.logStack.push('fetch')
+
+    let updates:TableUpdate[] = []
 
     try {
 
@@ -42,13 +45,16 @@ export class ActiveDirectory
       this.le.AddLogEntry(LogEngine.EntryType.Info, 'querying devices ..')
       const devices = await fetchDevices(this.le, this.searchDN, this.ldapClient, this.isPaged, this.sizeLimit)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices, persisting ..`)
-      await persistDevices(this.le, this.db, devices)
+      updates.push(...await BuildDeviceUpdates(this.le, this.db, devices))
 
       // get the users
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying employees ..')
       const employees = await fetchEmployees(this.le, this.ldapClient, this.searchDN, this.isPaged, this.sizeLimit)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees, persisting ..`)
-      await persistEmployees(this.le, this.db, employees)
+      updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
+
+
+      await this.db.PerformTableUpdates(updates)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
@@ -59,7 +65,7 @@ export class ActiveDirectory
       this.le.logStack.pop()
     }
     
-    return new Promise<void>((resolve) => {resolve()})
+    return new Promise<TableUpdate[]>((resolve) => {resolve(updates)})
 
   }
 }

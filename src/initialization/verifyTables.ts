@@ -19,7 +19,7 @@ export async function verifyTables(le:LogEngine, db:DBEngine):Promise<void> {
       le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
       throw ex;
     } finally {
-      le.AddLogEntry(LogEngine.EntryType.Success, 'done.')
+      //le.AddLogEntry(LogEngine.EntryType.Success, 'done.')
       le.logStack.pop()
     }
     

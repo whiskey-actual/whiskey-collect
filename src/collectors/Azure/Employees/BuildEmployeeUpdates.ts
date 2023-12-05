@@ -7,13 +7,19 @@ import { RowUpdate } from "whiskey-sql/lib/components/RowUpdate"
 import { ColumnUpdate } from "whiskey-sql/lib/components/ColumnUpdate"
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 import { AzureActiveDirectoryEmployee } from "./AzureActiveDirectoryEmployee"
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
 
-export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureActiveDirectoryEmployee[]) {
-    le.logStack.push('persistEmployees')
+export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:AzureActiveDirectoryEmployee[]):Promise<TableUpdate[]> {
+  le.logStack.push('BuildEmployeeUpdates')
+  let output:TableUpdate[] = []
     
     try {
       
+      const tuEmployee:TableUpdate = new TableUpdate('Employee', 'EmployeeID')
+      const tuLicense:TableUpdate = new TableUpdate('License', 'LicenseID')
+      const tuEmployeeLicense:TableUpdate = new TableUpdate('EmployeeLicense', 'EmployeeLicenseID')
+
       // AAD Employees ..
       le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD user updates ..')
       for(let i=0; i<users.length; i++) {
@@ -79,14 +85,12 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
 
           ruEmployee.ColumnUpdates.push(new ColumnUpdate("EmployeeAzureActiveDirectoryLastSeen", mssql.DateTime2, aadLastSeen))
 
-          await db.updateTable('Employee', 'EmployeeID', [ruEmployee])
+          tuEmployee.RowUpdates.push(ruEmployee)
 
           // update licenses
 
           //console.debug(users[i].services);
 
-          let ruLicenses:RowUpdate[] = []
-          let ruEmployeeLicenses:RowUpdate[] = []
           for(let j=0; j<users[i].services.length; j++) {
             
             //console.debug(users[i].services[j])
@@ -94,7 +98,7 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
             const LicenseID = await db.getID("License", [new ColumnValuePair("LicensePlanID", users[i].services[j].servicePlanId, mssql.VarChar(255))], true)
             let ruLicense:RowUpdate = new RowUpdate(LicenseID)
             ruLicense.ColumnUpdates.push(new ColumnUpdate("LicenseDescription", mssql.VarChar(255), users[i].services[j].serviceName))
-            ruLicenses.push(ruLicense)
+            tuLicense.RowUpdates.push(ruLicense)
             
             const EmployeeLicenseID = await db.getID("EmployeeLicense", [
               new ColumnValuePair("EmployeeLicenseEmployeeID", EmployeeID, mssql.Int),
@@ -103,11 +107,8 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
             let ruEmployeeLicense:RowUpdate = new RowUpdate(EmployeeLicenseID)
             ruEmployeeLicense.ColumnUpdates.push(new ColumnUpdate("EmployeeLicenseAssignmentDateTime", mssql.DateTime2, users[i].services[j].assignedDateTime))
             ruEmployeeLicense.ColumnUpdates.push(new ColumnUpdate("EmployeeLicenseAssignmentStatus", mssql.VarChar(255), users[i].services[j].serviceStatus))
-            ruEmployeeLicenses.push(ruEmployeeLicense)
+            tuEmployeeLicense.RowUpdates.push(ruEmployeeLicense)
           }
-
-          await db.updateTable('License', 'LicenseID', ruLicenses)
-          await db.updateTable('EmployeeLicense', 'EmployeeLicenseID', ruEmployeeLicenses)
 
         } catch(err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -116,6 +117,8 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
         }
 
       }
+
+      output.push(...[tuEmployee, tuLicense, tuEmployeeLicense])
     
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -124,6 +127,8 @@ export async function persistEmployees(le:LogEngine, db:DBEngine, users:AzureAct
       le.AddLogEntry(LogEngine.EntryType.Info, 'done')
       le.logStack.pop()
     }
+
+    return new Promise<TableUpdate[]>((resolve) => {resolve(output)})
 
   }
 

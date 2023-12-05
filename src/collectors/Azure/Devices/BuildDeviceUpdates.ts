@@ -7,11 +7,15 @@ import { RowUpdate } from "whiskey-sql/lib/components/RowUpdate"
 import { ColumnUpdate } from "whiskey-sql/lib/components/ColumnUpdate"
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 import { AzureActiveDirectoryDevice } from "./AzureActiveDirectoryDevice"
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
-export async function persistDevices(le:LogEngine, db:DBEngine, devices:AzureActiveDirectoryDevice[]) {
-    le.logStack.push('persistDevices')
+export async function BuildDeviceUpdates(le:LogEngine, db:DBEngine, devices:AzureActiveDirectoryDevice[]):Promise<TableUpdate[]> {
+  le.logStack.push('BuildDeviceUpdates')
+  let output:TableUpdate[] = []
     
     try {
+
+      const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
 
       // AAD devices
       le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD device updates ..')
@@ -58,7 +62,7 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:AzureAct
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryIsCompliant", mssql.Bit, devices[i].azureIsCompliant))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryIsManaged", mssql.Bit, devices[i].azureIsManaged))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureActiveDirectoryIsRooted", mssql.Bit, devices[i].azureIsRooted))
-          await db.updateTable('Device', 'DeviceID', [ruDevice])
+          tu.RowUpdates.push(ruDevice)
 
           
         } catch(err) {
@@ -68,7 +72,7 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:AzureAct
         }
       }
       
-      
+      output.push(tu)
     
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -77,6 +81,8 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:AzureAct
       le.AddLogEntry(LogEngine.EntryType.Info, 'done')
       le.logStack.pop()
     }
+    
+    return new Promise<TableUpdate[]>((resolve) => {resolve(output)})
 
   }
 

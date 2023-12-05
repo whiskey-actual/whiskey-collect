@@ -6,11 +6,15 @@ import { RowUpdate } from "whiskey-sql/lib/components/RowUpdate"
 import { DBEngine } from "whiskey-sql"
 import mssql from 'mssql'
 import { ActiveDirectoryDevice } from "./ActiveDirectoryDevice"
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
-export async function persistDevices(le:LogEngine, db:DBEngine, devices:ActiveDirectoryDevice[]):Promise<void> {
-    le.logStack.push('persistDevices')
-    
+export async function BuildDeviceUpdates(le:LogEngine, db:DBEngine, devices:ActiveDirectoryDevice[]):Promise<TableUpdate[]> {
+  le.logStack.push('BuildDeviceUpdates')
+  let output:TableUpdate[] = []
+      
     try {
+
+      const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
 
       // devices
       le.AddLogEntry(LogEngine.EntryType.Info, 'performing table updates (device) ..')
@@ -41,14 +45,16 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:ActiveDi
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryPwdLastSet", mssql.DateTime2, devices[i].activeDirectoryPwdLastSet))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryLastLogonTimestamp", mssql.DateTime2, devices[i].activeDirectoryLastLogonTimestamp))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceActiveDirectoryLastSeen", mssql.DateTime2, deviceLastSeen))
-          await db.updateTable('Device', 'DeviceID', [ruDevice])
+          tu.RowUpdates.push(ruDevice)
         } catch(err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(devices[i])
           throw(err);
         }
-  
       }
+
+      output.push(tu)
+      
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
@@ -56,5 +62,5 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:ActiveDi
       le.logStack.pop()
     }
 
-    return new Promise<void>((resolve) => {resolve()})
+    return new Promise<TableUpdate[]>((resolve) => {resolve(output)})
 }

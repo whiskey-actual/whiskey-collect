@@ -6,7 +6,8 @@ import { fetchNetworkDevices } from './fetchNetworkDevices';
 import { getAccessToken } from './getAccessToken';
 import https from 'https'
 import axios, { AxiosInstance } from 'axios'
-import { persistDevices } from './persistDevices';
+import { BuildDeviceUpdates } from './BuildDeviceUpdates';
+import { TableUpdate } from 'whiskey-sql/lib/components/TableUpdate';
 
 export class Connectwise
 {
@@ -30,6 +31,8 @@ export class Connectwise
 
     try {
 
+        let tu:TableUpdate[] = []
+
         // get access token
         const accessToken = await getAccessToken(this.le, this.axiosInstance, username, password)
         this.axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
@@ -38,13 +41,15 @@ export class Connectwise
         this.le.AddLogEntry(LogEngine.EntryType.Info, 'querying computers ..')
         const devices = await fetchUserDevices(this.le, this.axiosInstance)
         this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices, persisting ..`)
-        await persistDevices(this.le, this.db, devices)
+        tu.push(...await BuildDeviceUpdates(this.le, this.db, devices))
 
         // get the network devices
         this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying network devices ..')
         const networkDevices = await fetchNetworkDevices(this.le, this.axiosInstance)
         this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${networkDevices.length} network devices, persisting ..`)
-        await persistDevices(this.le, this.db, networkDevices)
+        tu.push(...await BuildDeviceUpdates(this.le, this.db, networkDevices))
+
+        await this.db.PerformTableUpdates(tu)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)

@@ -5,12 +5,15 @@ import { ColumnUpdate } from "whiskey-sql/lib/components/ColumnUpdate"
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 import { ConnectwiseDevice } from "./connectwiseDevice"
 import mssql from 'mssql'
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
-export async function persistDevices(le:LogEngine, db:DBEngine, devices:ConnectwiseDevice[]) {
-    le.logStack.push('persist')
-    le.AddLogEntry(LogEngine.EntryType.Info, 'building requests ..')
+export async function BuildDeviceUpdates(le:LogEngine, db:DBEngine, devices:ConnectwiseDevice[]):Promise<TableUpdate[]> {
+    le.logStack.push('BuildDeviceUpdates')
+    let output:TableUpdate[] = []
 
     try {
+
+      const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
       
       for(let i=0; i<devices.length; i++) {
 
@@ -45,9 +48,11 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:Connectw
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("DeviceConnectwiseAntivirusDefinitionDate", mssql.DateTime2, devices[i].connectwiseAntivirusDefinitionDate))
         ruConnectwise.ColumnUpdates.push(new ColumnUpdate("DeviceConnectwiseFirstSeen", mssql.DateTime2, devices[i].connectwiseFirstSeen))
 
-        await db.updateTable('Device', 'DeviceID', [ruConnectwise])
+        tu.RowUpdates.push(ruConnectwise)
 
       }
+
+      output.push(tu)
 
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -56,5 +61,7 @@ export async function persistDevices(le:LogEngine, db:DBEngine, devices:Connectw
       le.AddLogEntry(LogEngine.EntryType.Info, '.. done')
       le.logStack.pop()
     }
+
+    return new Promise<TableUpdate[]>((resolve) => {resolve(output)})
 
   }

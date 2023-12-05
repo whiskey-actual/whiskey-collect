@@ -8,15 +8,20 @@ import { RowUpdate } from "whiskey-sql/lib/components/RowUpdate"
 import { ColumnUpdate } from "whiskey-sql/lib/components/ColumnUpdate"
 import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 import { AzureManagedDevice } from "./AzureManagedDevice"
+import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
-export async function persistMDM(le:LogEngine, db:DBEngine, devices:AzureManagedDevice[]) {
-    le.logStack.push('persistMDM')
-    
+export async function BuildMDMUpdates(le:LogEngine, db:DBEngine, devices:AzureManagedDevice[]):Promise<TableUpdate[]> {
+    le.logStack.push('BuildMDMUpdates')
+    let output:TableUpdate[] = []
+
     try {
+
+      const tu:TableUpdate = new TableUpdate('Device', 'DeviceID')
 
       // AAD managed devices ..
       le.AddLogEntry(LogEngine.EntryType.Info, 'performing AAD managed device updates ..')
       for(let i=0; i<devices.length; i++) {
+        
         try {
 
           const mdmLastSeen = getMaxDateFromObject(devices[i], [
@@ -83,15 +88,17 @@ export async function persistMDM(le:LogEngine, db:DBEngine, devices:AzureManaged
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureMDMIsAzureADRegistered", mssql.Bit, devices[i].azureManagedIsAzureADRegistered))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureMDMIsSupervised", mssql.Bit, devices[i].azureManagedIsSupervised))
           ruDevice.ColumnUpdates.push(new ColumnUpdate("DeviceAzureMDMIsEncrypted", mssql.Bit, devices[i].azureManagedIsEncrypted))
-          await db.updateTable('Device', 'DeviceID', [ruDevice])
+          tu.RowUpdates.push(ruDevice)
         
-        }  catch(err) {
+        } catch(err) {
           le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
           console.debug(devices[i])
           throw(err);
         }
 
       }
+
+      output.push(tu)
     
     } catch(err) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
@@ -100,6 +107,9 @@ export async function persistMDM(le:LogEngine, db:DBEngine, devices:AzureManaged
       le.AddLogEntry(LogEngine.EntryType.Info, 'done')
       le.logStack.pop()
     }
+
+    return new Promise<TableUpdate[]>((resolve) => {output})
+
 
   }
 
