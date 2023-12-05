@@ -19,6 +19,7 @@ export class ActiveDirectoryEmployee {
   public readonly employeeSAMAccountName:string|undefined=undefined
   public readonly employeeUserPrincipalName:string|undefined=undefined
   public readonly employeeMail:string|undefined=undefined
+  public readonly employeeManager?:string
   // dates
   public readonly employeeCreatedDate:Date|undefined=undefined
   public readonly employeeChangedDate:Date|undefined=undefined

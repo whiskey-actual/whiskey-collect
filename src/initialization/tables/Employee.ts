@@ -27,6 +27,7 @@ export function Employee():ColumnDefinition[] {
     Columns.push(new ColumnDefinition('ActiveDirectorySAMAccountName', "VARCHAR"))
     Columns.push(new ColumnDefinition('ActiveDirectoryUserPrincipalName', "VARCHAR"))
     Columns.push(new ColumnDefinition('ActiveDirectoryUserMail', "VARCHAR"))
+    Columns.push(new ColumnDefinition('ActiveDirectoryUserManager', "VARCHAR"))
     Columns.push(new ColumnDefinition('ActiveDirectoryLogonCount', "INT"))
     Columns.push(new ColumnDefinition('ActiveDirectoryCreatedDate', "DATETIME2"))
     Columns.push(new ColumnDefinition('ActiveDirectoryChangedDate', "DATETIME2"))

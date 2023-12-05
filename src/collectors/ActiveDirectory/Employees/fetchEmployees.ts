@@ -36,6 +36,7 @@ export async function fetchEmployees(le:LogEngine, ldapClient:Client, searchDN:s
                 employeeSAMAccountName: CleanedString(searchEntries[i].sAMAccountName),
                 employeeUserPrincipalName: CleanedString(searchEntries[i].userPrincipalName),
                 employeeMail: CleanedString(searchEntries[i].mail),
+                employeeManager: CleanedString(searchEntries[i].manager),
                 employeeCreatedDate: searchEntries[i].whenCreated ? ldapTimestampToJS(searchEntries[i].whenCreated.toString()) : undefined,
                 employeeChangedDate: searchEntries[i].whenChanged ? ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
                 employeeBadPasswordTime: searchEntries[i].badPasswordTime ? ldapTimestampToJS(searchEntries[i].badPasswordTime.toString()) : undefined,
