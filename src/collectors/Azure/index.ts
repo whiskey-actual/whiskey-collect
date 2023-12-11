@@ -45,22 +45,25 @@ export class Azure {
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying devices ..')
       let devices = await fetchDevices(this.le, this.graphClient)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${devices.length} devices ..`)
-      updates.push(... await BuildDeviceUpdates(this.le, this.db, devices))
+      //updates.push(... await BuildDeviceUpdates(this.le, this.db, devices))
+      await this.db.PerformTableUpdates(await BuildDeviceUpdates(this.le, this.db, devices))
 
       // get the users
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying employees ..')
       let employees = await fetchEmployees(this.le, this.graphClient)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${employees.length} employees ..`)
-      updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
+      //updates.push(... await BuildEmployeeUpdates(this.le, this.db, employees))
+      await this.db.PerformTableUpdates(await BuildEmployeeUpdates(this.le, this.db, employees))
 
       // get the MDM devices
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying MDM devices ..')
       let mdm = await fetchMDM(this.le, this.graphClient)
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${mdm.length} MDM devices ..`)
-      updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
+      //updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
+      await this.db.PerformTableUpdates(await BuildMDMUpdates(this.le, this.db, mdm))
 
-      this.le.AddLogEntry(LogEngine.EntryType.Success, '.. persisting .. ')
-      await this.db.PerformTableUpdates(updates)
+      //this.le.AddLogEntry(LogEngine.EntryType.Success, '.. persisting .. ')
+      //await this.db.PerformTableUpdates(updates)
       
     } catch (ex) {
       this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)

@@ -32,7 +32,7 @@ export class Crowdstrike
         let tu:TableUpdate[] = []
 
         // get access token
-        const accessToken = getAccessToken(this.le, this.axiosInstance, clientId, clientSecret)
+        const accessToken = await getAccessToken(this.le, this.axiosInstance, clientId, clientSecret)
         this.axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`   
 
         // get the devices
