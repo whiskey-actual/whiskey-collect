@@ -7,7 +7,7 @@ import { getProgressMessage } from "whiskey-util";
 import { fetchDevice } from "./fetchDevice";
 
 export async function fetchDevices(le:LogEngine, axiosInstance:AxiosInstance):Promise<CrowdstrikeDevice[]> {
-    le.logStack.push('fetch')
+    le.logStack.push('fetchDevices')
 
     let output:CrowdstrikeDevice[] = []
 

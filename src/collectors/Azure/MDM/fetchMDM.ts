@@ -1,7 +1,7 @@
 import { LogEngine } from "whiskey-log"
 import { CleanedString, CleanedDate } from "whiskey-util"
 import { Client } from "@microsoft/microsoft-graph-client"
-import { getData } from "../getData"
+import { callAPI } from "../callAPI"
 import { AzureManagedDevice } from "./AzureManagedDevice"
 
 export async function fetchMDM(le:LogEngine, graphClient:Client):Promise<AzureManagedDevice[]> {
@@ -13,7 +13,7 @@ export async function fetchMDM(le:LogEngine, graphClient:Client):Promise<AzureMa
 
       le.AddLogEntry(LogEngine.EntryType.Info, `fetching managed devices ..`)
 
-      const managedDevices = await getData(le, graphClient, '/deviceManagement/managedDevices')
+      const managedDevices = await callAPI(le, graphClient, '/deviceManagement/managedDevices')
 
       le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${managedDevices.length} devices; creating objects ..`)
 

@@ -2,11 +2,13 @@ import { LogEngine } from "whiskey-log"
 import { PageIteratorCallback, PageCollection, PageIterator } from "@microsoft/microsoft-graph-client"
 import { Client } from "@microsoft/microsoft-graph-client"
 
-export async function getData(le:LogEngine, graphClient:Client, apiEndpoint:string, selectFields:string[]=[]):Promise<any> {
-    le.logStack.push('getData')
+export async function callAPI(le:LogEngine, graphClient:Client, apiEndpoint:string, selectFields:string[]=[]):Promise<any> {
+    le.logStack.push('callAPI')
     var output:any = []
    
     try {
+
+      le.AddLogEntry(LogEngine.EntryType.Info, `.. calling API endpoint ${apiEndpoint} ..`)
 
       const gc = graphClient.api(apiEndpoint)
       if(selectFields.length>0) {

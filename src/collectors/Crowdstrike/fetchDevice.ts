@@ -5,7 +5,7 @@ import { CrowdstrikeDevice } from "./CrowdstrikeDevice";
 import { CleanedString, CleanedDate } from "whiskey-util";
 
 export async function fetchDevice(le:LogEngine, axiosInstance:AxiosInstance, deviceId:string):Promise<CrowdstrikeDevice> {
-    le.logStack.push('fetch')
+    le.logStack.push('fetchDevice')
 
     let output:CrowdstrikeDevice
 

@@ -1,7 +1,7 @@
 import { LogEngine } from "whiskey-log"
 import { CleanedString, CleanedDate } from "whiskey-util"
 import { AzureActiveDirectoryDevice } from "./AzureActiveDirectoryDevice"
-import { getData } from "../getData"
+import { callAPI } from "../callAPI"
 import { Client } from "@microsoft/microsoft-graph-client"
 
 export async function fetchDevices(le:LogEngine, graphClient:Client):Promise<AzureActiveDirectoryDevice[]> {
@@ -13,7 +13,7 @@ export async function fetchDevices(le:LogEngine, graphClient:Client):Promise<Azu
 
       le.AddLogEntry(LogEngine.EntryType.Info, `fetching devices ..`)
 
-      const devices = await getData(le, graphClient, '/devices')
+      const devices = await callAPI(le, graphClient, '/devices')
 
       le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${devices.length} devices; creating objects ..`)
 

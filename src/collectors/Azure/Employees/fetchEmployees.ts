@@ -1,7 +1,7 @@
 import { LogEngine } from "whiskey-log"
 import { CleanedString, CleanedDate } from "whiskey-util"
 import { Client } from "@microsoft/microsoft-graph-client"
-import { getData } from "../getData"
+import { callAPI } from "../callAPI"
 
 import { AzureActiveDirectoryEmployee } from "./AzureActiveDirectoryEmployee"
 import { EmployeeService } from "./EmployeeService"
@@ -60,7 +60,7 @@ export async function fetchEmployees(le:LogEngine, graphClient:Client):Promise<A
       ]
 
 
-      const users = await getData(le, graphClient, '/users', fieldsToFetch)
+      const users = await callAPI(le, graphClient, '/users', fieldsToFetch)
 
       le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${users.length} devices; creating objects ..`)
 

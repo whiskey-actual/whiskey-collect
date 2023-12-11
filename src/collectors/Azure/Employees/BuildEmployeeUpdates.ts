@@ -9,6 +9,8 @@ import { ColumnValuePair } from "whiskey-sql/lib/components/columnValuePair"
 import { AzureActiveDirectoryEmployee } from "./AzureActiveDirectoryEmployee"
 import { TableUpdate } from "whiskey-sql/lib/components/TableUpdate"
 
+import { getProgressMessage } from "whiskey-util"
+
 
 export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:AzureActiveDirectoryEmployee[]):Promise<TableUpdate[]> {
   le.logStack.push('BuildEmployeeUpdates')
@@ -22,6 +24,8 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:Azur
 
       // AAD Employees ..
       le.AddLogEntry(LogEngine.EntryType.Info, `.. building ${users.length} updates for AzureAD employees .. `)
+      const timeStart:Date = new Date()
+
       for(let i=0; i<users.length; i++) {
         try {
 
@@ -115,8 +119,12 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:Azur
           console.debug(users[i])
           throw(err);
         }
+        
+        if(i>0 && (i%250===0)) {le.AddLogEntry(LogEngine.EntryType.Info, getProgressMessage('', 'built', i, users.length, timeStart, new Date()));}
 
       }
+
+      le.AddLogEntry(LogEngine.EntryType.Success, getProgressMessage('', 'built', users.length, users.length, timeStart, new Date()));
 
       output.push(...[tuEmployee, tuLicense, tuEmployeeLicense])
     

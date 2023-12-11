@@ -23,7 +23,6 @@ export class Collector {
         this.dbEncryptionKey=dbEncryptionKey
         this.dbInitializationVector=dbInitializationVector
     }
-    //private _mongoURI:string=''
     private le:LogEngine
     private db:DBEngine
     private dbEncryptionKey:string
