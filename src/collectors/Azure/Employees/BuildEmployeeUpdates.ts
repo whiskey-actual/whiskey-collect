@@ -120,7 +120,7 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:Azur
           throw(err);
         }
         
-        if(i>0 && (i%250===0)) {le.AddLogEntry(LogEngine.EntryType.Info, getProgressMessage('', 'built', i, users.length, timeStart, new Date()));}
+        if(i>0 && (i%1000===0)) {le.AddLogEntry(LogEngine.EntryType.Info, getProgressMessage('', 'built', i, users.length, timeStart, new Date()));}
 
       }
 
