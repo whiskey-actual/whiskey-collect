@@ -5,6 +5,7 @@ import { License } from './tables/License';
 import { EmployeeLicense } from './tables/EmployeeLicense';
 import { Device } from './tables/Device';
 import { DBEngine } from "whiskey-sql";
+import { BitlockerKeys } from "./tables/BitlockerKeys";
 
 export async function verifyTables(le:LogEngine, db:DBEngine):Promise<void> {
     le.logStack.push('verifyTables')
@@ -15,6 +16,7 @@ export async function verifyTables(le:LogEngine, db:DBEngine):Promise<void> {
       await db.createTable('License', License())
       await db.createTable('EmployeeLicense', EmployeeLicense())
       await db.createTable('Device', Device())
+      await db.createTable('BitlockerKeys', BitlockerKeys())
     } catch (ex) {
       le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
       throw ex;
