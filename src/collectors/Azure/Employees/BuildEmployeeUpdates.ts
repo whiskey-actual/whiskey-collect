@@ -128,7 +128,7 @@ export async function BuildEmployeeUpdates(le:LogEngine, db:DBEngine, users:Azur
 
       output.push(...[tuEmployee, tuLicense, tuEmployeeLicense])
     
-    } catch(err) {
+    } catch(err) { 
       le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
       throw(err);
     } finally {

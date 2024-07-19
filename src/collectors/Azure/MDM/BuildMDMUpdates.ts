@@ -107,7 +107,6 @@ export async function BuildMDMUpdates(le:LogEngine, db:DBEngine, devices:AzureMa
 
     return new Promise<TableUpdate[]>((resolve) => {output})
 
-
   }
 
   

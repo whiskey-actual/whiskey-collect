@@ -15,6 +15,8 @@ import { BuildDeviceUpdates } from './Devices/BuildDeviceUpdates';
 import { BuildEmployeeUpdates } from './Employees/BuildEmployeeUpdates';
 import { BuildMDMUpdates } from './MDM/BuildMDMUpdates';
 import { TableUpdate } from 'whiskey-sql/lib/components/TableUpdate';
+import { fetchBitlockerKeys } from './Bitlocker/fetchBitlockerKeys';
+import { BuildBitlockerUpdates } from './Bitlocker/BuildBitlockerUpdates';
 
 export class Azure {
 
@@ -61,6 +63,13 @@ export class Azure {
       this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${mdm.length} MDM devices ..`)
       //updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
       await this.db.PerformTableUpdates(await BuildMDMUpdates(this.le, this.db, mdm))
+
+      // get bitlocker keys
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying Bitlocker keys ..')
+      let keys = await fetchBitlockerKeys(this.le, this.graphClient)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${keys.length} bitlocker keys ..`)
+      //updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
+      await this.db.PerformTableUpdates(await BuildBitlockerUpdates(this.le, this.db, keys))
 
       //this.le.AddLogEntry(LogEngine.EntryType.Success, '.. persisting .. ')
       //await this.db.PerformTableUpdates(updates)
