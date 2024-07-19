@@ -50,6 +50,13 @@ export class Azure {
       //updates.push(... await BuildDeviceUpdates(this.le, this.db, devices))
       await this.db.PerformTableUpdates(await BuildDeviceUpdates(this.le, this.db, devices))
 
+      // get bitlocker keys
+      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying Bitlocker keys ..')
+      let keys = await fetchBitlockerKeys(this.le, this.graphClient)
+      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${keys.length} bitlocker keys ..`)
+      //updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
+      await this.db.PerformTableUpdates(await BuildBitlockerUpdates(this.le, this.db, keys))
+
       // get the users
       this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying employees ..')
       let employees = await fetchEmployees(this.le, this.graphClient)
@@ -64,12 +71,7 @@ export class Azure {
       //updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
       await this.db.PerformTableUpdates(await BuildMDMUpdates(this.le, this.db, mdm))
 
-      // get bitlocker keys
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. querying Bitlocker keys ..')
-      let keys = await fetchBitlockerKeys(this.le, this.graphClient)
-      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. received ${keys.length} bitlocker keys ..`)
-      //updates.push(... await BuildMDMUpdates(this.le, this.db, mdm))
-      await this.db.PerformTableUpdates(await BuildBitlockerUpdates(this.le, this.db, keys))
+
 
       //this.le.AddLogEntry(LogEngine.EntryType.Success, '.. persisting .. ')
       //await this.db.PerformTableUpdates(updates)
