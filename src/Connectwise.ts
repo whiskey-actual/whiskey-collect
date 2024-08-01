@@ -4,7 +4,7 @@ import https from 'https'
 import axios, { AxiosInstance } from 'axios'
 import { CleanedDate, CleanedString } from 'whiskey-util'
 
-export class Connectwise
+export class ConnectwiseCollector
 {
 
   constructor(baseUrl:string, clientId:string, username:string, password:string, displayDebugOutput:boolean=false) {
