@@ -7,17 +7,19 @@ import { CleanedDate, CleanedString } from 'whiskey-util'
 export class Connectwise
 {
 
-  constructor(baseUrl:string, clientId:string, username:string, password:string) {
+  constructor(baseUrl:string, clientId:string, username:string, password:string, displayDebugOutput:boolean=false) {
     this.baseUrl=baseUrl
     this.clientId=clientId
     this.username=username
     this.password=password
+    this.displayDebugOutput=displayDebugOutput
   }
   private le:LogEngine=new LogEngine(["Connectwise"])
   private baseUrl:string
   private clientId:string
   private username:string
   private password:string
+  private displayDebugOutput:boolean
 
   public async fetchUserDevices():Promise<ConnectwiseDevice[]> {
       this.le.logStack.push("fetchUserDevices")
@@ -36,6 +38,9 @@ export class Connectwise
           const computers = await this.callAPI(axiosInstance, '/Computers?pagesize=10000&orderby=ComputerName asc')
           this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${computers.length} devices received; processing ..`)
           for(let i=0; i<computers.length; i++) {
+
+            if(this.displayDebugOutput) { console.debug(computers[i]) }
+
               try {
                   const o:ConnectwiseDevice = {
                       // mandatory
@@ -108,6 +113,9 @@ export class Connectwise
       const networkDevices = await this.callAPI(axiosInstance, '/NetworkDevices?pagesize=10000&orderby=Name asc')
       this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${networkDevices.length} devices received.`)
       for(let i=0; i<networkDevices.length; i++) {
+
+        if(this.displayDebugOutput) { console.debug(networkDevices[i]) }
+
           try {
           const cwd:ConnectwiseDevice = {
               // mandatory

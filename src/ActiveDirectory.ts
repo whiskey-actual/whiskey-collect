@@ -6,12 +6,13 @@ import { CleanedString, ldapTimestampToJS } from 'whiskey-util';
 export class ActiveDirectoryCollector
 {
 
-  constructor(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500) {
+  constructor(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500, displayDebugOutput:boolean=false) {
     this.bindDN=bindDN
     this.pw=pw
     this.searchDN=searchDN
     this.isPaged=isPaged
     this.sizeLimit=sizeLimit
+    this.displayDebugOutput=displayDebugOutput
     this.ldapClient = new Client({url: ldapURL, tlsOptions:{rejectUnauthorized: false}});
   }
   private le:LogEngine=new LogEngine(["ActiveDirectory"])
@@ -21,6 +22,7 @@ export class ActiveDirectoryCollector
   private isPaged:boolean
   private sizeLimit:number
   private ldapClient:Client
+  private displayDebugOutput:boolean
 
   public async getDevices():Promise<ActiveDirectoryDevice[]> {
     this.le.logStack.push("getDevices")
@@ -34,18 +36,29 @@ export class ActiveDirectoryCollector
           this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} devices, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
+
+              const deviceName = searchEntries[i].cn.toString().trim()
+
+              this.le.AddLogEntry(LogEngine.EntryType.Info, ".. " + deviceName)
+
+              if(this.displayDebugOutput) { console.debug(searchEntries[i]) }
+
               const add:ActiveDirectoryDevice = {
-                deviceDN: searchEntries[i].dn.toString().trim(),
-                deviceName: searchEntries[i].cn.toString().trim(),
-                activeDirectoryOperatingSystem: CleanedString(searchEntries[i].operatingSystem),
-                activeDirectoryOperatingSystemVersion: CleanedString(searchEntries[i].operatingSystemVersion),
-                activeDirectoryDNSHostName: CleanedString(searchEntries[i].dNSHostName),
-                activeDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
-                activeDirectoryWhenCreated: ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
-                activeDirectoryWhenChanged: searchEntries[i].whenChanged ? ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
-                activeDirectoryLastLogon: searchEntries[i].lastLogon ? ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
-                activeDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
-                activeDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
+                // mandatory
+                DeviceDN: searchEntries[i].dn.toString().trim(),
+                DeviceName: deviceName,
+                // strings
+                ActiveDirectoryOperatingSystem: CleanedString(searchEntries[i].operatingSystem),
+                ActiveDirectoryOperatingSystemVersion: CleanedString(searchEntries[i].operatingSystemVersion),
+                ActiveDirectoryDNSHostName: CleanedString(searchEntries[i].dNSHostName),
+                // numbers
+                ActiveDirectoryLogonCount: isNaN(Number(searchEntries[i].logonCount)) ? 0 : Number(searchEntries[i].logonCount),
+                // dates
+                ActiveDirectoryWhenCreated: ldapTimestampToJS(searchEntries[i].whenCreated.toString()),
+                ActiveDirectoryWhenChanged: searchEntries[i].whenChanged ? ldapTimestampToJS(searchEntries[i].whenChanged.toString()) : undefined,
+                ActiveDirectoryLastLogon: searchEntries[i].lastLogon ? ldapTimestampToJS(searchEntries[i].lastLogon.toString()) : undefined,
+                ActiveDirectoryPwdLastSet: searchEntries[i].pwdLastSet ? ldapTimestampToJS(searchEntries[i].pwdLastSet.toString()) : undefined,
+                ActiveDirectoryLastLogonTimestamp: searchEntries[i].lastLogonTimestamp ? ldapTimestampToJS(searchEntries[i].lastLogonTimestamp.toString()) : undefined
               }
               output.push(add)
   
@@ -76,7 +89,7 @@ export class ActiveDirectoryCollector
           this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
 
-            //console.debug(searchEntries[i])
+            if(this.displayDebugOutput) { console.debug(searchEntries[i]) }
 
             try {
               const ade:ActiveDirectoryEmployee = {
@@ -132,53 +145,53 @@ export class ActiveDirectoryCollector
 
 export class ActiveDirectoryDevice {
   // mandatory
-  public readonly deviceName:string=''
-  public readonly deviceDN:string=''
+  public readonly DeviceName:string=''
+  public readonly DeviceDN:string=''
   // strings
-  public readonly activeDirectoryOperatingSystem:string|undefined=undefined
-  public readonly activeDirectoryOperatingSystemVersion:string|undefined=undefined
-  public readonly activeDirectoryDNSHostName:string|undefined=undefined
+  public readonly ActiveDirectoryOperatingSystem:string|undefined=undefined
+  public readonly ActiveDirectoryOperatingSystemVersion:string|undefined=undefined
+  public readonly ActiveDirectoryDNSHostName:string|undefined=undefined
   // numbers
-  public readonly activeDirectoryLogonCount:number=0
+  public readonly ActiveDirectoryLogonCount:number=0
   // dates
-  public readonly activeDirectoryWhenCreated:Date|undefined=undefined
-  public readonly activeDirectoryWhenChanged:Date|undefined=undefined
-  public readonly activeDirectoryLastLogon:Date|undefined=undefined
-  public readonly activeDirectoryPwdLastSet:Date|undefined=undefined
-  public readonly activeDirectoryLastLogonTimestamp:Date|undefined=undefined
+  public readonly ActiveDirectoryWhenCreated:Date|undefined=undefined
+  public readonly ActiveDirectoryWhenChanged:Date|undefined=undefined
+  public readonly ActiveDirectoryLastLogon:Date|undefined=undefined
+  public readonly ActiveDirectoryPwdLastSet:Date|undefined=undefined
+  public readonly ActiveDirectoryLastLogonTimestamp:Date|undefined=undefined
 }
 
 
 
 
-  export class ActiveDirectoryEmployee {
-    public readonly employeeDN:string=''
-    public readonly emailAddress:string|undefined=undefined
-    public readonly employeeCN:string|undefined=undefined
-    public readonly employeeSN:string|undefined=undefined
-    public readonly employeeCountry:string|undefined=undefined
-    public readonly employeeCity:string|undefined=undefined
-    public readonly employeeState:string|undefined=undefined
-    public readonly employeeTitle:string|undefined=undefined
-    public readonly employeePhysicalDeliveryOfficeName:string|undefined=undefined
-    public readonly employeeTelephoneNumber:string|undefined=undefined
-    public readonly employeeGivenName:string|undefined=undefined
-    public readonly employeeDisplayName:string|undefined=undefined
-    public readonly employeeDepartment:string|undefined=undefined
-    public readonly employeeStreetAddress:string|undefined=undefined
-    public readonly employeeName:string|undefined=undefined
-    public readonly employeeUserID:string|undefined=undefined
-    public readonly employeeLogonCount:number|undefined=undefined
-    public readonly employeeSAMAccountName:string|undefined=undefined
-    public readonly employeeUserPrincipalName:string|undefined=undefined
-    public readonly employeeMail:string|undefined=undefined
-    public readonly employeeManager?:string
-    // dates
-    public readonly employeeCreatedDate:Date|undefined=undefined
-    public readonly employeeChangedDate:Date|undefined=undefined
-    public readonly employeeBadPasswordTime:Date|undefined=undefined
-    public readonly employeeLastLogon:Date|undefined=undefined
-    public readonly employeeLastLogonTimestamp:Date|undefined=undefined
-  
-  }
+export class ActiveDirectoryEmployee {
+  public readonly employeeDN:string=''
+  public readonly emailAddress:string|undefined=undefined
+  public readonly employeeCN:string|undefined=undefined
+  public readonly employeeSN:string|undefined=undefined
+  public readonly employeeCountry:string|undefined=undefined
+  public readonly employeeCity:string|undefined=undefined
+  public readonly employeeState:string|undefined=undefined
+  public readonly employeeTitle:string|undefined=undefined
+  public readonly employeePhysicalDeliveryOfficeName:string|undefined=undefined
+  public readonly employeeTelephoneNumber:string|undefined=undefined
+  public readonly employeeGivenName:string|undefined=undefined
+  public readonly employeeDisplayName:string|undefined=undefined
+  public readonly employeeDepartment:string|undefined=undefined
+  public readonly employeeStreetAddress:string|undefined=undefined
+  public readonly employeeName:string|undefined=undefined
+  public readonly employeeUserID:string|undefined=undefined
+  public readonly employeeLogonCount:number|undefined=undefined
+  public readonly employeeSAMAccountName:string|undefined=undefined
+  public readonly employeeUserPrincipalName:string|undefined=undefined
+  public readonly employeeMail:string|undefined=undefined
+  public readonly employeeManager?:string
+  // dates
+  public readonly employeeCreatedDate:Date|undefined=undefined
+  public readonly employeeChangedDate:Date|undefined=undefined
+  public readonly employeeBadPasswordTime:Date|undefined=undefined
+  public readonly employeeLastLogon:Date|undefined=undefined
+  public readonly employeeLastLogonTimestamp:Date|undefined=undefined
+
+}
   

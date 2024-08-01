@@ -9,16 +9,17 @@ import { CleanedString, CleanedDate } from "whiskey-util";
 export class CrowdstrikeCollector
 {
 
-  constructor(baseURL:string, clientId:string, clientSecret:string) {
+  constructor(baseURL:string, clientId:string, clientSecret:string, displayDebugOutput:boolean=false) {
     this.baseUrl=baseURL
     this.clientId=clientId
     this.clientSecret=clientSecret
-
+    this.displayDebugOutput=displayDebugOutput
   }
   private le:LogEngine=new LogEngine(["CrowdStrike"])
   private baseUrl:string=""
   private clientId:string=""
   private clientSecret:string=""
+  private displayDebugOutput:boolean
 
   private async getAccessToken(axiosInstance:AxiosInstance):Promise<string> {
     this.le.logStack.push("getAccessToken")
@@ -49,6 +50,8 @@ export class CrowdstrikeCollector
 
           const response = await axiosInstance.get(`/devices/entities/devices/v1?ids=${deviceId}`)
           const deviceDetails = response.data.resources[0];
+
+          if(this.displayDebugOutput) { console.debug(deviceDetails) }
           
           output = {
             // mandatory
@@ -115,6 +118,8 @@ export class CrowdstrikeCollector
       const logUpdateInterval:number=250
 
       for(let i=0; i<foundDevices.length; i++) {
+
+        if(this.displayDebugOutput) { console.debug(foundDevices[i]) }
 
         try {
             const deviceObject = await this.fetchDevice(axiosInstance, foundDevices[i])

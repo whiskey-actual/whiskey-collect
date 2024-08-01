@@ -11,16 +11,17 @@ import { PageIteratorCallback, PageCollection, PageIterator } from "@microsoft/m
 
 export class AzureCollector {
 
-  constructor(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string) {
+  constructor(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string, displayDebugOutput:boolean=false) {
     this.tenantId = TENANT_ID
     this.clientId = CLIENT_ID
     this.clientSecret = CLIENT_SECRET
-
+    this.displayDebugOutput=displayDebugOutput
   }
   private le:LogEngine=new LogEngine(["Azure"])
   private tenantId:string
   private clientId:string
   private clientSecret:string
+  private displayDebugOutput:boolean
 
   private async callAPI(apiEndpoint:string, selectFields:string[]=[]):Promise<any> {
     this.le.logStack.push('callAPI')
@@ -63,8 +64,6 @@ export class AzureCollector {
     return new Promise<any>((resolve) => {resolve(output)})
   }
 
-
-
   public async fetchDevices():Promise<AzureActiveDirectoryDevice[]> {
     this.le.logStack.push("fetchDevices")
 
@@ -79,6 +78,8 @@ export class AzureCollector {
       this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${devices.length} devices; creating objects ..`)
 
       for(let i=0; i<devices.length; i++) {
+
+        if(this.displayDebugOutput) { console.debug(devices[i]) }
 
         try {
           const aado:AzureActiveDirectoryDevice = {
@@ -199,12 +200,12 @@ export class AzureCollector {
       for(let i=0; i<users.length; i++) {
         try {
 
-          console.debug(users[i].signInActivity)
+          if(this.displayDebugOutput) { console.debug(users[i]) }
 
           //assignedLicenses
-          assignedPlans: CleanedString(users[i].assignedPlans),
+          assignedPlans: CleanedString(users[i].assignedPlans)
 
-          console.debug(users[i].assignedPlans)
+          //console.debug(users[i].assignedPlans)
 
           let employeeServices:EmployeeService[] = []
           for(let j=0; j<users[i].assignedPlans.length; j++) {
@@ -295,6 +296,8 @@ public async fetchMDM():Promise<AzureManagedDevice[]> {
       this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${managedDevices.length} devices; creating objects ..`)
 
       for(let i=0; i<managedDevices.length; i++) {
+
+        if(this.displayDebugOutput) { console.debug(managedDevices[i]) }
 
         try {
 
