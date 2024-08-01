@@ -11,17 +11,15 @@ import { PageIteratorCallback, PageCollection, PageIterator } from "@microsoft/m
 
 export class AzureCollector {
 
-  constructor(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string, displayDebugOutput:boolean=false) {
+  constructor(TENANT_ID:string, CLIENT_ID:string, CLIENT_SECRET:string) {
     this.tenantId = TENANT_ID
     this.clientId = CLIENT_ID
     this.clientSecret = CLIENT_SECRET
-    this.displayDebugOutput=displayDebugOutput
   }
   private le:LogEngine=new LogEngine(["Azure"])
   private tenantId:string
   private clientId:string
   private clientSecret:string
-  private displayDebugOutput:boolean
 
   private async callAPI(apiEndpoint:string, selectFields:string[]=[]):Promise<any> {
     this.le.logStack.push('callAPI')
@@ -64,7 +62,7 @@ export class AzureCollector {
     return new Promise<any>((resolve) => {resolve(output)})
   }
 
-  public async fetchDevices():Promise<AzureActiveDirectoryDevice[]> {
+  public async fetchDevices(showDebugOutput:boolean=false):Promise<AzureActiveDirectoryDevice[]> {
     this.le.logStack.push("fetchDevices")
 
     let output:AzureActiveDirectoryDevice[] = []
@@ -79,7 +77,7 @@ export class AzureCollector {
 
       for(let i=0; i<devices.length; i++) {
 
-        if(this.displayDebugOutput) { console.debug(devices[i]) }
+        if(showDebugOutput) { console.debug(devices[i]) }
 
         try {
           const aado:AzureActiveDirectoryDevice = {
@@ -139,7 +137,7 @@ export class AzureCollector {
 
   }
 
-  public async fetchEmployees():Promise<AzureActiveDirectoryEmployee[]> {
+  public async fetchEmployees(showDebugOutput:boolean=false):Promise<AzureActiveDirectoryEmployee[]> {
     this.le.logStack.push("fetchEmployees")
 
     let output:AzureActiveDirectoryEmployee[] = []
@@ -200,7 +198,7 @@ export class AzureCollector {
       for(let i=0; i<users.length; i++) {
         try {
 
-          if(this.displayDebugOutput) { console.debug(users[i]) }
+          if(showDebugOutput) { console.debug(users[i]) }
 
           //assignedLicenses
           assignedPlans: CleanedString(users[i].assignedPlans)
@@ -282,7 +280,7 @@ export class AzureCollector {
 
   }
 
-public async fetchMDM():Promise<AzureManagedDevice[]> {
+public async fetchMDM(showDebugOutput:boolean=false):Promise<AzureManagedDevice[]> {
     this.le.logStack.push("fetchMDM")
 
     let output:AzureManagedDevice[] = []
@@ -297,7 +295,7 @@ public async fetchMDM():Promise<AzureManagedDevice[]> {
 
       for(let i=0; i<managedDevices.length; i++) {
 
-        if(this.displayDebugOutput) { console.debug(managedDevices[i]) }
+        if(showDebugOutput) { console.debug(managedDevices[i]) }
 
         try {
 

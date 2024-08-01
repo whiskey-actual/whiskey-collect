@@ -6,13 +6,12 @@ import { CleanedString, ldapTimestampToJS } from 'whiskey-util';
 export class ActiveDirectoryCollector
 {
 
-  constructor(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500, displayDebugOutput:boolean=false) {
+  constructor(ldapURL:string, bindDN:string, pw:string, searchDN:string, isPaged:boolean=true, sizeLimit:number=500) {
     this.bindDN=bindDN
     this.pw=pw
     this.searchDN=searchDN
     this.isPaged=isPaged
     this.sizeLimit=sizeLimit
-    this.displayDebugOutput=displayDebugOutput
     this.ldapClient = new Client({url: ldapURL, tlsOptions:{rejectUnauthorized: false}});
   }
   private le:LogEngine=new LogEngine(["ActiveDirectory"])
@@ -22,9 +21,8 @@ export class ActiveDirectoryCollector
   private isPaged:boolean
   private sizeLimit:number
   private ldapClient:Client
-  private displayDebugOutput:boolean
 
-  public async getDevices():Promise<ActiveDirectoryDevice[]> {
+  public async getDevices(showDebugOutput:boolean=false):Promise<ActiveDirectoryDevice[]> {
     this.le.logStack.push("getDevices")
     let output:ActiveDirectoryDevice[] = []
     try {
@@ -41,7 +39,7 @@ export class ActiveDirectoryCollector
 
               this.le.AddLogEntry(LogEngine.EntryType.Info, ".. " + deviceName)
 
-              if(this.displayDebugOutput) { console.debug(searchEntries[i]) }
+              if(showDebugOutput) { console.debug(searchEntries[i]) }
 
               const add:ActiveDirectoryDevice = {
                 // mandatory
@@ -77,7 +75,7 @@ export class ActiveDirectoryCollector
     return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
   }
 
-  public async getEmployes():Promise<ActiveDirectoryEmployee[]> {
+  public async getEmployes(showDebugOutput:boolean=false):Promise<ActiveDirectoryEmployee[]> {
     this.le.logStack.push("fetchEmployeesFromActiveDirectory")
     let output:ActiveDirectoryEmployee[] = []
     try {
@@ -89,7 +87,7 @@ export class ActiveDirectoryCollector
           this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
 
-            if(this.displayDebugOutput) { console.debug(searchEntries[i]) }
+            if(showDebugOutput) { console.debug(searchEntries[i]) }
 
             try {
               const ade:ActiveDirectoryEmployee = {

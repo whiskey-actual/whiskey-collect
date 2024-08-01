@@ -9,17 +9,15 @@ import { CleanedString, CleanedDate } from "whiskey-util";
 export class CrowdstrikeCollector
 {
 
-  constructor(baseURL:string, clientId:string, clientSecret:string, displayDebugOutput:boolean=false) {
+  constructor(baseURL:string, clientId:string, clientSecret:string) {
     this.baseUrl=baseURL
     this.clientId=clientId
     this.clientSecret=clientSecret
-    this.displayDebugOutput=displayDebugOutput
   }
   private le:LogEngine=new LogEngine(["CrowdStrike"])
   private baseUrl:string=""
   private clientId:string=""
   private clientSecret:string=""
-  private displayDebugOutput:boolean
 
   private async getAccessToken(axiosInstance:AxiosInstance):Promise<string> {
     this.le.logStack.push("getAccessToken")
@@ -41,7 +39,7 @@ export class CrowdstrikeCollector
 
 }
   
-  private async fetchDevice(axiosInstance:AxiosInstance, deviceId:string):Promise<CrowdstrikeDevice> {
+  private async fetchDevice(axiosInstance:AxiosInstance, deviceId:string, showDebugOutput:boolean):Promise<CrowdstrikeDevice> {
     this.le.logStack.push('fetchDevice')
 
     let output:CrowdstrikeDevice
@@ -51,7 +49,7 @@ export class CrowdstrikeCollector
           const response = await axiosInstance.get(`/devices/entities/devices/v1?ids=${deviceId}`)
           const deviceDetails = response.data.resources[0];
 
-          if(this.displayDebugOutput) { console.debug(deviceDetails) }
+          if(showDebugOutput) { console.debug(deviceDetails) }
           
           output = {
             // mandatory
@@ -98,7 +96,7 @@ export class CrowdstrikeCollector
     return new Promise<CrowdstrikeDevice>((resolve) => {resolve(output)})
   }
   
-  public async getDevices():Promise<CrowdstrikeDevice[]> {
+  public async getDevices(showDebugOutput:boolean=false):Promise<CrowdstrikeDevice[]> {
     this.le.logStack.push('fetchDevices')
 
     let output:CrowdstrikeDevice[] = []
@@ -119,10 +117,10 @@ export class CrowdstrikeCollector
 
       for(let i=0; i<foundDevices.length; i++) {
 
-        if(this.displayDebugOutput) { console.debug(foundDevices[i]) }
+        if(showDebugOutput) { console.debug(foundDevices[i]) }
 
         try {
-            const deviceObject = await this.fetchDevice(axiosInstance, foundDevices[i])
+            const deviceObject = await this.fetchDevice(axiosInstance, foundDevices[i], showDebugOutput)
             output.push(deviceObject)
 
             if(i>0 && i%logUpdateInterval===0) {

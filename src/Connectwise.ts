@@ -7,21 +7,19 @@ import { CleanedDate, CleanedString } from 'whiskey-util'
 export class ConnectwiseCollector
 {
 
-  constructor(baseUrl:string, clientId:string, username:string, password:string, displayDebugOutput:boolean=false) {
+  constructor(baseUrl:string, clientId:string, username:string, password:string) {
     this.baseUrl=baseUrl
     this.clientId=clientId
     this.username=username
     this.password=password
-    this.displayDebugOutput=displayDebugOutput
   }
   private le:LogEngine=new LogEngine(["Connectwise"])
   private baseUrl:string
   private clientId:string
   private username:string
   private password:string
-  private displayDebugOutput:boolean
 
-  public async fetchUserDevices():Promise<ConnectwiseDevice[]> {
+  public async fetchUserDevices(showDebugOutput:boolean=false):Promise<ConnectwiseDevice[]> {
       this.le.logStack.push("fetchUserDevices")
 
       let output:ConnectwiseDevice[] = []
@@ -39,7 +37,7 @@ export class ConnectwiseCollector
           this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${computers.length} devices received; processing ..`)
           for(let i=0; i<computers.length; i++) {
 
-            if(this.displayDebugOutput) { console.debug(computers[i]) }
+            if(showDebugOutput) { console.debug(computers[i]) }
 
               try {
                   const o:ConnectwiseDevice = {
@@ -95,7 +93,7 @@ export class ConnectwiseCollector
   }
 
 
-  public async fetchNetworkDevices():Promise<ConnectwiseDevice[]> {
+  public async fetchNetworkDevices(showDebugOutput:boolean=false):Promise<ConnectwiseDevice[]> {
     this.le.logStack.push("fetchNetworkDevices")
 
     let output:ConnectwiseDevice[] = []
@@ -114,7 +112,7 @@ export class ConnectwiseCollector
       this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${networkDevices.length} devices received.`)
       for(let i=0; i<networkDevices.length; i++) {
 
-        if(this.displayDebugOutput) { console.debug(networkDevices[i]) }
+        if(showDebugOutput) { console.debug(networkDevices[i]) }
 
           try {
           const cwd:ConnectwiseDevice = {
