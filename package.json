@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/whiskey-actual/whiskey-collect#readme",
   "dependencies": {
-    "@azure/identity": "^3.3.0",
+    "@azure/identity": "^4.4.1",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "axios": "^1.5.0",
     "ldapts": "^6.0.0",

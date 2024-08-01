@@ -45,8 +45,8 @@ export class ActiveDirectoryCollector
 
               const add:ActiveDirectoryDevice = {
                 // mandatory
-                DeviceDN: searchEntries[i].dn.toString().trim(),
                 DeviceName: deviceName,
+                ActiveDirectoryDN: searchEntries[i].dn.toString().trim(),
                 // strings
                 ActiveDirectoryOperatingSystem: CleanedString(searchEntries[i].operatingSystem),
                 ActiveDirectoryOperatingSystemVersion: CleanedString(searchEntries[i].operatingSystemVersion),
@@ -146,7 +146,7 @@ export class ActiveDirectoryCollector
 export class ActiveDirectoryDevice {
   // mandatory
   public readonly DeviceName:string=''
-  public readonly DeviceDN:string=''
+  public readonly ActiveDirectoryDN:string=''
   // strings
   public readonly ActiveDirectoryOperatingSystem:string|undefined=undefined
   public readonly ActiveDirectoryOperatingSystemVersion:string|undefined=undefined
