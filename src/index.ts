@@ -3,11 +3,10 @@ import { AzureCollector } from "./Azure";
 import { ConnectwiseCollector } from "./Connectwise";
 import { CrowdstrikeCollector } from "./Crowdstrike";
 
-const Collectors = {
+
+export {
     ActiveDirectoryCollector,
     AzureCollector,
     ConnectwiseCollector,
     CrowdstrikeCollector
 }
-
-export default Collectors
