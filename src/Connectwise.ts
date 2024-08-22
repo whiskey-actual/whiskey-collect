@@ -1,5 +1,6 @@
 // imports
-import { LogEngine } from 'whiskey-log';
+import le from './config/le';
+import { LogEntryType } from 'whiskey-log';
 import https from 'https'
 import axios, { AxiosInstance } from 'axios'
 import { CleanedDate, CleanedString } from 'whiskey-util'
@@ -13,14 +14,13 @@ export class ConnectwiseCollector
     this.username=username
     this.password=password
   }
-  private le:LogEngine=new LogEngine(["Connectwise"])
   private baseUrl:string
   private clientId:string
   private username:string
   private password:string
 
   public async fetchUserDevices(showDebugOutput:boolean=false):Promise<ConnectwiseDevice[]> {
-      this.le.logStack.push("fetchUserDevices")
+      le.logStack.push("fetchUserDevices")
 
       let output:ConnectwiseDevice[] = []
 
@@ -34,7 +34,7 @@ export class ConnectwiseCollector
           axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
 
           const computers = await this.callAPI(axiosInstance, '/Computers?pagesize=10000&orderby=ComputerName asc')
-          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${computers.length} devices received; processing ..`)
+          le.AddLogEntry(LogEntryType.Info, `.. ${computers.length} devices received; processing ..`)
           for(let i=0; i<computers.length; i++) {
 
             if(showDebugOutput) { console.debug(computers[i]) }
@@ -74,18 +74,18 @@ export class ConnectwiseCollector
                   }
                   output.push(o)
               } catch (err) {
-                  this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+                  le.AddLogEntry(LogEntryType.Error, `${err}`)
                   console.debug(computers[i])
                   throw(err)
               } 
           }
       
       } catch (ex) {
-          this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
+          le.AddLogEntry(LogEntryType.Error, `${ex}`)
           throw ex;
       } finally {
-          this.le.AddLogEntry(LogEngine.EntryType.Info, 'done.')
-          this.le.logStack.pop()
+          le.AddLogEntry(LogEntryType.Info, 'done.')
+          le.logStack.pop()
       }
 
   return new Promise<ConnectwiseDevice[]>((resolve) => {resolve(output)})
@@ -94,7 +94,7 @@ export class ConnectwiseCollector
 
 
   public async fetchNetworkDevices(showDebugOutput:boolean=false):Promise<ConnectwiseDevice[]> {
-    this.le.logStack.push("fetchNetworkDevices")
+    le.logStack.push("fetchNetworkDevices")
 
     let output:ConnectwiseDevice[] = []
 
@@ -107,9 +107,9 @@ export class ConnectwiseCollector
       const accessToken = await this.getAccessToken(axiosInstance)
       axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. querying network devices ..`)
+      le.AddLogEntry(LogEntryType.Info, `.. querying network devices ..`)
       const networkDevices = await this.callAPI(axiosInstance, '/NetworkDevices?pagesize=10000&orderby=Name asc')
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. ${networkDevices.length} devices received.`)
+      le.AddLogEntry(LogEntryType.Info, `.. ${networkDevices.length} devices received.`)
       for(let i=0; i<networkDevices.length; i++) {
 
         if(showDebugOutput) { console.debug(networkDevices[i]) }
@@ -149,21 +149,21 @@ export class ConnectwiseCollector
           output.push(cwd)
 
           }  catch(err) {
-            this.le.AddLogEntry(LogEngine.EntryType.Error, `error: ${err}`)
+            le.AddLogEntry(LogEntryType.Error, `error: ${err}`)
             console.debug(networkDevices[i])
             throw(err)
           }
       
       }
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. network objects created.`)
+      le.AddLogEntry(LogEntryType.Info, `.. network objects created.`)
 
 
       } catch (ex) {
-          this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
+          le.AddLogEntry(LogEntryType.Error, `${ex}`)
           throw ex;
       } finally {
-          this.le.AddLogEntry(LogEngine.EntryType.Info, 'done.')
-          this.le.logStack.pop()
+          le.AddLogEntry(LogEntryType.Info, 'done.')
+          le.logStack.pop()
       }
 
     return new Promise<ConnectwiseDevice[]>((resolve) => {resolve(output)})
@@ -171,19 +171,19 @@ export class ConnectwiseCollector
 }
 
 private  async getAccessToken(axiosInstance:AxiosInstance):Promise<string> {
-    this.le.logStack.push("getAccessToken")
+    le.logStack.push("getAccessToken")
     let output:string
 
     try {
-        this.le.AddLogEntry(LogEngine.EntryType.Info, 'getting access token ..')
+        le.AddLogEntry(LogEntryType.Info, 'getting access token ..')
         const response = await axiosInstance.post('/apitoken', { UserName:this.username, Password:this.password});
         output = response.data.AccessToken;
-        this.le.AddLogEntry(LogEngine.EntryType.Success, `.. accessToken received.`)
+        le.AddLogEntry(LogEntryType.Success, `.. accessToken received.`)
     } catch (ex) {
-        this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
+        le.AddLogEntry(LogEntryType.Error, `${ex}`)
         throw ex;
     } finally {
-        this.le.logStack.pop()
+        le.logStack.pop()
     }
 
     return new Promise<string>((resolve) => {resolve(output)})
@@ -191,18 +191,18 @@ private  async getAccessToken(axiosInstance:AxiosInstance):Promise<string> {
 }
 
 private async callAPI(axiosInstance:AxiosInstance, apiEndpoint:string):Promise<any> {
-  this.le.logStack.push("callAPI")
+  le.logStack.push("callAPI")
   let output:any
   try {
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching API: ${apiEndpoint}`)
+      le.AddLogEntry(LogEntryType.Info, `fetching API: ${apiEndpoint}`)
       const response = await axiosInstance.get(apiEndpoint)
       output = response.data
-      this.le.AddLogEntry(LogEngine.EntryType.Success, `.. API call successful.`)
+      le.AddLogEntry(LogEntryType.Success, `.. API call successful.`)
   } catch (ex) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
+      le.AddLogEntry(LogEntryType.Error, `${ex}`)
       throw ex;
   } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
   }
   
   return new Promise<any>((resolve) => {resolve(output)})

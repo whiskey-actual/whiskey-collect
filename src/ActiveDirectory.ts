@@ -1,5 +1,6 @@
 // imports
-import { LogEngine } from 'whiskey-log';
+import le from './config/le';
+import { LogEntryType } from 'whiskey-log';
 import { Client } from 'ldapts'
 import { CleanedString, ldapTimestampToJS } from 'whiskey-util';
 
@@ -14,7 +15,6 @@ export class ActiveDirectoryCollector
     this.sizeLimit=sizeLimit
     this.ldapClient = new Client({url: ldapURL, tlsOptions:{rejectUnauthorized: false}});
   }
-  private le:LogEngine=new LogEngine(["ActiveDirectory"])
   private bindDN:string
   private pw:string
   private searchDN:string
@@ -23,21 +23,21 @@ export class ActiveDirectoryCollector
   private ldapClient:Client
 
   public async getDevices(showDebugOutput:boolean=false):Promise<ActiveDirectoryDevice[]> {
-    this.le.logStack.push("getDevices")
+    le.logStack.push("getDevices")
     let output:ActiveDirectoryDevice[] = []
     try {
   
-      this.le.AddLogEntry(LogEngine.EntryType.Info, 'binding LDAP ..')
+      le.AddLogEntry(LogEntryType.Info, 'binding LDAP ..')
         await this.ldapClient.bind(this.bindDN, this.pw);
   
           const { searchEntries } = await this.ldapClient.search(this.searchDN,  {filter: '&(objectClass=computer)', paged:this.isPaged, sizeLimit:this.sizeLimit});
-          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} devices, processing ..`)
+          le.AddLogEntry(LogEntryType.Info, `.. found ${searchEntries.length} devices, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
             try {
 
               const deviceName = searchEntries[i].cn.toString().trim()
 
-              this.le.AddLogEntry(LogEngine.EntryType.Info, ".. " + deviceName)
+              le.AddLogEntry(LogEntryType.Info, ".. " + deviceName)
 
               if(showDebugOutput) { console.debug(searchEntries[i]) }
 
@@ -61,30 +61,30 @@ export class ActiveDirectoryCollector
               output.push(add)
   
             } catch (err) {
-              this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+              le.AddLogEntry(LogEntryType.Error, `${err}`)
             }  
           }
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
       throw(err);
     } finally {
       await this.ldapClient.unbind();
-      this.le.AddLogEntry(LogEngine.EntryType.Success, 'done.')
-      this.le.logStack.pop()
+      le.AddLogEntry(LogEntryType.Success, 'done.')
+      le.logStack.pop()
     }
     return new Promise<ActiveDirectoryDevice[]>((resolve) => {resolve(output)})
   }
 
   public async getEmployes(showDebugOutput:boolean=false):Promise<ActiveDirectoryEmployee[]> {
-    this.le.logStack.push("fetchEmployeesFromActiveDirectory")
+    le.logStack.push("fetchEmployeesFromActiveDirectory")
     let output:ActiveDirectoryEmployee[] = []
     try {
 
-          this.le.AddLogEntry(LogEngine.EntryType.Info, 'binding LDAP ..')
+          le.AddLogEntry(LogEntryType.Info, 'binding LDAP ..')
           await this.ldapClient.bind(this.bindDN, this.pw);
 
           const { searchEntries } = await this.ldapClient.search(this.searchDN,  {filter: '(&(objectClass=user)(&(!(objectClass=computer))))', paged:this.isPaged, sizeLimit:this.sizeLimit},);
-          this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
+          le.AddLogEntry(LogEntryType.Info, `.. found ${searchEntries.length} employees, processing ..`)
           for(let i=0; i<searchEntries.length; i++) {
 
             if(showDebugOutput) { console.debug(searchEntries[i]) }
@@ -120,26 +120,21 @@ export class ActiveDirectoryCollector
               }
             output.push(ade)
             } catch (err) {
-              this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+              le.AddLogEntry(LogEntryType.Error, `${err}`)
             }  
           }
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
       throw(err);
     } finally {
       await this.ldapClient.unbind();
-      this.le.AddLogEntry(LogEngine.EntryType.Success, 'done.')
-      this.le.logStack.pop()
+      le.AddLogEntry(LogEntryType.Success, 'done.')
+      le.logStack.pop()
     }
     return new Promise<ActiveDirectoryEmployee[]>((resolve) => {resolve(output)})
   }
 
 }
-  
-
-
-
-
 
 export class ActiveDirectoryDevice {
   // mandatory
@@ -158,9 +153,6 @@ export class ActiveDirectoryDevice {
   public readonly ActiveDirectoryPwdLastSet:Date|undefined=undefined
   public readonly ActiveDirectoryLastLogonTimestamp:Date|undefined=undefined
 }
-
-
-
 
 export class ActiveDirectoryEmployee {
   public readonly employeeDN:string=''

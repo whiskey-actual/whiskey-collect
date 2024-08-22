@@ -1,5 +1,6 @@
 // imports
-import { LogEngine } from 'whiskey-log';
+import le from './config/le';
+import { LogEntryType } from 'whiskey-log';
 import axios, { AxiosInstance } from 'axios'
 
 import { getProgressMessage } from "whiskey-util";
@@ -14,25 +15,24 @@ export class CrowdstrikeCollector
     this.clientId=clientId
     this.clientSecret=clientSecret
   }
-  private le:LogEngine=new LogEngine(["CrowdStrike"])
   private baseUrl:string=""
   private clientId:string=""
   private clientSecret:string=""
 
   private async getAccessToken(axiosInstance:AxiosInstance):Promise<string> {
-    this.le.logStack.push("getAccessToken")
+    le.logStack.push("getAccessToken")
     let output:string
 
     try {
-        this.le.AddLogEntry(LogEngine.EntryType.Info, 'getting access token ..')
+        le.AddLogEntry(LogEntryType.Info, 'getting access token ..')
         const response = await axiosInstance.post(`/oauth2/token?client_id=${this.clientId}&client_secret=${this.clientSecret}`);
         output = response.data.access_token;
-        this.le.AddLogEntry(LogEngine.EntryType.Success, `.. accessToken received.`)
+        le.AddLogEntry(LogEntryType.Success, `.. accessToken received.`)
     } catch (ex) {
-        this.le.AddLogEntry(LogEngine.EntryType.Error, `${ex}`)
+        le.AddLogEntry(LogEntryType.Error, `${ex}`)
         throw ex;
     } finally {
-        this.le.logStack.pop()
+        le.logStack.pop()
     }
 
     return new Promise<string>((resolve) => {resolve(output)})
@@ -40,7 +40,7 @@ export class CrowdstrikeCollector
 }
   
   private async fetchDevice(axiosInstance:AxiosInstance, deviceId:string, showDebugOutput:boolean):Promise<CrowdstrikeDevice> {
-    this.le.logStack.push('fetchDevice')
+    le.logStack.push('fetchDevice')
 
     let output:CrowdstrikeDevice
 
@@ -87,17 +87,17 @@ export class CrowdstrikeCollector
           }
 
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
       throw(err)
     } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
     }
     
     return new Promise<CrowdstrikeDevice>((resolve) => {resolve(output)})
   }
   
   public async getDevices(showDebugOutput:boolean=false):Promise<CrowdstrikeDevice[]> {
-    this.le.logStack.push('fetchDevices')
+    le.logStack.push('fetchDevices')
 
     let output:CrowdstrikeDevice[] = []
 
@@ -110,7 +110,7 @@ export class CrowdstrikeCollector
 
       const foundDevices = (await axiosInstance.get("/devices/queries/devices-scroll/v1?limit=5000")).data.resources;
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. found ${foundDevices.length} devices; fetching details ..`)
+      le.AddLogEntry(LogEntryType.Info, `.. found ${foundDevices.length} devices; fetching details ..`)
 
       const startDate = new Date()
       const logUpdateInterval:number=250
@@ -124,22 +124,22 @@ export class CrowdstrikeCollector
             output.push(deviceObject)
 
             if(i>0 && i%logUpdateInterval===0) {
-                this.le.AddLogEntry(LogEngine.EntryType.Info, getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
+                le.AddLogEntry(LogEntryType.Info, getProgressMessage('', 'retrieved', i, foundDevices.length, startDate, new Date()))
             }
 
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+          le.AddLogEntry(LogEntryType.Error, `${err}`)
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
+      le.AddLogEntry(LogEntryType.Info, '.. objects created.')
 
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
       throw(err)
     } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
     }
     
     return new Promise<CrowdstrikeDevice[]>((resolve) => {resolve(output)})

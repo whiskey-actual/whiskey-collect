@@ -1,5 +1,6 @@
 // imports
-import { LogEngine } from 'whiskey-log';
+import le from './config/le';
+import { LogEntryType } from 'whiskey-log';
 
 import { Client } from '@microsoft/microsoft-graph-client';
 import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials'
@@ -16,24 +17,23 @@ export class AzureCollector {
     this.clientId = CLIENT_ID
     this.clientSecret = CLIENT_SECRET
   }
-  private le:LogEngine=new LogEngine(["Azure"])
   private tenantId:string
   private clientId:string
   private clientSecret:string
 
   private async callAPI(apiEndpoint:string, selectFields:string[]=[]):Promise<any> {
-    this.le.logStack.push('callAPI')
+    le.logStack.push('callAPI')
     var output:any = []
     
     try {
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. creating graph client ..')
+      le.AddLogEntry(LogEntryType.Info, '.. creating graph client ..')
       const credential = new ClientSecretCredential(this.tenantId, this.clientId, this.clientSecret);
       const authProvider = new TokenCredentialAuthenticationProvider(credential, {scopes: ['https://graph.microsoft.com/.default']})
       const graphClient = Client.initWithMiddleware({authProvider: authProvider})
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. graph client created.')
+      le.AddLogEntry(LogEntryType.Info, '.. graph client created.')
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. calling API endpoint ${apiEndpoint} ..`)
+      le.AddLogEntry(LogEntryType.Info, `.. calling API endpoint ${apiEndpoint} ..`)
 
       const gc = graphClient.api(apiEndpoint)
       if(selectFields.length>0) {
@@ -53,27 +53,27 @@ export class AzureCollector {
       await pageIterator.iterate();
       
     } catch (err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
       throw(err)
     } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
     }
     
     return new Promise<any>((resolve) => {resolve(output)})
   }
 
   public async fetchDevices(showDebugOutput:boolean=false):Promise<AzureActiveDirectoryDevice[]> {
-    this.le.logStack.push("fetchDevices")
+    le.logStack.push("fetchDevices")
 
     let output:AzureActiveDirectoryDevice[] = []
 
     try {
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching devices ..`)
+      le.AddLogEntry(LogEntryType.Info, `fetching devices ..`)
 
       const devices = await this.callAPI('/devices')
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${devices.length} devices; creating objects ..`)
+      le.AddLogEntry(LogEntryType.Info, `.. received ${devices.length} devices; creating objects ..`)
 
       for(let i=0; i<devices.length; i++) {
 
@@ -120,17 +120,17 @@ export class AzureCollector {
 
           output.push(aado)
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+          le.AddLogEntry(LogEntryType.Error, `${err}`)
           console.debug(devices[i])
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
+      le.AddLogEntry(LogEntryType.Info, '.. objects created.')
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
     } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
     }
     
     return new Promise<AzureActiveDirectoryDevice[]>((resolve) => {resolve(output)})
@@ -138,12 +138,12 @@ export class AzureCollector {
   }
 
   public async fetchEmployees(showDebugOutput:boolean=false):Promise<AzureActiveDirectoryEmployee[]> {
-    this.le.logStack.push("fetchEmployees")
+    le.logStack.push("fetchEmployees")
 
     let output:AzureActiveDirectoryEmployee[] = []
     try {
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching employees ..`)
+      le.AddLogEntry(LogEntryType.Info, `fetching employees ..`)
 
       const fieldsToFetch = [
         'userPrincipalName',
@@ -193,7 +193,7 @@ export class AzureCollector {
 
       const users = await this.callAPI('/users', fieldsToFetch)
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${users.length} devices; creating objects ..`)
+      le.AddLogEntry(LogEntryType.Info, `.. received ${users.length} devices; creating objects ..`)
 
       for(let i=0; i<users.length; i++) {
         try {
@@ -263,17 +263,17 @@ export class AzureCollector {
 
           output.push(aade)
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+          le.AddLogEntry(LogEntryType.Error, `${err}`)
           console.debug(users[i])
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
+      le.AddLogEntry(LogEntryType.Info, '.. objects created.')
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
     } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
     }
     
     return new Promise<AzureActiveDirectoryEmployee[]>((resolve) => {resolve(output)})
@@ -281,17 +281,17 @@ export class AzureCollector {
   }
 
 public async fetchMDM(showDebugOutput:boolean=false):Promise<AzureManagedDevice[]> {
-    this.le.logStack.push("fetchMDM")
+    le.logStack.push("fetchMDM")
 
     let output:AzureManagedDevice[] = []
 
     try {
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `fetching managed devices ..`)
+      le.AddLogEntry(LogEntryType.Info, `fetching managed devices ..`)
 
       const managedDevices = await this.callAPI('/deviceManagement/managedDevices')
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, `.. received ${managedDevices.length} devices; creating objects ..`)
+      le.AddLogEntry(LogEntryType.Info, `.. received ${managedDevices.length} devices; creating objects ..`)
 
       for(let i=0; i<managedDevices.length; i++) {
 
@@ -362,17 +362,17 @@ public async fetchMDM(showDebugOutput:boolean=false):Promise<AzureManagedDevice[
 
           output.push(amd)
         } catch (err) {
-          this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+          le.AddLogEntry(LogEntryType.Error, `${err}`)
           console.debug(managedDevices[i])
           throw(err)
         }
       }
 
-      this.le.AddLogEntry(LogEngine.EntryType.Info, '.. objects created.')
+      le.AddLogEntry(LogEntryType.Info, '.. objects created.')
     } catch(err) {
-      this.le.AddLogEntry(LogEngine.EntryType.Error, `${err}`)
+      le.AddLogEntry(LogEntryType.Error, `${err}`)
     } finally {
-      this.le.logStack.pop()
+      le.logStack.pop()
     }
     
     return new Promise<AzureManagedDevice[]>((resolve) => {resolve(output)})
