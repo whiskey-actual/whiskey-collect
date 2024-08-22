@@ -82,40 +82,40 @@ export class AzureCollector {
         try {
           const aado:AzureActiveDirectoryDevice = {
             // mandatory
-            deviceName: devices[i].displayName.toString().trim(),
-            azureDeviceId: devices[i].deviceId.toString().trim(),
+            DeviceName: devices[i].displayName.toString().trim(),
+            AzureDeviceId: devices[i].deviceId.toString().trim(),
             
             // strings
-            azureDeviceCategory: CleanedString(devices[i].deviceCategory),
-            azureDeviceMetadata: CleanedString(devices[i].deviceMetadata),
-            azureDeviceOwnership: CleanedString(devices[i].deviceOwnership),
-            azureDeviceVersion: CleanedString(devices[i].deviceVersion),
-            azureDomainName: CleanedString(devices[i].domainName),
-            azureEnrollmentProfileType: CleanedString(devices[i].enrollmentProfileType),
-            azureEnrollmentType: CleanedString(devices[i].enrollmentType),
-            azureExternalSourceName: CleanedString(devices[i].externalSourceName),
-            azureManagementType: CleanedString(devices[i].managementType),
-            azureManufacturer: CleanedString(devices[i].manufacturer),
-            azureMDMAppId: CleanedString(devices[i].mdmAppId),
-            azureModel: CleanedString(devices[i].model),
-            azureOperatingSystem: CleanedString(devices[i].operaingSystem),
-            azureOperatingSystemVersion: CleanedString(devices[i].operatingSystemVersion),
-            azureProfileType: CleanedString(devices[i].profileType),
-            azureSourceType: CleanedString(devices[i].sourceType),
-            azureTrustType: CleanedString(devices[i].trustType),
+            AzureDeviceCategory: CleanedString(devices[i].deviceCategory),
+            AzureDeviceMetadata: CleanedString(devices[i].deviceMetadata),
+            AzureDeviceOwnership: CleanedString(devices[i].deviceOwnership),
+            AzureDeviceVersion: CleanedString(devices[i].deviceVersion),
+            AzureDomainName: CleanedString(devices[i].domainName),
+            AzureEnrollmentProfileType: CleanedString(devices[i].enrollmentProfileType),
+            AzureEnrollmentType: CleanedString(devices[i].enrollmentType),
+            AzureExternalSourceName: CleanedString(devices[i].externalSourceName),
+            AzureManagementType: CleanedString(devices[i].managementType),
+            AzureManufacturer: CleanedString(devices[i].manufacturer),
+            AzureMDMAppId: CleanedString(devices[i].mdmAppId),
+            AzureModel: CleanedString(devices[i].model),
+            AzureOperatingSystem: CleanedString(devices[i].operaingSystem),
+            AzureOperatingSystemVersion: CleanedString(devices[i].operatingSystemVersion),
+            AzureProfileType: CleanedString(devices[i].profileType),
+            AzureSourceType: CleanedString(devices[i].sourceType),
+            AzureTrustType: CleanedString(devices[i].trustType),
             // dates
-            azureDeletedDateTime: CleanedDate(devices[i].deletedDateTime),
-            azureApproximateLastSignInDateTime: CleanedDate(devices[i].approximateLastSignInDateTime),
-            azureComplianceExpirationDateTime: CleanedDate(devices[i].complianceExpirationDateTime),
-            azureCreatedDateTime: CleanedDate(devices[i].createdDateTime),
-            azureOnPremisesLastSyncDateTime: CleanedDate(devices[i].onPremisesLastSyncDateTime),
-            azureRegistrationDateTime: CleanedDate(devices[i].registrationDateTime),
+            AzureDeletedDateTime: CleanedDate(devices[i].deletedDateTime),
+            AzureApproximateLastSignInDateTime: CleanedDate(devices[i].approximateLastSignInDateTime),
+            AzureComplianceExpirationDateTime: CleanedDate(devices[i].complianceExpirationDateTime),
+            AzureCreatedDateTime: CleanedDate(devices[i].createdDateTime),
+            AzureOnPremisesLastSyncDateTime: CleanedDate(devices[i].onPremisesLastSyncDateTime),
+            AzureRegistrationDateTime: CleanedDate(devices[i].registrationDateTime),
             // booleans
-            azureOnPremisesSyncEnabled: devices[i].onPremisesSyncEnabled ? devices[i].onPremisesSyncEnabled : false,
-            azureAccountEnabled: devices[i].accountEnabled ? devices[i].accountEnabled : false,
-            azureIsCompliant: devices[i].isCompliant ? devices[i].isCompliant : false,
-            azureIsManaged: devices[i].isManaged ? devices[i].isManaged : false,
-            azureIsRooted: devices[i].isRooted ? devices[i].isRooted : false,
+            AzureOnPremisesSyncEnabled: devices[i].onPremisesSyncEnabled ? devices[i].onPremisesSyncEnabled : false,
+            AzureAccountEnabled: devices[i].accountEnabled ? devices[i].accountEnabled : false,
+            AzureIsCompliant: devices[i].isCompliant ? devices[i].isCompliant : false,
+            AzureIsManaged: devices[i].isManaged ? devices[i].isManaged : false,
+            AzureIsRooted: devices[i].isRooted ? devices[i].isRooted : false,
           }
 
           output.push(aado)
@@ -385,40 +385,40 @@ public async fetchMDM(showDebugOutput:boolean=false):Promise<AzureManagedDevice[
 
 export class AzureActiveDirectoryDevice {
   // mandatory
-  public readonly deviceName:string=''
-  public readonly azureDeviceId:string=''
+  public readonly DeviceName:string=''
+  public readonly AzureDeviceId:string=''
   
   // strings
-  public readonly azureDeviceCategory:string|undefined=undefined
-  public readonly azureDeviceMetadata:string|undefined=undefined
-  public readonly azureDeviceOwnership:string|undefined=undefined
-  public readonly azureDeviceVersion:string|undefined=undefined
-  public readonly azureDomainName:string|undefined=undefined
-  public readonly azureEnrollmentProfileType:string|undefined=undefined
-  public readonly azureEnrollmentType:string|undefined=undefined
-  public readonly azureExternalSourceName:string|undefined=undefined
-  public readonly azureManagementType:string|undefined=undefined
-  public readonly azureManufacturer:string|undefined=undefined
-  public readonly azureMDMAppId:string|undefined=undefined
-  public readonly azureModel:string|undefined=undefined
-  public readonly azureOperatingSystem:string|undefined=undefined
-  public readonly azureOperatingSystemVersion:string|undefined=undefined
-  public readonly azureProfileType:string|undefined=undefined
-  public readonly azureSourceType:string|undefined=undefined
-  public readonly azureTrustType:string|undefined=undefined
+  public readonly AzureDeviceCategory:string|undefined=undefined
+  public readonly AzureDeviceMetadata:string|undefined=undefined
+  public readonly AzureDeviceOwnership:string|undefined=undefined
+  public readonly AzureDeviceVersion:string|undefined=undefined
+  public readonly AzureDomainName:string|undefined=undefined
+  public readonly AzureEnrollmentProfileType:string|undefined=undefined
+  public readonly AzureEnrollmentType:string|undefined=undefined
+  public readonly AzureExternalSourceName:string|undefined=undefined
+  public readonly AzureManagementType:string|undefined=undefined
+  public readonly AzureManufacturer:string|undefined=undefined
+  public readonly AzureMDMAppId:string|undefined=undefined
+  public readonly AzureModel:string|undefined=undefined
+  public readonly AzureOperatingSystem:string|undefined=undefined
+  public readonly AzureOperatingSystemVersion:string|undefined=undefined
+  public readonly AzureProfileType:string|undefined=undefined
+  public readonly AzureSourceType:string|undefined=undefined
+  public readonly AzureTrustType:string|undefined=undefined
   // dates
-  public readonly azureDeletedDateTime:Date|undefined=undefined;
-  public readonly azureApproximateLastSignInDateTime:Date|undefined=undefined;
-  public readonly azureComplianceExpirationDateTime:Date|undefined=undefined;
-  public readonly azureCreatedDateTime:Date|undefined=undefined
-  public readonly azureOnPremisesLastSyncDateTime:Date|undefined=undefined
-  public readonly azureRegistrationDateTime:Date|undefined=undefined
+  public readonly AzureDeletedDateTime:Date|undefined=undefined;
+  public readonly AzureApproximateLastSignInDateTime:Date|undefined=undefined;
+  public readonly AzureComplianceExpirationDateTime:Date|undefined=undefined;
+  public readonly AzureCreatedDateTime:Date|undefined=undefined
+  public readonly AzureOnPremisesLastSyncDateTime:Date|undefined=undefined
+  public readonly AzureRegistrationDateTime:Date|undefined=undefined
   // booleans
-  public readonly azureOnPremisesSyncEnabled:boolean=false;
-  public readonly azureAccountEnabled:boolean=false;
-  public readonly azureIsCompliant:boolean=false;
-  public readonly azureIsManaged:boolean=false;
-  public readonly azureIsRooted:boolean=false;
+  public readonly AzureOnPremisesSyncEnabled:boolean=false;
+  public readonly AzureAccountEnabled:boolean=false;
+  public readonly AzureIsCompliant:boolean=false;
+  public readonly AzureIsManaged:boolean=false;
+  public readonly AzureIsRooted:boolean=false;
 }
 
 export class AzureActiveDirectoryEmployee {
