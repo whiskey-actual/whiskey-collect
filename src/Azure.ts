@@ -300,64 +300,64 @@ public async fetchMDM(showDebugOutput:boolean=false):Promise<AzureManagedDevice[
         try {
 
           const amd:AzureManagedDevice = {
-            observedByAzureMDM: true,
-            deviceName: managedDevices[i].deviceName.toString().trim(),
-            azureManagedId: managedDevices[i].id.toString().trim(),
+            ObservedByAzureMDM: true,
+            DeviceName: managedDevices[i].deviceName.toString().trim(),
+            AzureManagedId: managedDevices[i].id.toString().trim(),
             // strings
-            azureManagedDeviceName: CleanedString(managedDevices[i].azureManagedDeviceName),
-            azureManagedUserId: CleanedString(managedDevices[i].userId),
-            azureManagedDeviceOwnerType: CleanedString(managedDevices[i].managedDeviceOwnerType),
-            azureManagedOperatingSystem: CleanedString(managedDevices[i].operatingSystem),
-            azureManagedComplianceState: CleanedString(managedDevices[i].complianceState),
-            azureManagedJailBroken: CleanedString(managedDevices[i].jailBroken),
-            azureManagedManagementAgent: CleanedString(managedDevices[i].managementAgent),
-            azureManagedOperatingSystemVersion: CleanedString(managedDevices[i].osVersion),
-            azureManagedEASDeviceID: CleanedString(managedDevices[i].easDeviceId),
-            azureManagedDeviceEnrollmentType: CleanedString(managedDevices[i].deviceEnrollmentType),
-            azureManagedActivationLockBypassCode: CleanedString(managedDevices[i].activationLockBypassCode),
-            azureManagedEmailAddress: CleanedString(managedDevices[i].emailAddress),
-            azureManagedAzureADDeviceID: CleanedString(managedDevices[i].azureADDeviceID),
-            azureManagedDeviceRegistrationState: CleanedString(managedDevices[i].deviceRegistrationState),
-            azureManagedDeviceCategoryDisplayName: CleanedString(managedDevices[i].deviceCategoryDisplayName),
-            azureManagedExchangeAccessState: CleanedString(managedDevices[i].exchangeAccessState),
-            azureManagedExchangeAccessStateReason: CleanedString(managedDevices[i].accessStateReason),
-            azureManagedRemoteAssistanceSessionUrl: CleanedString(managedDevices[i].remoteAssistanceSessionUrl),
-            azureManagedRemoteAssistanceErrorDetails: CleanedString(managedDevices[i].remoteAssistanceErrorDetails),
-            azureManagedUserPrincipalName: CleanedString(managedDevices[i].userPrincipalName),
-            azureManagedModel: CleanedString(managedDevices[i].model),
-            azureManagedManufacturer: CleanedString(managedDevices[i].manufacturer),
-            azureManagedIMEI: CleanedString(managedDevices[i].imei),
-            azureManagedSerialNumber: CleanedString(managedDevices[i].serialNumber),
-            azureManagedPhoneNumber: CleanedString(managedDevices[i].phoneNumber),
-            azureManagedAndroidSecurityPatchLevel: CleanedString(managedDevices[i].securityPatchLevel),
-            azureManagedUserDisplayName: CleanedString(managedDevices[i].userDisplayName),
-            azureManagedConfigurationManagerClientEnabledFeatures: CleanedString(managedDevices[i].configurationManagerClientEnabledFeatures),
-            azureManagedWiFiMACAddress: CleanedString(managedDevices[i].wifiMacAddress),
-            azureManagedDeviceHealthAttestationState: CleanedString(managedDevices[i].deviceHealthAttestationState),
-            azureManagedSubscriberCarrier: CleanedString(managedDevices[i].subscriberCarrier),
-            azureManagedMEID: CleanedString(managedDevices[i].meid),
-            azureManagedPartnerReportedThreatState: CleanedString(managedDevices[i].partnerReportedThreatState),
-            azureManagedRequireUserEnrollmentApproval: CleanedString(managedDevices[i].requireUserEnrollmentApproval),
-            azureManagedICCID: CleanedString(managedDevices[i].iccid),
-            azureManagedUDID: CleanedString(managedDevices[i].udid),
-            azureManagedNotes: CleanedString(managedDevices[i].notes),
-            azureManagedEthernetMacAddress: CleanedString(managedDevices[i].ethernetMacAddress),
+            AzureManagedDeviceName: CleanedString(managedDevices[i].azureManagedDeviceName),
+            AzureManagedUserId: CleanedString(managedDevices[i].userId),
+            AzureManagedDeviceOwnerType: CleanedString(managedDevices[i].managedDeviceOwnerType),
+            AzureManagedOperatingSystem: CleanedString(managedDevices[i].operatingSystem),
+            AzureManagedComplianceState: CleanedString(managedDevices[i].complianceState),
+            AzureManagedJailBroken: CleanedString(managedDevices[i].jailBroken),
+            AzureManagedManagementAgent: CleanedString(managedDevices[i].managementAgent),
+            AzureManagedOperatingSystemVersion: CleanedString(managedDevices[i].osVersion),
+            AzureManagedEASDeviceID: CleanedString(managedDevices[i].easDeviceId),
+            AzureManagedDeviceEnrollmentType: CleanedString(managedDevices[i].deviceEnrollmentType),
+            AzureManagedActivationLockBypassCode: CleanedString(managedDevices[i].activationLockBypassCode),
+            AzureManagedEmailAddress: CleanedString(managedDevices[i].emailAddress),
+            AzureManagedAzureADDeviceID: CleanedString(managedDevices[i].azureADDeviceID),
+            AzureManagedDeviceRegistrationState: CleanedString(managedDevices[i].deviceRegistrationState),
+            AzureManagedDeviceCategoryDisplayName: CleanedString(managedDevices[i].deviceCategoryDisplayName),
+            AzureManagedExchangeAccessState: CleanedString(managedDevices[i].exchangeAccessState),
+            AzureManagedExchangeAccessStateReason: CleanedString(managedDevices[i].accessStateReason),
+            AzureManagedRemoteAssistanceSessionUrl: CleanedString(managedDevices[i].remoteAssistanceSessionUrl),
+            AzureManagedRemoteAssistanceErrorDetails: CleanedString(managedDevices[i].remoteAssistanceErrorDetails),
+            AzureManagedUserPrincipalName: CleanedString(managedDevices[i].userPrincipalName),
+            AzureManagedModel: CleanedString(managedDevices[i].model),
+            AzureManagedManufacturer: CleanedString(managedDevices[i].manufacturer),
+            AzureManagedIMEI: CleanedString(managedDevices[i].imei),
+            AzureManagedSerialNumber: CleanedString(managedDevices[i].serialNumber),
+            AzureManagedPhoneNumber: CleanedString(managedDevices[i].phoneNumber),
+            AzureManagedAndroidSecurityPatchLevel: CleanedString(managedDevices[i].securityPatchLevel),
+            AzureManagedUserDisplayName: CleanedString(managedDevices[i].userDisplayName),
+            AzureManagedConfigurationManagerClientEnabledFeatures: CleanedString(managedDevices[i].configurationManagerClientEnabledFeatures),
+            AzureManagedWiFiMACAddress: CleanedString(managedDevices[i].wifiMacAddress),
+            AzureManagedDeviceHealthAttestationState: CleanedString(managedDevices[i].deviceHealthAttestationState),
+            AzureManagedSubscriberCarrier: CleanedString(managedDevices[i].subscriberCarrier),
+            AzureManagedMEID: CleanedString(managedDevices[i].meid),
+            AzureManagedPartnerReportedThreatState: CleanedString(managedDevices[i].partnerReportedThreatState),
+            AzureManagedRequireUserEnrollmentApproval: CleanedString(managedDevices[i].requireUserEnrollmentApproval),
+            AzureManagedICCID: CleanedString(managedDevices[i].iccid),
+            AzureManagedUDID: CleanedString(managedDevices[i].udid),
+            AzureManagedNotes: CleanedString(managedDevices[i].notes),
+            AzureManagedEthernetMacAddress: CleanedString(managedDevices[i].ethernetMacAddress),
             // numbers
-            azureManagedPhysicalMemoryInBytes: Number(CleanedString(managedDevices[i].physicalMemoryInBytes)),
-            azureManagedTotalStorageSpaceInBytes: Number(CleanedString(managedDevices[i].totalStorageSpaceInBytes)),
-            azureManagedFreeStorageSpaceInBytes: Number(CleanedString(managedDevices[i].freeStorageSpaceInBytes)),
+            AzureManagedPhysicalMemoryInBytes: Number(CleanedString(managedDevices[i].physicalMemoryInBytes)),
+            AzureManagedTotalStorageSpaceInBytes: Number(CleanedString(managedDevices[i].totalStorageSpaceInBytes)),
+            AzureManagedFreeStorageSpaceInBytes: Number(CleanedString(managedDevices[i].freeStorageSpaceInBytes)),
             // dates
-            azureManagedEnrolledDateTime: CleanedDate(managedDevices[i].enrolledDateTime),
-            azureManagedLastSyncDateTime: CleanedDate(managedDevices[i].lastSyncDateTime),
-            azureManagedEASActivationDateTime: CleanedDate(managedDevices[i].easActivationDateTime),
-            azureManagedExchangeLastSuccessfulSyncDateTime: CleanedDate(managedDevices[i].exchangeLastSuccessfulSyncDateTime),
-            azureManagedComplianceGracePeriodExpirationDateTime: CleanedDate(managedDevices[i].complianceGracePeriodExpirationDateTime),
-            azureManagedManagementCertificateExpirationDateTime: CleanedDate(managedDevices[i].managementCertificateExpirationDateTime),
+            AzureManagedEnrolledDateTime: CleanedDate(managedDevices[i].enrolledDateTime),
+            AzureManagedLastSyncDateTime: CleanedDate(managedDevices[i].lastSyncDateTime),
+            AzureManagedEASActivationDateTime: CleanedDate(managedDevices[i].easActivationDateTime),
+            AzureManagedExchangeLastSuccessfulSyncDateTime: CleanedDate(managedDevices[i].exchangeLastSuccessfulSyncDateTime),
+            AzureManagedComplianceGracePeriodExpirationDateTime: CleanedDate(managedDevices[i].complianceGracePeriodExpirationDateTime),
+            AzureManagedManagementCertificateExpirationDateTime: CleanedDate(managedDevices[i].managementCertificateExpirationDateTime),
             // boolean
-            azureManagedIsEASActivated: managedDevices[i].easActivated ? managedDevices[i].easActivated : false,
-            azureManagedIsAzureADRegistered: managedDevices[i].azureADRegistered ? managedDevices[i].azureADRegistered : false,
-            azureManagedIsSupervised: managedDevices[i].isSupervised ? managedDevices[i].isSupervised : false,
-            azureManagedIsEncrypted: managedDevices[i].isEncrypted ? managedDevices[i].isEncrypted : false
+            AzureManagedIsEASActivated: managedDevices[i].easActivated ? managedDevices[i].easActivated : false,
+            AzureManagedIsAzureADRegistered: managedDevices[i].azureADRegistered ? managedDevices[i].azureADRegistered : false,
+            AzureManagedIsSupervised: managedDevices[i].isSupervised ? managedDevices[i].isSupervised : false,
+            AzureManagedIsEncrypted: managedDevices[i].isEncrypted ? managedDevices[i].isEncrypted : false
           }
 
           output.push(amd)
@@ -485,62 +485,62 @@ export class EmployeeService {
 }
 
 export class AzureManagedDevice {
-  public readonly observedByAzureMDM:boolean = true
-  public readonly deviceName: string=''
-  public readonly azureManagedId: string=''
+  public readonly ObservedByAzureMDM:boolean = true
+  public readonly DeviceName: string=''
+  public readonly AzureManagedId: string=''
   // strings
-  public readonly azureManagedDeviceName:string|undefined=undefined
-  public readonly azureManagedUserId:string|undefined=undefined
-  public readonly azureManagedDeviceOwnerType:string|undefined=undefined
-  public readonly azureManagedOperatingSystem:string|undefined=undefined
-  public readonly azureManagedComplianceState:string|undefined=undefined
-  public readonly azureManagedJailBroken:string|undefined=undefined
-  public readonly azureManagedManagementAgent:string|undefined=undefined
-  public readonly azureManagedOperatingSystemVersion:string|undefined=undefined
-  public readonly azureManagedEASDeviceID:string|undefined=undefined
-  public readonly azureManagedDeviceEnrollmentType:string|undefined=undefined
-  public readonly azureManagedActivationLockBypassCode:string|undefined=undefined
-  public readonly azureManagedEmailAddress:string|undefined=undefined
-  public readonly azureManagedAzureADDeviceID:string|undefined=undefined
-  public readonly azureManagedDeviceRegistrationState:string|undefined=undefined
-  public readonly azureManagedDeviceCategoryDisplayName:string|undefined=undefined
-  public readonly azureManagedExchangeAccessState:string|undefined=undefined
-  public readonly azureManagedExchangeAccessStateReason:string|undefined=undefined
-  public readonly azureManagedRemoteAssistanceSessionUrl:string|undefined=undefined
-  public readonly azureManagedRemoteAssistanceErrorDetails:string|undefined=undefined
-  public readonly azureManagedUserPrincipalName:string|undefined=undefined
-  public readonly azureManagedModel:string|undefined=undefined
-  public readonly azureManagedManufacturer:string|undefined=undefined
-  public readonly azureManagedIMEI:string|undefined=undefined
-  public readonly azureManagedSerialNumber:string|undefined=undefined
-  public readonly azureManagedPhoneNumber:string|undefined=undefined
-  public readonly azureManagedAndroidSecurityPatchLevel:string|undefined=undefined
-  public readonly azureManagedUserDisplayName:string|undefined=undefined
-  public readonly azureManagedConfigurationManagerClientEnabledFeatures:string|undefined=undefined
-  public readonly azureManagedWiFiMACAddress:string|undefined=undefined
-  public readonly azureManagedDeviceHealthAttestationState:string|undefined=undefined
-  public readonly azureManagedSubscriberCarrier:string|undefined=undefined
-  public readonly azureManagedMEID:string|undefined=undefined
-  public readonly azureManagedPartnerReportedThreatState:string|undefined=undefined
-  public readonly azureManagedRequireUserEnrollmentApproval:string|undefined=undefined
-  public readonly azureManagedICCID:string|undefined=undefined
-  public readonly azureManagedUDID:string|undefined=undefined
-  public readonly azureManagedNotes:string|undefined=undefined
-  public readonly azureManagedEthernetMacAddress:string|undefined=undefined
+  public readonly AzureManagedDeviceName:string|undefined=undefined
+  public readonly AzureManagedUserId:string|undefined=undefined
+  public readonly AzureManagedDeviceOwnerType:string|undefined=undefined
+  public readonly AzureManagedOperatingSystem:string|undefined=undefined
+  public readonly AzureManagedComplianceState:string|undefined=undefined
+  public readonly AzureManagedJailBroken:string|undefined=undefined
+  public readonly AzureManagedManagementAgent:string|undefined=undefined
+  public readonly AzureManagedOperatingSystemVersion:string|undefined=undefined
+  public readonly AzureManagedEASDeviceID:string|undefined=undefined
+  public readonly AzureManagedDeviceEnrollmentType:string|undefined=undefined
+  public readonly AzureManagedActivationLockBypassCode:string|undefined=undefined
+  public readonly AzureManagedEmailAddress:string|undefined=undefined
+  public readonly AzureManagedAzureADDeviceID:string|undefined=undefined
+  public readonly AzureManagedDeviceRegistrationState:string|undefined=undefined
+  public readonly AzureManagedDeviceCategoryDisplayName:string|undefined=undefined
+  public readonly AzureManagedExchangeAccessState:string|undefined=undefined
+  public readonly AzureManagedExchangeAccessStateReason:string|undefined=undefined
+  public readonly AzureManagedRemoteAssistanceSessionUrl:string|undefined=undefined
+  public readonly AzureManagedRemoteAssistanceErrorDetails:string|undefined=undefined
+  public readonly AzureManagedUserPrincipalName:string|undefined=undefined
+  public readonly AzureManagedModel:string|undefined=undefined
+  public readonly AzureManagedManufacturer:string|undefined=undefined
+  public readonly AzureManagedIMEI:string|undefined=undefined
+  public readonly AzureManagedSerialNumber:string|undefined=undefined
+  public readonly AzureManagedPhoneNumber:string|undefined=undefined
+  public readonly AzureManagedAndroidSecurityPatchLevel:string|undefined=undefined
+  public readonly AzureManagedUserDisplayName:string|undefined=undefined
+  public readonly AzureManagedConfigurationManagerClientEnabledFeatures:string|undefined=undefined
+  public readonly AzureManagedWiFiMACAddress:string|undefined=undefined
+  public readonly AzureManagedDeviceHealthAttestationState:string|undefined=undefined
+  public readonly AzureManagedSubscriberCarrier:string|undefined=undefined
+  public readonly AzureManagedMEID:string|undefined=undefined
+  public readonly AzureManagedPartnerReportedThreatState:string|undefined=undefined
+  public readonly AzureManagedRequireUserEnrollmentApproval:string|undefined=undefined
+  public readonly AzureManagedICCID:string|undefined=undefined
+  public readonly AzureManagedUDID:string|undefined=undefined
+  public readonly AzureManagedNotes:string|undefined=undefined
+  public readonly AzureManagedEthernetMacAddress:string|undefined=undefined
   // numbers
-  public readonly azureManagedPhysicalMemoryInBytes:number|undefined=0
-  public readonly azureManagedTotalStorageSpaceInBytes:number|undefined=undefined
-  public readonly azureManagedFreeStorageSpaceInBytes:number|undefined=undefined
+  public readonly AzureManagedPhysicalMemoryInBytes:number|undefined=0
+  public readonly AzureManagedTotalStorageSpaceInBytes:number|undefined=undefined
+  public readonly AzureManagedFreeStorageSpaceInBytes:number|undefined=undefined
   // dates
-  public readonly azureManagedEnrolledDateTime:Date|undefined=undefined;
-  public readonly azureManagedLastSyncDateTime:Date|undefined=undefined;
-  public readonly azureManagedEASActivationDateTime:Date|undefined=undefined;
-  public readonly azureManagedExchangeLastSuccessfulSyncDateTime:Date|undefined=undefined;
-  public readonly azureManagedComplianceGracePeriodExpirationDateTime:Date|undefined=undefined;
-  public readonly azureManagedManagementCertificateExpirationDateTime:Date|undefined=undefined;
+  public readonly AzureManagedEnrolledDateTime:Date|undefined=undefined;
+  public readonly AzureManagedLastSyncDateTime:Date|undefined=undefined;
+  public readonly AzureManagedEASActivationDateTime:Date|undefined=undefined;
+  public readonly AzureManagedExchangeLastSuccessfulSyncDateTime:Date|undefined=undefined;
+  public readonly AzureManagedComplianceGracePeriodExpirationDateTime:Date|undefined=undefined;
+  public readonly AzureManagedManagementCertificateExpirationDateTime:Date|undefined=undefined;
   // boolean
-  public readonly azureManagedIsEASActivated:boolean=false
-  public readonly azureManagedIsAzureADRegistered:boolean=false
-  public readonly azureManagedIsSupervised:boolean=false
-  public readonly azureManagedIsEncrypted:boolean=false
+  public readonly AzureManagedIsEASActivated:boolean=false
+  public readonly AzureManagedIsAzureADRegistered:boolean=false
+  public readonly AzureManagedIsSupervised:boolean=false
+  public readonly AzureManagedIsEncrypted:boolean=false
 }
