@@ -1,5 +1,5 @@
 import { LogEngine } from 'whiskey-log';
 
-const le = new LogEngine(["Collector"])
+const le = new LogEngine(["collect"])
 
 export default le
